@@ -1,0 +1,1434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Duckpeon Digital</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:    #0e0e0e;
+  --text:  #f2f2f2;
+  --muted: #888;
+  --dim:   #444;
+  --font:  'Outfit', sans-serif;
+  --mono:  'JetBrains Mono', monospace;
+
+  /* Service palette — each unique */
+  --s1: #1a7a4a;   /* content — forest green */
+  --s2: #5b4fcf;   /* design  — indigo */
+  --s3: #c93b2b;   /* web     — brick red */
+  --s4: #c8a800;   /* strategy— amber */
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.028;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 300;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px 48px;
+  background: rgba(14,14,14,0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.nav-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #6d28d9, #db2777, #f97316);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logo-mark svg { width: 18px; height: 18px; }
+
+.logo-name {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.nav-link {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.nav-link:hover { color: var(--text); }
+
+.nav-cta {
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--bg);
+  background: var(--text);
+  padding: 10px 20px;
+  border-radius: 4px;
+  text-decoration: none;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  transition: opacity 0.2s;
+}
+.nav-cta:hover { opacity: 0.82; }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  padding-top: 80px;
+  position: relative;
+  overflow: hidden;
+  background: var(--bg);
+}
+
+/* subtle W-pattern bg like wldd */
+.hero-pattern {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.04;
+  background-image: repeating-linear-gradient(
+    120deg,
+    transparent,
+    transparent 60px,
+    rgba(255,255,255,0.3) 60px,
+    rgba(255,255,255,0.3) 61px
+  );
+}
+
+.hero-main {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 60px 48px 40px;
+  gap: 32px;
+}
+
+.hero-eyebrow {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.hero-eyebrow::before {
+  content: '';
+  width: 28px;
+  height: 1px;
+  background: var(--muted);
+}
+
+.hero-headline {
+  font-size: clamp(56px, 9vw, 136px);
+  font-weight: 900;
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  color: var(--text);
+  max-width: 12ch;
+}
+
+/* intersection bars — exactly like wldd */
+.intersection-section {
+  position: relative;
+  z-index: 1;
+  padding: 0 0 0 48px;
+  margin-top: 24px;
+}
+
+.intersection-label {
+  font-size: 15px;
+  color: var(--muted);
+  margin-bottom: 20px;
+  font-weight: 400;
+}
+
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--bg);
+  padding: 14px 32px;
+  border-radius: 3px;
+  width: 0;
+  animation: barGrow 1s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.bar-1 { background: #f5c842; animation-delay: 0.2s; --target: 62%; }
+.bar-2 { background: #4f6ef7; animation-delay: 0.4s; --target: 78%; }
+.bar-3 { background: #e84040; animation-delay: 0.6s; --target: 92%; }
+
+@keyframes barGrow {
+  from { width: 0; opacity: 0; }
+  to   { width: var(--target); opacity: 1; }
+}
+
+/* floating shapes */
+.shape {
+  position: absolute;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.shape-star {
+  width: 48px;
+  height: 48px;
+  right: 18%;
+  top: 38%;
+  color: #f5c842;
+  animation: spinFloat 8s ease-in-out infinite;
+}
+
+.shape-blob {
+  width: 80px;
+  height: 80px;
+  right: 8%;
+  top: 22%;
+  background: #e84040;
+  border-radius: 50% 40% 60% 30%;
+  animation: blobFloat 6s ease-in-out infinite alternate;
+}
+
+.shape-circle {
+  width: 64px;
+  height: 64px;
+  left: 8%;
+  bottom: 30%;
+  background: #5b4fcf;
+  border-radius: 50%;
+  border: 3px solid #f5c842;
+  animation: blobFloat 7s ease-in-out 1s infinite alternate;
+}
+
+@keyframes spinFloat {
+  0%,100% { transform: rotate(0deg) translateY(0); }
+  50% { transform: rotate(20deg) translateY(-12px); }
+}
+@keyframes blobFloat {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-18px) scale(1.08); }
+}
+
+/* ─── TICKER ─── */
+.ticker {
+  overflow: hidden;
+  padding: 16px 0;
+  background: rgba(255,255,255,0.03);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.ticker-track {
+  display: flex;
+  width: max-content;
+  animation: ticker 28s linear infinite;
+}
+
+.ticker-track:hover { animation-play-state: paused; }
+
+@keyframes ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 0 36px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.ticker-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #f5c842;
+  flex-shrink: 0;
+}
+
+/* ─── STATEMENT ─── */
+.statement {
+  padding: 100px 48px;
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 64px;
+  align-items: start;
+}
+
+.stmt-index {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding-top: 10px;
+}
+
+.stmt-text {
+  font-size: clamp(24px, 3vw, 44px);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.18;
+  color: var(--text);
+  max-width: 26ch;
+}
+
+.stmt-text em {
+  font-style: normal;
+  color: var(--muted);
+}
+
+/* ─── SERVICES — full-bleed color sections ─── */
+.services-label {
+  padding: 40px 48px 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Each service = full-width colored panel */
+.svc {
+  width: 100%;
+  min-height: 420px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  padding: 80px 48px 80px 48px;
+  position: relative;
+  overflow: hidden;
+  gap: 64px;
+}
+
+.svc-1 { background: var(--s1); }
+.svc-2 { background: var(--s2); }
+.svc-3 { background: var(--s3); }
+.svc-4 { background: var(--s4); }
+
+.svc-info { position: relative; z-index: 1; }
+
+.svc-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,0.4);
+  font-family: var(--mono);
+  font-size: 11px;
+  color: rgba(255,255,255,0.7);
+  margin-bottom: 28px;
+}
+
+.svc-4 .svc-num { border-color: rgba(0,0,0,0.3); color: rgba(0,0,0,0.5); }
+
+.svc-name {
+  font-size: clamp(36px, 4.5vw, 72px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  color: #fff;
+  margin-bottom: 20px;
+}
+
+.svc-4 .svc-name { color: #0e0e0e; }
+
+.svc-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.65);
+  line-height: 1.7;
+  max-width: 44ch;
+  margin-bottom: 36px;
+}
+
+.svc-4 .svc-desc { color: rgba(0,0,0,0.5); }
+
+.svc-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255,255,255,0.9);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: gap 0.2s cubic-bezier(0.16,1,0.3,1);
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+}
+
+.svc-4 .svc-link { color: rgba(0,0,0,0.7); border-bottom-color: rgba(0,0,0,0.2); }
+.svc-link:hover { gap: 18px; }
+
+/* tilted card on right */
+.svc-card-wrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.svc-card {
+  width: min(380px, 90%);
+  aspect-ratio: 4/3;
+  border-radius: 12px;
+  overflow: hidden;
+  transform: rotate(-6deg);
+  box-shadow: 0 32px 80px rgba(0,0,0,0.4);
+  transition: transform 0.5s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+}
+
+.svc:hover .svc-card {
+  transform: rotate(-2deg) scale(1.03);
+}
+
+/* alternate: card left on odd */
+.svc:nth-child(even) .svc-info { order: 2; }
+.svc:nth-child(even) .svc-card-wrap { order: 1; }
+.svc:nth-child(even) .svc-card { transform: rotate(5deg); }
+.svc:nth-child(even):hover .svc-card { transform: rotate(2deg) scale(1.03); }
+
+.svc-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.75) saturate(0.8);
+}
+
+.svc-card-label {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 20px 24px 20px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.65));
+}
+
+.svc-card-title {
+  font-size: 18px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: #fff;
+}
+
+/* ─── WORK ─── */
+.work {
+  padding: 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.work-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 36px 48px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.work-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.work-all {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.2s;
+}
+.work-all:hover { color: var(--text); }
+
+/* featured work */
+.work-featured {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  min-height: 520px;
+}
+
+.work-feat-img {
+  overflow: hidden;
+  position: relative;
+}
+
+.work-feat-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.6) saturate(0.5);
+  transition: transform 0.8s cubic-bezier(0.16,1,0.3,1), filter 0.4s;
+  display: block;
+}
+
+.work-featured:hover .work-feat-img img {
+  transform: scale(1.05);
+  filter: brightness(0.75) saturate(0.7);
+}
+
+.work-feat-info {
+  padding: 64px 48px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-left: 1px solid rgba(255,255,255,0.06);
+  background: #111;
+}
+
+.work-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.work-name {
+  font-size: clamp(32px, 3.5vw, 56px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 0.95;
+  color: var(--text);
+  margin-bottom: 20px;
+}
+
+.work-body {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 44ch;
+  flex: 1;
+  margin-bottom: 40px;
+}
+
+.work-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #f5c842;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(245,200,66,0.3);
+  padding-bottom: 4px;
+  transition: gap 0.2s cubic-bezier(0.16,1,0.3,1);
+  align-self: flex-start;
+}
+.work-cta:hover { gap: 18px; }
+
+/* grid row */
+.work-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.work-cell {
+  position: relative;
+  overflow: hidden;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+
+.work-cell:last-child { border-right: none; }
+
+.work-cell img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  filter: brightness(0.55) saturate(0.4);
+  display: block;
+  transition: transform 0.7s cubic-bezier(0.16,1,0.3,1), filter 0.4s;
+}
+
+.work-cell:hover img {
+  transform: scale(1.05);
+  filter: brightness(0.75) saturate(0.65);
+}
+
+.work-cell-meta {
+  padding: 20px 28px;
+  background: #111;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.work-cell-name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.work-cell-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ─── STATS ─── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid rgba(255,255,255,0.06);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.stat {
+  padding: 64px 48px;
+  border-right: 1px solid rgba(255,255,255,0.06);
+}
+.stat:last-child { border-right: none; }
+
+.stat-num {
+  font-size: clamp(40px, 4.5vw, 72px);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.stat-num sup {
+  font-size: 40%;
+  color: #f5c842;
+  vertical-align: super;
+}
+
+.stat-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+/* ─── ABOUT ─── */
+.about {
+  padding: 120px 48px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 80px;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.about-img-wrap { position: relative; }
+
+.about-img {
+  width: 100%;
+  aspect-ratio: 3/4;
+  object-fit: cover;
+  filter: saturate(0.35) brightness(0.7);
+  border-radius: 6px;
+  display: block;
+}
+
+.about-badge {
+  position: absolute;
+  bottom: -24px;
+  right: -24px;
+  background: #f5c842;
+  color: #0e0e0e;
+  border-radius: 8px;
+  padding: 20px 24px;
+}
+
+.about-badge-big {
+  font-size: 32px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.about-badge-small {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-top: 4px;
+  opacity: 0.6;
+}
+
+.about-content {}
+
+.about-hl {
+  font-size: clamp(32px, 3.5vw, 52px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.about-hl em { font-style: normal; color: var(--muted); }
+
+.about-p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.8;
+  margin-bottom: 16px;
+  max-width: 50ch;
+}
+
+.about-list {
+  margin-top: 40px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.about-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 18px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.about-row-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.about-row-name {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  flex: 1;
+}
+
+.about-row-pill {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #0e0e0e;
+  background: #f5c842;
+  padding: 4px 10px;
+  border-radius: 20px;
+}
+
+/* ─── CONTACT ─── */
+.contact {
+  background: var(--bg);
+}
+
+.contact-hero {
+  padding: 120px 48px 80px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  position: relative;
+  overflow: hidden;
+}
+
+/* big red block like wldd */
+.contact-block {
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px;
+  height: 80px;
+  background: #e84040;
+}
+
+.contact-hl {
+  font-size: clamp(52px, 8vw, 120px);
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 0.9;
+  color: var(--text);
+  max-width: 14ch;
+  margin-bottom: 56px;
+}
+
+.contact-hl em { font-style: normal; color: #f5c842; }
+
+.contact-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.contact-col {
+  padding: 40px 48px 40px 0;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  padding-right: 48px;
+}
+
+.contact-col:last-child { border-right: none; padding-left: 48px; padding-right: 0; }
+.contact-col:nth-child(2) { padding-left: 48px; }
+
+.contact-col-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.contact-col-val {
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+  text-decoration: none;
+  display: block;
+  transition: color 0.2s;
+}
+.contact-col-val:hover { color: #f5c842; }
+
+/* form */
+.contact-form-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.contact-form-left {
+  padding: 64px 48px;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  background: #111;
+}
+
+.cfl-title {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 16px;
+}
+
+.cfl-body {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 42ch;
+}
+
+.contact-form-right {
+  padding: 64px 48px;
+  background: #0e0e0e;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.fg {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+input, textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 12px 0;
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  resize: none;
+}
+
+input:focus, textarea:focus {
+  border-color: #f5c842;
+}
+
+input::placeholder, textarea::placeholder {
+  color: rgba(255,255,255,0.15);
+}
+
+textarea { min-height: 100px; }
+
+.form-btn {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 800;
+  color: #0e0e0e;
+  background: #f5c842;
+  border: none;
+  padding: 14px 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  align-self: flex-start;
+  letter-spacing: -0.01em;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.form-btn:hover { opacity: 0.85; }
+.form-btn:active { transform: scale(0.97) translateY(1px); }
+
+/* ─── FOOTER ─── */
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 48px;
+  border-top: 1px solid rgba(255,255,255,0.06);
+}
+
+.footer-logo {
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.footer-copy {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.06em;
+}
+
+.footer-links {
+  display: flex;
+  gap: 28px;
+  list-style: none;
+}
+
+.footer-links a {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+.footer-links a:hover { color: var(--muted); }
+
+/* ─── REVEAL ─── */
+.r {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.8s cubic-bezier(0.16,1,0.3,1), transform 0.8s cubic-bezier(0.16,1,0.3,1);
+}
+.r.on { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: 0.1s; }
+.d2 { transition-delay: 0.2s; }
+.d3 { transition-delay: 0.3s; }
+
+/* ─── MOBILE ─── */
+@media (max-width: 768px) {
+  nav { padding: 18px 20px; }
+  .nav-link { display: none; }
+
+  .hero-main { padding: 48px 20px 24px; }
+  .intersection-section { padding: 0 20px; }
+  .bar { padding: 12px 20px; }
+
+  .statement { padding: 80px 20px; grid-template-columns: 1fr; gap: 16px; }
+  .services-label { padding: 28px 20px 0; }
+
+  .svc { grid-template-columns: 1fr; padding: 56px 20px; gap: 40px; min-height: auto; }
+  .svc:nth-child(even) .svc-info { order: 1; }
+  .svc:nth-child(even) .svc-card-wrap { order: 2; }
+  .svc-card { transform: rotate(-3deg) !important; }
+
+  .work-header { padding: 24px 20px; }
+  .work-featured { grid-template-columns: 1fr; }
+  .work-feat-info { border-left: none; border-top: 1px solid rgba(255,255,255,0.06); padding: 40px 20px; }
+  .work-row { grid-template-columns: 1fr; }
+  .work-cell { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .work-cell-meta { padding: 16px 20px; }
+
+  .stats { grid-template-columns: 1fr 1fr; }
+  .stat { padding: 40px 20px; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+
+  .about { grid-template-columns: 1fr; padding: 80px 20px; gap: 48px; }
+  .about-badge { bottom: 16px; right: 0; }
+
+  .contact-hero { padding: 80px 20px 48px; }
+  .contact-block { width: 80px; height: 56px; }
+  .contact-cols { grid-template-columns: 1fr; }
+  .contact-col { padding: 28px 20px !important; border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .contact-form-section { grid-template-columns: 1fr; }
+  .contact-form-left { border-right: none; border-bottom: 1px solid rgba(255,255,255,0.06); padding: 40px 20px; }
+  .contact-form-right { padding: 40px 20px; }
+
+  footer { flex-direction: column; gap: 16px; text-align: center; padding: 28px 20px; }
+  .footer-links { justify-content: center; flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">
+    <div class="logo-mark">
+      <svg viewBox="0 0 24 24" fill="white">
+        <path d="M12 3c-2.5 0-5 1.5-6 4s-.5 5 1 7c.5.8 1 1.5 1 2.5V18h8v-1.5c0-1 .5-1.7 1-2.5 1.5-2 2-4.5 1-7S14.5 3 12 3z"/>
+        <circle cx="15" cy="8.5" r="2" fill="rgba(255,255,255,0.35)"/>
+      </svg>
+    </div>
+    <span class="logo-name">Duckpeon</span>
+  </a>
+  <div class="nav-right">
+    <a href="#services" class="nav-link">Services</a>
+    <a href="#work" class="nav-link">Work</a>
+    <a href="#about" class="nav-link">About</a>
+    <a href="#contact" class="nav-cta">Get in touch</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-pattern"></div>
+
+  <!-- floating shapes -->
+  <div class="shape shape-star">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+  </div>
+  <div class="shape shape-blob"></div>
+  <div class="shape shape-circle"></div>
+
+  <div class="hero-main">
+    <div class="hero-eyebrow">Bangladesh's first creator-led agency</div>
+    <h1 class="hero-headline r">Content that hits.</h1>
+  </div>
+
+  <div class="intersection-section r d1">
+    <p class="intersection-label">We operate at the intersection of:</p>
+    <div class="bars">
+      <div class="bar bar-1">communities</div>
+      <div class="bar bar-2">creators</div>
+      <div class="bar bar-3">content distribution</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item">Short-Form Content<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Brand Identity<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Web Development<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Digital Strategy<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Event Campaigns<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Motion & Video<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Creator Network<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Social Growth<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Short-Form Content<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Brand Identity<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Web Development<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Digital Strategy<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Event Campaigns<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Motion & Video<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Creator Network<span class="ticker-dot"></span></span>
+    <span class="ticker-item">Social Growth<span class="ticker-dot"></span></span>
+  </div>
+</div>
+
+<!-- STATEMENT -->
+<div class="statement">
+  <div class="stmt-index">Mission</div>
+  <p class="stmt-text r">
+    We build brands that behave like creators — <em>not like corporations.</em> Every brief is a chance to capture attention, not just buy it.
+  </p>
+</div>
+
+<!-- SERVICES -->
+<div class="services-label">
+  <span>What we do</span>
+  <span>04 services</span>
+</div>
+
+<!-- SERVICE 1 — Green -->
+<div class="svc svc-1" id="services">
+  <div class="svc-info r">
+    <div class="svc-num">1</div>
+    <div class="svc-name">Short-Form<br>Content</div>
+    <p class="svc-desc">Reels, Shorts, TikToks engineered for retention. We combine storytelling instinct with platform-specific production to make content that stops the scroll and builds real audience.</p>
+    <a href="#contact" class="svc-link">Commission content
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="svc-card-wrap r d1">
+    <div class="svc-card">
+      <img src="https://picsum.photos/seed/content-creator-shooting/700/530" alt="Short-form content production">
+      <div class="svc-card-label"><div class="svc-card-title">Creator-first<br>production</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICE 2 — Indigo -->
+<div class="svc svc-2">
+  <div class="svc-info r">
+    <div class="svc-num">2</div>
+    <div class="svc-name">Brand<br>Design</div>
+    <p class="svc-desc">Visual identities, campaign graphics, motion assets. From concert key visuals to full brand systems — crafted to land with impact across every format.</p>
+    <a href="#contact" class="svc-link">Start a brand
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="svc-card-wrap r d1">
+    <div class="svc-card">
+      <img src="https://picsum.photos/seed/brand-design-studio/700/530" alt="Brand design work">
+      <div class="svc-card-label"><div class="svc-card-title">Identity &amp;<br>campaign design</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICE 3 — Red -->
+<div class="svc svc-3">
+  <div class="svc-info r">
+    <div class="svc-num">3</div>
+    <div class="svc-name">Web<br>Development</div>
+    <p class="svc-desc">Fast, beautiful, conversion-optimized digital platforms. Landing pages, brand hubs, portfolios — built clean, built to perform, built to last.</p>
+    <a href="#contact" class="svc-link">Build with us
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="svc-card-wrap r d1">
+    <div class="svc-card">
+      <img src="https://picsum.photos/seed/web-dev-interface/700/530" alt="Web development">
+      <div class="svc-card-label"><div class="svc-card-title">Digital platforms<br>&amp; experiences</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- SERVICE 4 — Amber -->
+<div class="svc svc-4">
+  <div class="svc-info r">
+    <div class="svc-num">4</div>
+    <div class="svc-name">Digital<br>Strategy</div>
+    <p class="svc-desc">Campaign architecture, growth planning, performance analytics. We don't guess — we map real audience behavior and build systems around it.</p>
+    <a href="#contact" class="svc-link">Plan a campaign
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="svc-card-wrap r d1">
+    <div class="svc-card">
+      <img src="https://picsum.photos/seed/strategy-analytics/700/530" alt="Digital strategy">
+      <div class="svc-card-label" style="background: linear-gradient(transparent, rgba(0,0,0,0.5))"><div class="svc-card-title" style="color:#fff">Growth &amp;<br>analytics</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- WORK -->
+<section class="work" id="work">
+  <div class="work-header">
+    <span class="work-title">Selected work</span>
+    <a href="#contact" class="work-all">
+      All projects
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+    </a>
+  </div>
+
+  <div class="work-featured r">
+    <div class="work-feat-img">
+      <img src="https://picsum.photos/seed/rock-concert-stage/1000/750" alt="Rock is Back campaign">
+    </div>
+    <div class="work-feat-info">
+      <div>
+        <div class="work-tag">Event series — 2024</div>
+        <div class="work-name">Rock is Back</div>
+        <p class="work-body">Full campaign production for Bangladesh's biggest rock revival — spanning Warfaze, Nemesis, Blue Jeans, Mechanix, and more. Key visuals, motion content, social rollout, live coverage.</p>
+      </div>
+      <a href="#contact" class="work-cta">
+        View case
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="work-row r d1">
+    <div class="work-cell">
+      <img src="https://picsum.photos/seed/force-platinum-event/800/450" alt="Force Platinum Nights">
+      <div class="work-cell-meta">
+        <span class="work-cell-name">Force — Platinum Nights</span>
+        <span class="work-cell-tag">Brand Campaign</span>
+      </div>
+    </div>
+    <div class="work-cell">
+      <img src="https://picsum.photos/seed/old-marketing-video/800/450" alt="Old Marketing content">
+      <div class="work-cell-meta">
+        <span class="work-cell-name">The Old Playbook Is Dead</span>
+        <span class="work-cell-tag">Short-Form</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="work-row r d2">
+    <div class="work-cell">
+      <img src="https://picsum.photos/seed/prisoners-loki-concert/800/450" alt="Prisoners at concert">
+      <div class="work-cell-meta">
+        <span class="work-cell-name">Prisoners At — Loki Edition</span>
+        <span class="work-cell-tag">Event Identity</span>
+      </div>
+    </div>
+    <div class="work-cell">
+      <img src="https://picsum.photos/seed/duckpeon-creators-team/800/450" alt="Team story">
+      <div class="work-cell-meta">
+        <span class="work-cell-name">Duckpeon Team Story</span>
+        <span class="work-cell-tag">Agency Content</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat r">
+    <div class="stat-num">87<sup>+</sup></div>
+    <div class="stat-label">Campaigns<br>completed</div>
+  </div>
+  <div class="stat r d1">
+    <div class="stat-num">3K<sup>+</sup></div>
+    <div class="stat-label">Social<br>followers</div>
+  </div>
+  <div class="stat r d2">
+    <div class="stat-num">4<sup>yr</sup></div>
+    <div class="stat-label">In the<br>market</div>
+  </div>
+  <div class="stat r d3">
+    <div class="stat-num">23<sup>+</sup></div>
+    <div class="stat-label">Brands<br>served</div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-img-wrap r">
+    <img class="about-img" src="https://picsum.photos/seed/duckpeon-studio-office/600/800" alt="Duckpeon team">
+    <div class="about-badge">
+      <div class="about-badge-big">BD/01</div>
+      <div class="about-badge-small">First creator agency</div>
+    </div>
+  </div>
+  <div class="about-content r d2">
+    <h2 class="about-hl">Creator-led.<br><em>Results-driven.</em></h2>
+    <p class="about-p">Duckpeon was built by people who make content — not by suits who manage it. We understand platforms from the inside because we live on them.</p>
+    <p class="about-p">From concert campaigns for Bangladesh's biggest rock acts to digital platforms for emerging brands, we bring the same creative intensity to every brief.</p>
+    <div class="about-list">
+      <div class="about-row">
+        <span class="about-row-num">01</span>
+        <span class="about-row-name">Creator-First Thinking</span>
+        <span class="about-row-pill">Core</span>
+      </div>
+      <div class="about-row">
+        <span class="about-row-num">02</span>
+        <span class="about-row-name">Platform-Native Production</span>
+        <span class="about-row-pill">Core</span>
+      </div>
+      <div class="about-row">
+        <span class="about-row-num">03</span>
+        <span class="about-row-name">End-to-End Execution</span>
+        <span class="about-row-pill">Core</span>
+      </div>
+      <div class="about-row">
+        <span class="about-row-num">04</span>
+        <span class="about-row-name">Growth-Oriented Metrics</span>
+        <span class="about-row-pill">Core</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-hero">
+    <div class="contact-block"></div>
+    <h2 class="contact-hl r">Let's build<br>something<br><em>real.</em></h2>
+    <div class="contact-cols">
+      <div class="contact-col r">
+        <div class="contact-col-label">Instagram</div>
+        <a href="https://instagram.com/duckpeon" class="contact-col-val" target="_blank" rel="noopener">@duckpeon</a>
+      </div>
+      <div class="contact-col r d1">
+        <div class="contact-col-label">Email</div>
+        <a href="mailto:hello@duckpeon.com" class="contact-col-val">hello@duckpeon.com</a>
+      </div>
+      <div class="contact-col r d2">
+        <div class="contact-col-label">Location</div>
+        <span class="contact-col-val">Dhaka, Bangladesh</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-form-section">
+    <div class="contact-form-left">
+      <div class="cfl-title">Start a conversation.</div>
+      <p class="cfl-body">Tell us what you're working on — campaign, rebrand, or something you haven't named yet. We'll figure it out together. No long forms, no agency jargon.</p>
+    </div>
+    <div class="contact-form-right">
+      <form onsubmit="handleSubmit(event)">
+        <div class="fg">
+          <label for="name">Your name</label>
+          <input type="text" id="name" placeholder="Rafsan Chowdhury" required>
+        </div>
+        <div class="fg">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="rafsan@yourbrand.com" required>
+        </div>
+        <div class="fg">
+          <label for="msg">What are you building?</label>
+          <textarea id="msg" placeholder="Scope, timeline, goals..."></textarea>
+        </div>
+        <button type="submit" class="form-btn">Send message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a href="#" class="footer-logo">Duckpeon Digital</a>
+  <span class="footer-copy">2025 — Dhaka, Bangladesh</span>
+  <ul class="footer-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</footer>
+
+<script>
+  // reveal
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.07, rootMargin: '0px 0px -24px 0px' });
+  document.querySelectorAll('.r').forEach(el => obs.observe(el));
+
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.hero .r').forEach(el => el.classList.add('on'));
+  });
+
+  // form
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.form-btn');
+    btn.textContent = 'Sent.';
+    btn.style.background = '#222';
+    btn.style.color = '#666';
+    btn.disabled = true;
+  }
+
+  // service hover: dim siblings
+  document.querySelectorAll('.svc').forEach(svc => {
+    svc.addEventListener('mouseenter', () => {
+      document.querySelectorAll('.svc').forEach(s => {
+        if (s !== svc) s.style.filter = 'brightness(0.85)';
+      });
+    });
+    svc.addEventListener('mouseleave', () => {
+      document.querySelectorAll('.svc').forEach(s => s.style.filter = '');
+    });
+  });
+</script>
+</body>
+</html>

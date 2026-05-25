@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Duckpeon Digital — Creator-Led Agency, Dhaka</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:     #0c0c0c;
+  --bg2:    #131313;
+  --text:   #efefef;
+  --muted:  #787878;
+  --dim:    #3a3a3a;
+  --border: rgba(255,255,255,0.06);
+  --font:   'Outfit', sans-serif;
+  --mono:   'JetBrains Mono', monospace;
+
+  /* one-per-service, desaturated enough to feel premium */
+  --c1: #16603a;  /* deep green  — content  */
+  --c2: #3d2fa0;  /* deep indigo — design   */
+  --c3: #a82820;  /* deep red    — web      */
+  --c4: #8a6a00;  /* deep amber  — strategy */
+
+  --y: #f0c93a;   /* yellow accent used sparingly */
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+/* grain */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  opacity: 0.032;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.88' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 200px 200px;
+}
+
+/* ── hex bg pattern (SVG inline as data-uri bg) ── */
+.hex-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 1;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='104' viewBox='0 0 120 104'%3E%3Cpolygon points='60,2 112,28 112,76 60,102 8,76 8,28' fill='none' stroke='rgba(255,255,255,0.055)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 120px 104px;
+  background-position: center;
+}
+
+/* ─── NAV ─── */
+nav {
+  position: fixed;
+  inset: 0 0 auto 0;
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 52px;
+  background: rgba(12,12,12,0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-decoration: none;
+}
+
+.nav-duck {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: conic-gradient(from 200deg, #7c3aed, #db2777, #f97316, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.nav-duck svg { width: 19px; height: 19px; }
+
+.nav-wordmark {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.nav-links a {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: color 0.18s;
+}
+.nav-links a:hover { color: var(--text); }
+
+.nav-pill {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  color: #0c0c0c !important;
+  background: var(--text) !important;
+  padding: 9px 18px;
+  border-radius: 100px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  transition: opacity 0.18s !important;
+}
+.nav-pill:hover { opacity: 0.78 !important; }
+
+/* ─── HERO ─── */
+.hero {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+  padding-top: 78px;
+}
+
+.hero .hex-bg { opacity: 1; }
+
+/* large duck watermark */
+.hero-watermark {
+  position: absolute;
+  right: -6vw;
+  bottom: -4vw;
+  width: 52vw;
+  z-index: 0;
+  opacity: 0.04;
+  pointer-events: none;
+  user-select: none;
+}
+
+.hero-watermark svg {
+  width: 100%;
+  height: auto;
+}
+
+/* floating shapes */
+.float { position: absolute; pointer-events: none; z-index: 1; }
+
+.f-star {
+  top: 28%;
+  right: 22%;
+  width: 44px;
+  color: var(--y);
+  animation: fstar 9s ease-in-out infinite;
+}
+
+.f-pill {
+  top: 18%;
+  right: 9%;
+  width: 72px;
+  height: 36px;
+  background: #e84040;
+  border-radius: 100px;
+  animation: fpill 7s ease-in-out 0.5s infinite alternate;
+}
+
+.f-ring {
+  bottom: 26%;
+  left: 7%;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  border: 3px solid var(--y);
+  background: transparent;
+  animation: fpill 6s ease-in-out 1s infinite alternate;
+}
+
+.f-dot {
+  top: 42%;
+  left: 14%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #4f6ef7;
+  animation: fpill 5s ease-in-out 2s infinite alternate;
+}
+
+@keyframes fstar {
+  0%,100% { transform: rotate(-8deg) translateY(0); }
+  50%      { transform: rotate(12deg) translateY(-14px); }
+}
+@keyframes fpill {
+  from { transform: translateY(0) scale(1); }
+  to   { transform: translateY(-20px) scale(1.07); }
+}
+
+/* hero content */
+.hero-top {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 40px 52px 48px;
+  position: relative;
+  z-index: 2;
+}
+
+.hero-kicker {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+}
+
+.hero-kicker::before {
+  content: '';
+  width: 32px;
+  height: 1px;
+  background: var(--muted);
+}
+
+.hero-hl {
+  font-size: clamp(60px, 10vw, 148px);
+  font-weight: 900;
+  line-height: 0.87;
+  letter-spacing: -0.055em;
+  color: var(--text);
+}
+
+.hero-hl .line2 {
+  display: block;
+  padding-left: 12vw;  /* offset — asymmetric */
+  color: var(--text);
+}
+
+.hero-hl .line3 {
+  display: block;
+  color: var(--y);
+}
+
+/* intersection area */
+.hero-bottom {
+  position: relative;
+  z-index: 2;
+  padding: 0 52px 64px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 40px;
+  align-items: end;
+}
+
+.hero-desc {
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.75;
+  max-width: 44ch;
+}
+
+.hero-bars { display: flex; flex-direction: column; gap: 10px; }
+
+.hbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: #0c0c0c;
+  padding: 13px 28px;
+  border-radius: 4px;
+  width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  animation: hbarIn 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
+}
+
+.hbar-1 { background: #f0c93a; animation-delay: 0.3s; --w: 68%; }
+.hbar-2 { background: #4f6ef7; animation-delay: 0.55s; --w: 83%; color: #fff; }
+.hbar-3 { background: #e84040; animation-delay: 0.8s;  --w: 100%; color: #fff; }
+
+@keyframes hbarIn {
+  from { width: 0; opacity: 0; }
+  to   { width: var(--w); opacity: 1; }
+}
+
+/* ─── TICKER ─── */
+.ticker {
+  overflow: hidden;
+  padding: 15px 0;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 3;
+}
+
+.ticker-inner {
+  display: flex;
+  width: max-content;
+  animation: tick 32s linear infinite;
+}
+.ticker-inner:hover { animation-play-state: paused; }
+
+@keyframes tick {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ti {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 0 40px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--dim);
+  white-space: nowrap;
+}
+
+.ti-sep {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--y);
+  flex-shrink: 0;
+}
+
+/* ─── STATEMENT ─── */
+.statement {
+  padding: 100px 52px;
+  position: relative;
+  border-bottom: 1px solid var(--border);
+  display: grid;
+  grid-template-columns: 1fr 520px;
+  gap: 80px;
+  align-items: center;
+}
+
+.stmt-hl {
+  font-size: clamp(32px, 4vw, 60px);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.08;
+  color: var(--text);
+}
+
+.stmt-hl mark {
+  background: none;
+  color: var(--muted);
+}
+
+.stmt-right {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.stmt-fact {
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--bg2);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.stmt-fact-num {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  color: var(--text);
+  flex-shrink: 0;
+}
+
+.stmt-fact-num span { color: var(--y); }
+
+.stmt-fact-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  line-height: 1.6;
+}
+
+/* ─── SERVICES ─── */
+.svc-label {
+  padding: 36px 52px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.svc-label-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* full-bleed colored panel per service */
+.svc {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 480px;
+  position: relative;
+  overflow: hidden;
+}
+
+/* color per service */
+.svc-1 { background: var(--c1); }
+.svc-2 { background: var(--c2); }
+.svc-3 { background: var(--c3); }
+.svc-4 { background: var(--c4); }
+
+/* subtle hex pattern ON the colored panels */
+.svc::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.18;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='70' viewBox='0 0 80 70'%3E%3Cpolygon points='40,2 74,18 74,52 40,68 6,52 6,18' fill='none' stroke='rgba(255,255,255,0.25)' stroke-width='1'/%3E%3C/svg%3E");
+  background-size: 80px 70px;
+}
+
+.svc-body {
+  padding: 72px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  position: relative;
+  z-index: 1;
+}
+
+.svc-head {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 36px;
+}
+
+.svc-num-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* amber is light-bg — use dark text */
+.svc-4 .svc-num-badge { color: rgba(0,0,0,0.4); border-color: rgba(0,0,0,0.2); }
+
+.svc-name {
+  font-size: clamp(38px, 5vw, 80px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.92;
+  color: #fff;
+}
+
+.svc-4 .svc-name { color: #0c0c0c; }
+
+.svc-desc {
+  font-size: 14px;
+  color: rgba(255,255,255,0.55);
+  line-height: 1.75;
+  max-width: 42ch;
+  margin-top: 24px;
+}
+
+.svc-4 .svc-desc { color: rgba(0,0,0,0.45); }
+
+.svc-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.85);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  padding-bottom: 4px;
+  margin-top: 40px;
+  align-self: flex-start;
+  transition: gap 0.22s cubic-bezier(0.16,1,0.3,1);
+}
+.svc-4 .svc-cta { color: rgba(0,0,0,0.6); border-bottom-color: rgba(0,0,0,0.2); }
+.svc-cta:hover { gap: 20px; }
+
+/* image panel — card tilted */
+.svc-img-panel {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px;
+}
+
+.svc-card {
+  width: min(400px, 88%);
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 40px 100px rgba(0,0,0,0.45);
+  transform: rotate(-7deg);
+  transition: transform 0.55s cubic-bezier(0.16,1,0.3,1);
+  position: relative;
+}
+
+.svc:hover .svc-card { transform: rotate(-2deg) scale(1.02); }
+
+/* alternate: swap sides on even */
+.svc:nth-child(even) .svc-body { order: 2; }
+.svc:nth-child(even) .svc-img-panel { order: 1; }
+.svc:nth-child(even) .svc-card { transform: rotate(7deg); }
+.svc:nth-child(even):hover .svc-card { transform: rotate(2deg) scale(1.02); }
+
+.svc-card img {
+  width: 100%;
+  aspect-ratio: 4/3;
+  object-fit: cover;
+  filter: brightness(0.65) saturate(0.6);
+  display: block;
+}
+
+.svc-card-caption {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 20px 22px;
+  background: linear-gradient(transparent, rgba(0,0,0,0.72));
+}
+
+.svc-card-caption span {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: #fff;
+}
+
+/* ─── WORK ─── */
+.work { border-top: 1px solid var(--border); }
+
+.work-hd {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 36px 52px;
+  border-bottom: 1px solid var(--border);
+}
+
+.work-hd-text {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.work-hd-link {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--muted);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: color 0.18s;
+}
+.work-hd-link:hover { color: var(--text); }
+
+/* featured: massive left image + right info */
+.work-hero {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  border-bottom: 1px solid var(--border);
+  min-height: 540px;
+}
+
+.work-hero-img {
+  overflow: hidden;
+  position: relative;
+}
+
+.work-hero-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.55) saturate(0.4);
+  display: block;
+  transition: transform 0.85s cubic-bezier(0.16,1,0.3,1), filter 0.4s;
+}
+
+.work-hero:hover .work-hero-img img {
+  transform: scale(1.04);
+  filter: brightness(0.72) saturate(0.6);
+}
+
+.work-hero-info {
+  padding: 64px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-left: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.work-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.work-title {
+  font-size: clamp(36px, 4vw, 60px);
+  font-weight: 900;
+  letter-spacing: -0.045em;
+  line-height: 0.93;
+  color: var(--text);
+  margin-top: 16px;
+  margin-bottom: 20px;
+}
+
+.work-body {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.78;
+  max-width: 44ch;
+  flex: 1;
+  margin-bottom: 48px;
+}
+
+.work-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--y);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(240,201,58,0.3);
+  padding-bottom: 4px;
+  align-self: flex-start;
+  transition: gap 0.22s cubic-bezier(0.16,1,0.3,1);
+}
+.work-cta:hover { gap: 18px; }
+
+/* grid: 2-col, full-bleed images */
+.work-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+
+.wc {
+  overflow: hidden;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+.wc:last-child { border-right: none; }
+
+.wc img {
+  width: 100%;
+  aspect-ratio: 16/9;
+  object-fit: cover;
+  filter: brightness(0.5) saturate(0.35);
+  display: block;
+  transition: transform 0.7s cubic-bezier(0.16,1,0.3,1), filter 0.38s;
+}
+
+.wc:hover img {
+  transform: scale(1.05);
+  filter: brightness(0.72) saturate(0.62);
+}
+
+.wc-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 28px;
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+}
+
+.wc-name {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.wc-tag {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--dim);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* second grid row — 3 col */
+.work-grid3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  border-bottom: 1px solid var(--border);
+}
+
+.work-grid3 .wc { border-right: 1px solid var(--border); }
+.work-grid3 .wc:last-child { border-right: none; }
+
+/* ─── STATS ─── */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-bottom: 1px solid var(--border);
+}
+
+.stat {
+  padding: 60px 52px;
+  border-right: 1px solid var(--border);
+  position: relative;
+}
+.stat:last-child { border-right: none; }
+
+/* accent top bar per stat */
+.stat::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 48px;
+  height: 3px;
+}
+.stat:nth-child(1)::before { background: #f0c93a; }
+.stat:nth-child(2)::before { background: #4f6ef7; }
+.stat:nth-child(3)::before { background: #e84040; }
+.stat:nth-child(4)::before { background: #22c55e; }
+
+.stat-n {
+  font-size: clamp(44px, 5vw, 80px);
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 1;
+  color: var(--text);
+  margin-bottom: 10px;
+}
+
+.stat-n sup {
+  font-size: 38%;
+  color: var(--y);
+  vertical-align: super;
+  letter-spacing: 0;
+}
+
+.stat-l {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  line-height: 1.65;
+}
+
+/* ─── ABOUT ─── */
+.about {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 600px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.about .hex-bg { opacity: 0.6; }
+
+.about-img-col {
+  position: relative;
+  overflow: hidden;
+}
+
+.about-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.55) saturate(0.3);
+  display: block;
+}
+
+.about-img-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 60%, var(--bg) 100%);
+}
+
+.about-badge {
+  position: absolute;
+  top: 40px;
+  right: 40px;
+  background: var(--y);
+  color: #0c0c0c;
+  border-radius: 8px;
+  padding: 18px 22px;
+  z-index: 2;
+}
+.about-badge-big { font-size: 30px; font-weight: 900; letter-spacing: -0.04em; line-height: 1; }
+.about-badge-sm  { font-family: var(--mono); font-size: 9px; text-transform: uppercase; letter-spacing: 0.1em; margin-top: 4px; opacity: 0.55; }
+
+.about-content {
+  padding: 80px 52px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.about-hl {
+  font-size: clamp(32px, 3.5vw, 52px);
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+  color: var(--text);
+  margin-bottom: 24px;
+}
+
+.about-hl em { font-style: normal; color: var(--muted); }
+
+.about-p {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.82;
+  max-width: 48ch;
+  margin-bottom: 14px;
+}
+
+.about-list {
+  margin-top: 40px;
+  border-top: 1px solid var(--border);
+}
+
+.al-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.al-num { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.1em; width: 22px; flex-shrink: 0; }
+.al-name { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--text); flex: 1; }
+
+.al-pill {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #0c0c0c;
+  background: var(--y);
+  padding: 4px 10px;
+  border-radius: 100px;
+}
+
+/* ─── CONTACT ─── */
+.contact { position: relative; }
+
+.contact-top {
+  padding: 120px 52px 72px;
+  position: relative;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+}
+
+.contact-top .hex-bg { opacity: 0.5; }
+
+/* decorative corner block */
+.deco-block {
+  position: absolute;
+  top: 0; right: 0;
+  width: 180px;
+  height: 72px;
+  background: #e84040;
+  z-index: 1;
+}
+
+.contact-hl {
+  font-size: clamp(56px, 8.5vw, 130px);
+  font-weight: 900;
+  letter-spacing: -0.055em;
+  line-height: 0.88;
+  color: var(--text);
+  position: relative;
+  z-index: 2;
+  max-width: 16ch;
+  margin-bottom: 64px;
+}
+
+.contact-hl em { font-style: normal; color: var(--y); }
+
+.contact-info {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border-top: 1px solid var(--border);
+  position: relative;
+  z-index: 2;
+}
+
+.ci {
+  padding: 36px 0 36px;
+  border-right: 1px solid var(--border);
+  padding-right: 40px;
+}
+.ci:nth-child(2) { padding-left: 40px; }
+.ci:last-child   { border-right: none; padding-left: 40px; padding-right: 0; }
+
+.ci-l { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
+.ci-v { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); text-decoration: none; display: block; transition: color 0.18s; }
+.ci-v:hover { color: var(--y); }
+
+/* form section */
+.contact-form-wrap {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--border);
+}
+
+.cf-left {
+  padding: 64px 52px;
+  border-right: 1px solid var(--border);
+  background: var(--bg2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.cf-title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+.cf-body {
+  font-size: 14px;
+  color: var(--muted);
+  line-height: 1.8;
+  max-width: 44ch;
+}
+
+.cf-right {
+  padding: 64px 52px;
+}
+
+form { display: flex; flex-direction: column; gap: 28px; }
+.fg { display: flex; flex-direction: column; gap: 8px; }
+
+label {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+input, textarea {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 12px 0;
+  font-family: var(--font);
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  resize: none;
+}
+input:focus, textarea:focus { border-color: var(--y); }
+input::placeholder, textarea::placeholder { color: rgba(255,255,255,0.13); }
+textarea { min-height: 96px; }
+
+.f-btn {
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 800;
+  color: #0c0c0c;
+  background: var(--y);
+  border: none;
+  padding: 14px 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  align-self: flex-start;
+  letter-spacing: -0.01em;
+  transition: opacity 0.18s, transform 0.14s;
+}
+.f-btn:hover { opacity: 0.84; }
+.f-btn:active { transform: scale(0.97) translateY(1px); }
+
+/* ─── FOOTER ─── */
+footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 52px;
+  border-top: 1px solid var(--border);
+}
+
+.f-brand { font-size: 13px; font-weight: 800; letter-spacing: -0.03em; color: var(--muted); text-decoration: none; }
+
+.f-copy { font-family: var(--mono); font-size: 10px; color: var(--dim); letter-spacing: 0.06em; }
+
+.f-nav { display: flex; gap: 28px; list-style: none; }
+.f-nav a { font-family: var(--mono); font-size: 10px; color: var(--dim); text-decoration: none; letter-spacing: 0.08em; text-transform: uppercase; transition: color 0.18s; }
+.f-nav a:hover { color: var(--muted); }
+
+/* ─── REVEAL ─── */
+.r {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.85s cubic-bezier(0.16,1,0.3,1), transform 0.85s cubic-bezier(0.16,1,0.3,1);
+}
+.r.on { opacity: 1; transform: translateY(0); }
+.d1 { transition-delay: 0.1s; }
+.d2 { transition-delay: 0.22s; }
+.d3 { transition-delay: 0.34s; }
+
+/* ─── MOBILE ─── */
+@media (max-width: 768px) {
+  nav { padding: 16px 20px; }
+  .nav-links a:not(.nav-pill) { display: none; }
+
+  .hero-top { padding: 32px 20px 28px; }
+  .hero-bottom { padding: 0 20px 48px; grid-template-columns: 1fr; gap: 28px; }
+  .hbar { padding: 11px 18px; font-size: 11px; }
+
+  .statement { padding: 72px 20px; grid-template-columns: 1fr; gap: 40px; }
+
+  .svc-label { padding: 28px 20px; }
+
+  .svc { grid-template-columns: 1fr; min-height: auto; }
+  .svc:nth-child(even) .svc-body { order: 1; }
+  .svc:nth-child(even) .svc-img-panel { order: 2; }
+  .svc-body { padding: 52px 20px; }
+  .svc-img-panel { padding: 0 20px 52px; }
+  .svc-card { transform: rotate(-3deg) !important; }
+
+  .work-hd { padding: 24px 20px; }
+  .work-hero { grid-template-columns: 1fr; min-height: auto; }
+  .work-hero-info { padding: 40px 20px; border-left: none; border-top: 1px solid var(--border); }
+  .work-grid { grid-template-columns: 1fr; }
+  .wc { border-right: none; border-bottom: 1px solid var(--border); }
+  .work-grid3 { grid-template-columns: 1fr; }
+  .work-grid3 .wc { border-right: none; border-bottom: 1px solid var(--border); }
+
+  .stats { grid-template-columns: 1fr 1fr; }
+  .stat { padding: 40px 20px; border-right: none; border-bottom: 1px solid var(--border); }
+
+  .about { grid-template-columns: 1fr; }
+  .about-img-col { min-height: 300px; }
+  .about-content { padding: 56px 20px; }
+
+  .contact-top { padding: 80px 20px 48px; }
+  .deco-block { width: 80px; height: 52px; }
+  .contact-info { grid-template-columns: 1fr; }
+  .ci { border-right: none; border-bottom: 1px solid var(--border); padding: 28px 0 !important; }
+  .ci:last-child { border-bottom: none; }
+  .contact-form-wrap { grid-template-columns: 1fr; }
+  .cf-left { border-right: none; border-bottom: 1px solid var(--border); padding: 40px 20px; }
+  .cf-right { padding: 40px 20px; }
+
+  footer { flex-direction: column; gap: 16px; text-align: center; padding: 24px 20px; }
+  .f-nav { justify-content: center; flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-brand">
+    <div class="nav-duck">
+      <svg viewBox="0 0 24 24" fill="white">
+        <path d="M12 3c-2.5 0-5 1.5-6 4s-.5 5 1 7c.5.8 1 1.5 1 2.5V18h8v-1.5c0-1 .5-1.7 1-2.5 1.5-2 2-4.5 1-7S14.5 3 12 3z"/>
+        <circle cx="15" cy="8.5" r="2.2" fill="rgba(255,255,255,0.3)"/>
+      </svg>
+    </div>
+    <span class="nav-wordmark">Duckpeon</span>
+  </a>
+  <div class="nav-links">
+    <a href="#services">Services</a>
+    <a href="#work">Work</a>
+    <a href="#about">About</a>
+    <a href="#contact" class="nav-pill">Get in touch</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hex-bg"></div>
+
+  <!-- watermark duck shape -->
+  <div class="hero-watermark">
+    <svg viewBox="0 0 400 400" fill="white" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="200" cy="230" rx="160" ry="130"/>
+      <ellipse cx="200" cy="120" rx="90" ry="80"/>
+      <ellipse cx="260" cy="100" rx="50" ry="38"/>
+      <path d="M310 90 Q370 80 360 120 Q340 130 300 115 Z" />
+    </svg>
+  </div>
+
+  <!-- floating shapes -->
+  <div class="float f-star">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>
+  </div>
+  <div class="float f-pill"></div>
+  <div class="float f-ring"></div>
+  <div class="float f-dot"></div>
+
+  <div class="hero-top">
+    <div class="hero-kicker">Bangladesh's first creator-led agency</div>
+    <h1 class="hero-hl r">
+      We make<br>
+      <span class="line2">brands that</span>
+      <span class="line3">move.</span>
+    </h1>
+  </div>
+
+  <div class="hero-bottom r d1">
+    <p class="hero-desc">
+      Short-form content, brand design, and digital platforms — built by creators, for brands that want to be remembered.
+    </p>
+    <div class="hero-bars">
+      <div class="hbar hbar-1">communities</div>
+      <div class="hbar hbar-2">creators</div>
+      <div class="hbar hbar-3">content distribution</div>
+    </div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ti">Short-Form Content<span class="ti-sep"></span></span>
+    <span class="ti">Brand Identity<span class="ti-sep"></span></span>
+    <span class="ti">Web Development<span class="ti-sep"></span></span>
+    <span class="ti">Digital Strategy<span class="ti-sep"></span></span>
+    <span class="ti">Event Campaigns<span class="ti-sep"></span></span>
+    <span class="ti">Motion & Video<span class="ti-sep"></span></span>
+    <span class="ti">Creator Network<span class="ti-sep"></span></span>
+    <span class="ti">Social Growth<span class="ti-sep"></span></span>
+    <span class="ti">Short-Form Content<span class="ti-sep"></span></span>
+    <span class="ti">Brand Identity<span class="ti-sep"></span></span>
+    <span class="ti">Web Development<span class="ti-sep"></span></span>
+    <span class="ti">Digital Strategy<span class="ti-sep"></span></span>
+    <span class="ti">Event Campaigns<span class="ti-sep"></span></span>
+    <span class="ti">Motion & Video<span class="ti-sep"></span></span>
+    <span class="ti">Creator Network<span class="ti-sep"></span></span>
+    <span class="ti">Social Growth<span class="ti-sep"></span></span>
+  </div>
+</div>
+
+<!-- STATEMENT -->
+<section class="statement" id="about-preview">
+  <h2 class="stmt-hl r">
+    We build brands<br>
+    that behave like<br>
+    creators —<br>
+    <mark>not like corporations.</mark>
+  </h2>
+  <div class="stmt-right">
+    <div class="stmt-fact r d1">
+      <div class="stmt-fact-num">87<span>+</span></div>
+      <div class="stmt-fact-label">Campaigns delivered<br>across 23 brands</div>
+    </div>
+    <div class="stmt-fact r d2">
+      <div class="stmt-fact-num">3K<span>+</span></div>
+      <div class="stmt-fact-label">Social audience<br>and growing fast</div>
+    </div>
+    <div class="stmt-fact r d3">
+      <div class="stmt-fact-num">BD<span>/01</span></div>
+      <div class="stmt-fact-label">First creator-led<br>agency in Bangladesh</div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICES -->
+<div class="svc-label" id="services">
+  <span class="svc-label-text">What we do</span>
+  <span class="svc-label-text">04 capabilities</span>
+</div>
+
+<div class="svc svc-1">
+  <div class="svc-body r">
+    <div>
+      <div class="svc-head">
+        <div class="svc-num-badge">1</div>
+      </div>
+      <div class="svc-name">Short-Form<br>Content</div>
+      <p class="svc-desc">Reels, Shorts, TikToks engineered for retention. Storytelling instinct meets platform-specific production — we make content that stops the scroll and builds real audiences.</p>
+    </div>
+    <a href="#contact" class="svc-cta">Commission content
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="svc-img-panel r d1">
+    <div class="svc-card">
+      <img src="https://picsum.photos/seed/creator-filming-shoot/700/525" alt="Content production">
+      <div class="svc-card-caption"><span>Creator-first production</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="svc svc-2">
+  <div class="svc-body r">
+    <div>
+      <div class="svc-head">
+        <div class="svc-num-badge">2</div>
+      </div>
+      <div class="svc-name">Brand<br>Design</div>
+      <p class="svc-desc">Visual identities, campaign graphics, motion assets. From concert key visuals to full brand systems — built to land with impact across every format and platform.</p>
+    </div>
+    <a href="#contact" class="svc-cta">Start a brand
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="svc-img-panel r d1">
+    <div class="svc-card">
+      <img src="https://picsum.photos/seed/brand-visual-identity/700/525" alt="Brand design">
+      <div class="svc-card-caption"><span>Identity & campaign systems</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="svc svc-3">
+  <div class="svc-body r">
+    <div>
+      <div class="svc-head">
+        <div class="svc-num-badge">3</div>
+      </div>
+      <div class="svc-name">Web<br>Development</div>
+      <p class="svc-desc">Fast, beautiful, conversion-optimized digital platforms. Landing pages, brand hubs, portfolios — built clean, built to perform, built to last beyond the trend cycle.</p>
+    </div>
+    <a href="#contact" class="svc-cta">Build with us
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="svc-img-panel r d1">
+    <div class="svc-card">
+      <img src="https://picsum.photos/seed/web-interface-design/700/525" alt="Web development">
+      <div class="svc-card-caption"><span>Digital platforms & experiences</span></div>
+    </div>
+  </div>
+</div>
+
+<div class="svc svc-4">
+  <div class="svc-body r">
+    <div>
+      <div class="svc-head">
+        <div class="svc-num-badge">4</div>
+      </div>
+      <div class="svc-name">Digital<br>Strategy</div>
+      <p class="svc-desc">Campaign architecture, growth planning, performance analytics. We map real audience behavior and build systems around it — not assumptions.</p>
+    </div>
+    <a href="#contact" class="svc-cta">Plan a campaign
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+    </a>
+  </div>
+  <div class="svc-img-panel r d1">
+    <div class="svc-card">
+      <img src="https://picsum.photos/seed/analytics-growth-chart/700/525" alt="Strategy">
+      <div class="svc-card-caption" style="background:linear-gradient(transparent,rgba(0,0,0,0.55))"><span>Growth & analytics</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- WORK -->
+<section class="work" id="work">
+  <div class="work-hd">
+    <span class="work-hd-text">Selected work</span>
+    <a href="#contact" class="work-hd-link">
+      All projects
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M17 7H7M17 7v10"/></svg>
+    </a>
+  </div>
+
+  <div class="work-hero r">
+    <div class="work-hero-img">
+      <img src="https://picsum.photos/seed/bangladesh-rock-concert-stage/1100/800" alt="Rock is Back">
+    </div>
+    <div class="work-hero-info">
+      <div>
+        <div class="work-tag">Event series — 2024</div>
+        <div class="work-title">Rock<br>is Back</div>
+        <p class="work-body">Full campaign production for Bangladesh's biggest rock revival — Warfaze, Nemesis, Blue Jeans, Mechanix, Avoid Rafa, and more. Key visuals, motion content, social rollout, and live coverage across the entire series.</p>
+      </div>
+      <a href="#contact" class="work-cta">
+        View case study
+        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+    </div>
+  </div>
+
+  <div class="work-grid r d1">
+    <div class="wc">
+      <img src="https://picsum.photos/seed/force-platinum-nights-event/800/450" alt="Force Platinum Nights">
+      <div class="wc-meta">
+        <span class="wc-name">Force — Platinum Nights</span>
+        <span class="wc-tag">Brand Campaign</span>
+      </div>
+    </div>
+    <div class="wc">
+      <img src="https://picsum.photos/seed/old-marketing-video-content/800/450" alt="Old Marketing content">
+      <div class="wc-meta">
+        <span class="wc-name">The Old Playbook Is Dead</span>
+        <span class="wc-tag">Short-Form</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="work-grid3 r d2">
+    <div class="wc">
+      <img src="https://picsum.photos/seed/loki-prisoners-concert/700/400" alt="Prisoners">
+      <div class="wc-meta">
+        <span class="wc-name">Prisoners At — Loki</span>
+        <span class="wc-tag">Event Identity</span>
+      </div>
+    </div>
+    <div class="wc">
+      <img src="https://picsum.photos/seed/mechanix-band-rock/700/400" alt="Mechanix">
+      <div class="wc-meta">
+        <span class="wc-name">Rock is Back — Mechanix</span>
+        <span class="wc-tag">Artist Campaign</span>
+      </div>
+    </div>
+    <div class="wc">
+      <img src="https://picsum.photos/seed/duckpeon-creator-team/700/400" alt="Team">
+      <div class="wc-meta">
+        <span class="wc-name">Duckpeon Team Story</span>
+        <span class="wc-tag">Agency Content</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<div class="stats">
+  <div class="stat r">
+    <div class="stat-n">87<sup>+</sup></div>
+    <div class="stat-l">Campaigns<br>completed</div>
+  </div>
+  <div class="stat r d1">
+    <div class="stat-n">3K<sup>+</sup></div>
+    <div class="stat-l">Social<br>followers</div>
+  </div>
+  <div class="stat r d2">
+    <div class="stat-n">4<sup>yr</sup></div>
+    <div class="stat-l">In the<br>market</div>
+  </div>
+  <div class="stat r d3">
+    <div class="stat-n">23<sup>+</sup></div>
+    <div class="stat-l">Brands<br>served</div>
+  </div>
+</div>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="hex-bg"></div>
+  <div class="about-img-col r">
+    <img class="about-img" src="https://picsum.photos/seed/duckpeon-office-dhaka/700/900" alt="Duckpeon team">
+    <div class="about-img-overlay"></div>
+    <div class="about-badge">
+      <div class="about-badge-big">BD/01</div>
+      <div class="about-badge-sm">First creator agency</div>
+    </div>
+  </div>
+  <div class="about-content r d2">
+    <h2 class="about-hl">Creator-led.<br><em>Results-driven.</em></h2>
+    <p class="about-p">Duckpeon was built by people who make content — not by suits who manage it. We understand platforms from the inside because we live on them every day.</p>
+    <p class="about-p">From concert campaigns for Bangladesh's biggest rock acts to digital platforms for emerging brands, we bring the same creative intensity to every brief. No templates. No generic decks.</p>
+    <div class="about-list">
+      <div class="al-row">
+        <span class="al-num">01</span>
+        <span class="al-name">Creator-First Thinking</span>
+        <span class="al-pill">Core</span>
+      </div>
+      <div class="al-row">
+        <span class="al-num">02</span>
+        <span class="al-name">Platform-Native Production</span>
+        <span class="al-pill">Core</span>
+      </div>
+      <div class="al-row">
+        <span class="al-num">03</span>
+        <span class="al-name">End-to-End Execution</span>
+        <span class="al-pill">Core</span>
+      </div>
+      <div class="al-row">
+        <span class="al-num">04</span>
+        <span class="al-name">Growth-Oriented Metrics</span>
+        <span class="al-pill">Core</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="contact">
+  <div class="contact-top">
+    <div class="hex-bg"></div>
+    <div class="deco-block"></div>
+    <h2 class="contact-hl r">
+      Let's make<br>
+      something<br>
+      <em>worth watching.</em>
+    </h2>
+    <div class="contact-info">
+      <div class="ci r">
+        <div class="ci-l">Instagram</div>
+        <a href="https://instagram.com/duckpeon" class="ci-v" target="_blank" rel="noopener">@duckpeon</a>
+      </div>
+      <div class="ci r d1">
+        <div class="ci-l">Email</div>
+        <a href="mailto:hello@duckpeon.com" class="ci-v">hello@duckpeon.com</a>
+      </div>
+      <div class="ci r d2">
+        <div class="ci-l">Location</div>
+        <span class="ci-v">Dhaka, Bangladesh</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="contact-form-wrap">
+    <div class="cf-left r">
+      <div class="cf-title">Start a conversation.</div>
+      <p class="cf-body">Tell us what you're working on — campaign, rebrand, or something you haven't named yet. No long intake forms. No agency jargon. Just a real conversation.</p>
+    </div>
+    <div class="cf-right r d1">
+      <form onsubmit="handleSubmit(event)">
+        <div class="fg">
+          <label for="name">Your name</label>
+          <input type="text" id="name" placeholder="Rafsan Chowdhury" required>
+        </div>
+        <div class="fg">
+          <label for="email">Email</label>
+          <input type="email" id="email" placeholder="rafsan@yourbrand.com" required>
+        </div>
+        <div class="fg">
+          <label for="msg">What are you building?</label>
+          <textarea id="msg" placeholder="Scope, timeline, goals..."></textarea>
+        </div>
+        <button type="submit" class="f-btn">Send message</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a href="#" class="f-brand">Duckpeon Digital</a>
+  <span class="f-copy">2025 — Dhaka, Bangladesh</span>
+  <ul class="f-nav">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#work">Work</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</footer>
+
+<script>
+  // reveal on scroll
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) { e.target.classList.add('on'); obs.unobserve(e.target); }
+    });
+  }, { threshold: 0.06, rootMargin: '0px 0px -20px 0px' });
+  document.querySelectorAll('.r').forEach(el => obs.observe(el));
+
+  window.addEventListener('load', () => {
+    document.querySelectorAll('.hero .r').forEach(el => el.classList.add('on'));
+  });
+
+  // form
+  function handleSubmit(e) {
+    e.preventDefault();
+    const btn = e.target.querySelector('.f-btn');
+    btn.textContent = 'Sent.';
+    btn.style.cssText = 'background:#1a1a1a;color:#555;cursor:default;';
+    btn.disabled = true;
+  }
+
+  // service dim siblings on hover
+  const svcs = document.querySelectorAll('.svc');
+  svcs.forEach(s => {
+    s.addEventListener('mouseenter', () => {
+      svcs.forEach(x => { if (x !== s) x.style.filter = 'brightness(0.8)'; });
+    });
+    s.addEventListener('mouseleave', () => {
+      svcs.forEach(x => x.style.filter = '');
+    });
+  });
+
+  // work cell spotlight
+  document.querySelectorAll('.wc').forEach(c => {
+    c.addEventListener('mouseenter', () => {
+      document.querySelectorAll('.wc').forEach(x => { if (x !== c) x.style.opacity = '0.45'; });
+    });
+    c.addEventListener('mouseleave', () => {
+      document.querySelectorAll('.wc').forEach(x => x.style.opacity = '');
+    });
+  });
+</script>
+</body>
+</html>

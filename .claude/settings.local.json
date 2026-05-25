@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh api *)",
+      "Bash(python -c \"import sys,json,base64; d=json.load\\(sys.stdin\\); print\\(base64.b64decode\\(d['content']\\).decode\\(\\)\\)\")",
+      "Skill(design-taste-frontend)",
+      "WebFetch(domain:www.wldd.in)",
+      "WebFetch(domain:www.basicagency.com)",
+      "WebFetch(domain:activetheory.net)",
+      "WebFetch(domain:wearecollins.com)",
+      "WebFetch(domain:www.youtube.com)",
+      "WebSearch"
+    ]
+  }
+}
