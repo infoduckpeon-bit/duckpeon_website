@@ -2464,29 +2464,6 @@ body.menu-open .nl-face-light { opacity: 1; }
   color: var(--text-3);
 }
 
-/* ─── SERVICES — entry light plane ───
-   Steep lit edge rising from the bottom-right corner during the
-   transition (AT's tilted "borderline" is a lit plane of the incoming
-   scene, not a section border). Fades out once pinned. */
-#svc-entryplane {
-  position: absolute;
-  right: -30%;
-  bottom: -28%;
-  width: 165%;
-  height: 65%;
-  pointer-events: none;
-  z-index: 3;
-  transform: rotate(-16deg) translateY(calc((1 - var(--entry, 1)) * 14%));
-  transform-origin: 100% 100%;
-  opacity: min(0.9, calc((1 - var(--entry, 1)) * 1.5));
-  background: linear-gradient(180deg,
-    rgba(157,92,246,0.42) 0%,
-    rgba(124,58,237,0.16) 16%,
-    rgba(124,58,237,0.05) 40%,
-    rgba(124,58,237,0) 68%);
-  will-change: transform, opacity;
-}
-
 /* HUD, hint, headline and progress fade with the entry */
 .svc-hud, .svc-hint, .svc-header-overlay, .svc-progress {
   opacity: calc(var(--entry, 1));
@@ -2496,6 +2473,12 @@ body.menu-open .nl-face-light { opacity: 1; }
    over the intro's tail while it's still on screen — the AT overlap moment.
    (overflow stays visible; the card paints above the intro by DOM order) */
 .intro { will-change: transform, opacity; }
+/* while dissolving, the intro's bottom edge fades out softly — otherwise
+   the half-transparent slab draws a hard horizontal line over the reveal */
+.intro.dissolving {
+  -webkit-mask-image: linear-gradient(180deg, #000 62%, transparent 96%);
+  mask-image: linear-gradient(180deg, #000 62%, transparent 96%);
+}
 
 /* The section boundary IS a gradient: the card show's background starts
    as the intro's exact color and deepens into blue-violet water below —
@@ -2944,7 +2927,6 @@ body.menu-open .nl-face-light { opacity: 1; }
         </rect>
       </g>
     </svg>
-      <div id="svc-entryplane" aria-hidden="true"></div>
       <div class="svc-scene" id="svc-scene"><!-- cards injected by JS --></div>
 
       <!-- Floating header overlay — top-left like Active Theory -->
@@ -3976,26 +3958,61 @@ if (ncta) {
   let lastRendered = 0;
   let flow = 0;
 
-  /* ── surfacing entry ──
-     0 → section approaching (cards submerged below viewport)
-     1 → section pinned (ring fully assembled)
-     Mirrored on exit so cards dive back when scrolling away. */
-  let entryE = 1;
-  let entryLift = 0; /* px the section top sits below the viewport top */
-  /* smoothed copies — cards follow these, so stepped wheel-scroll jumps
-     are absorbed into a glide instead of being amplified */
-  let entryES = 1, entryLiftS = 0;
-  const introEl = document.querySelector('.intro');
-  function computeEntry() {
-    if (!svcSection) return 1;
-    const r  = svcSection.getBoundingClientRect();
-    const vh = window.innerHeight;
-    entryLift = Math.max(0, r.top);
-    const tIn  = Math.max(0, Math.min(1, 1 - (r.top - vh * 0.08) / (vh * 0.80)));
-    const tOut = Math.max(0, Math.min(1, (r.bottom - vh * 0.20) / (vh * 0.70)));
-    const p = Math.min(tIn, tOut);
-    return 1 - Math.pow(1 - p, 3); /* easeOutCubic */
-  }
+  /* ── UNIFIED MASTER TIMELINE ──
+     scrollOffset/targetOffset live in [-1, N-1].
+       -1 .. 0  → entry: page position AND card rise are both functions of
+                  the master, driven by the same velocity integrator
+        0 .. N-1 → the ten cards (carousel)
+     One velocity, one friction, one snap — entry and spiral are literally
+     the same motion, like Active Theory's single virtual-scroll scene. */
+  let entryES = 1;     /* eased entry progress 0..1 — derived from master */
+  let entryLin = 1;    /* LINEAR entry progress — choreography windows key off this */
+  let entryLiftS = 0;  /* px-equivalent of remaining entry — derived */
+  let lastWheelT = 0;  /* last hijacked wheel event (drives page-follow) */
+  const introEl  = document.querySelector('.intro');
+  const waterEl  = document.getElementById('svc-water-canvas');
+
+  /* smoothstep — the choreography primitive */
+  const sstep = (a, b, x) => {
+    x = Math.min(1, Math.max(0, (x - a) / (b - a)));
+    return x * x * (3 - 2 * x);
+  };
+
+  /* split the intro headline into letters once — the dissolve breaks the
+     text apart per-letter (AT-style transformation, not a crossfade) */
+  const disLetters = [];
+  let disDirty = false;
+  (function splitIntroHeadline() {
+    const h = document.querySelector('.intro-headline');
+    if (!h || h.dataset.split) return;
+    h.dataset.split = '1';
+    (function walk(node) {
+      Array.from(node.childNodes).forEach(ch => {
+        if (ch.nodeType === 3) {
+          const frag = document.createDocumentFragment();
+          /* group letters inside word wrappers so lines can only break
+             BETWEEN words, never mid-word */
+          ch.textContent.split(/(\s+)/).forEach(part => {
+            if (!part) return;
+            if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+            const word = document.createElement('span');
+            word.style.display = 'inline-block';
+            word.style.whiteSpace = 'nowrap';
+            part.split('').forEach(c => {
+              const sp = document.createElement('span');
+              sp.className = 'dis-letter';
+              sp.style.display = 'inline-block';
+              sp.textContent = c;
+              word.appendChild(sp);
+              disLetters.push(sp);
+            });
+            frag.appendChild(word);
+          });
+          node.replaceChild(frag, ch);
+        } else if (ch.nodeType === 1 && ch.tagName !== 'BR') walk(ch);
+      });
+    })(h);
+  })();
 
   /* ─── scene measurement ───
      Cards are absolutely positioned inside .svc-scene, so they live in
@@ -4063,10 +4080,16 @@ if (ncta) {
 
     tiltX += (tiltTargetX - tiltX) * 0.08;
     tiltY += (tiltTargetY - tiltY) * 0.08;
-    const snap = Math.round(scrollOffset);
+    const snap = Math.round(Math.max(0, scrollOffset));
 
-    const rawFlow = scrollOffset - lastRendered;
-    lastRendered  = scrollOffset;
+    /* spiral pre-roll, LINEAR in the master: ring advances at slope 0.8
+       through the whole entry and slope 1 after — the derivative barely
+       changes at the handoff, so the structure never reads as stopping
+       and restarting. (Easing here was the settle-then-start bug.) */
+    const eff = scrollOffset < 0 ? scrollOffset * 0.35 : scrollOffset;
+
+    const rawFlow = eff - lastRendered;
+    lastRendered  = eff;
     flow += (rawFlow - flow) * 0.12;
     const bend = Math.max(-6, Math.min(6, -flow * 110));
 
@@ -4074,9 +4097,11 @@ if (ncta) {
       /* wrap ring distance to nearest slot in [-N/2, N/2) so BOTH sides of
          the orbit stay populated at every index — at card 01 the tail cards
          appear on the past side, closing the ring like Active Theory's */
-      let t = i - scrollOffset;
+      const rawT = i - eff;
+      let t = rawT;
       t = ((t % N) + N) % N;
       if (t > N / 2) t -= N;
+      const wrapped = Math.abs(rawT - t) > 0.5; /* slot reached via ring wrap */
       const phase = t * SPIRAL_RATE;
 
       const sinP = Math.sin(phase);
@@ -4116,10 +4141,17 @@ if (ncta) {
       else if (a <= 2) op = 0.80 - 0.40 * (a - 1);   /* 0.80 → 0.40 */
       else             op = Math.max(0.20, 0.40 - 0.10 * (a - 2)); /* 0.40 → 0.20 — hued backs stay present */
 
-      /* surfacing entry: lead card rises on its own slow ramp; the RING
-         fades in much faster — structure is standing before the lead card
-         is halfway up (AT order: stage first, hero enters through it) */
-      const ce = Math.max(0, Math.min(1, entryES * (1.3 + Math.min(1, a) * 1.0) - a * 0.06));
+      /* no ghost card BEFORE the current one — wrapped (tail) slots only
+         fade in once the ring has actually been scrolled forward */
+      if (wrapped) op *= Math.max(0, Math.min(1, scrollOffset * 1.2));
+
+      /* choreography windows (linear master):
+           lead card opacity — early, rides its own rise
+           ring (siblings)  — 0.55 → 1.0, after the hero has swept past */
+      const mixA0 = Math.max(0, Math.min(1, (a - 0.85) * 2));
+      const ceLead = Math.max(0, Math.min(1, entryES * 1.3 - a * 0.06));
+      const ceRing = sstep(0.55 + Math.min(a, 4) * 0.02, 1.0, entryLin);
+      const ce = ceLead * (1 - mixA0) + ceRing * mixA0;
       op *= Math.pow(ce, 0.6); /* ghosts through the water haze early */
 
       const tx = CX + screenX;
@@ -4139,11 +4171,22 @@ if (ncta) {
          — ring cards just fade in at position with a small settle. Only the
          LEAD card travels: it rises from below the viewport on the power
          curve, overtaking the seam and floating over the intro's tail. */
-      const mixA = Math.min(1, a);
-      const ex = Math.min(1, entryLiftS / Math.max(1, sceneH));
-      const entryRise  = ((sceneH * 1.08 - CY) * Math.pow(ex, 1.8) - entryLiftS) * (1 - mixA);
-      const ringSettle = (1 - ce) * 70 * mixA;
+      /* lead detection by ring distance — during entry the lead card sits
+         up to ~0.8 down the helix (pre-roll), so the rise window extends
+         past a=0.85 before blending into ring behaviour */
+      const mixA = mixA0;
+      /* DECOUPLED curves (the AT feel): position arrives by 0.8, pitch
+         releases 0.5→0.95, roll releases 0.45→0.9 — rotation resolves
+         LAST, so the diagonal edge survives most of the travel. */
+      const riseP = sstep(0, 0.8, entryLin);
+      const entryRise  = (sceneH * 1.05 - CY + 60) * Math.pow(1 - riseP, 1.7) * (1 - mixA);
+      const ringSettle = (1 - ce) * 25 * mixA;
       const ty = CY + screenY + entryRise + ringSettle;
+      const tiltHold = (1 - sstep(0.50, 0.95, entryLin)) * (1 - mixA);
+      const rollHold = (1 - sstep(0.45, 0.90, entryLin)) * (1 - mixA);
+      /* depth arc: lead card approaches from BEHIND (scale grows the whole
+         travel) — 3D approach, not a 2D slide */
+      const entScale = 1 - (1 - sstep(0, 0.85, entryLin)) * 0.45 * (1 - mixA);
 
       /* perspective() must precede rotateY() so the rotation gets
          foreshortened. translate3d at the end positions the projected card.
@@ -4160,11 +4203,11 @@ if (ncta) {
       el.style.transform =
         `translate3d(${tx}px, ${ty}px, 0) ` +
         `perspective(${FOCAL}px) ` +
-        `rotateX(${exX + w * REST_X + (1 - ce) * 10}deg) ` +
+        `rotateX(${exX + w * REST_X + (1 - ce) * 8 + tiltHold * 38}deg) ` +
         `rotateY(${rotY + exY + w * REST_Y}deg) ` +
-        `rotate(${rotZ + w * REST_Z}deg) ` +
+        `rotate(${rotZ + w * REST_Z + rollHold * 13}deg) ` +
         `skewY(${bend}deg) ` +
-        `scale(${perspScale})`;
+        `scale(${perspScale * entScale})`;
       el.style.opacity   = op;
       el.style.zIndex    = Math.round(FOCAL / (FOCAL + depthRaw) * 1000); /* unclamped depth keeps stacking order true */
       el.style.willChange = 'transform, opacity';
@@ -4175,7 +4218,7 @@ if (ncta) {
 
     cards.forEach((el, i) => el.classList.toggle('is-active', i === snap));
     if (counter)  counter.textContent = `${String(snap+1).padStart(2,'0')} / ${String(N).padStart(2,'0')}`;
-    if (progFill) progFill.style.width = (scrollOffset / (N-1) * 100) + '%';
+    if (progFill) progFill.style.width = (Math.max(0, scrollOffset) / (N-1) * 100) + '%';
   }
 
   /* snap to nearest card when velocity dies — gentle pull, no yank */
@@ -4195,32 +4238,96 @@ if (ncta) {
     lastT = now;
 
     velocity     *= Math.pow(0.90, dt);               /* long smooth coast */
-    targetOffset += velocity * dt;
-    targetOffset  = Math.max(0, Math.min(N-1, targetOffset));
+    /* entry consumes momentum slower so the transition breathes */
+    targetOffset += velocity * dt * (targetOffset < 0 ? 0.45 : 1);
+    targetOffset  = Math.max(-1, Math.min(N-1, targetOffset));
     snapCheck(1 - Math.pow(1 - 0.055, dt));           /* soft settle */
     scrollOffset += (targetOffset - scrollOffset) * (1 - Math.pow(1 - 0.06, dt));
-    /* drain the damped approach-scroll velocity into actual page scroll */
-    if (Math.abs(approachVel) > 0.5) {
-      const step = approachVel * (1 - Math.pow(1 - 0.13, dt));
-      window.scrollBy({ top: step, behavior: 'instant' });
-      approachVel -= step;
-    } else {
-      approachVel = 0;
+
+    /* derive ALL entry visuals from the master — no second clock */
+    const vh   = window.innerHeight;
+    const eLin = Math.max(0, Math.min(1, scrollOffset + 1)); /* 0=out, 1=pinned */
+    entryLin   = eLin;
+    entryES    = 1 - Math.pow(1 - eLin, 3);
+    entryLiftS = (1 - eLin) * vh;
+
+    /* background parallaxes with the master — transition reads as a camera
+       move through the space, not a static backdrop */
+    if (waterEl) {
+      waterEl.style.transform = eLin < 0.999
+        ? `translateY(${((1 - eLin) * 60).toFixed(1)}px) scale(${(1 + (1 - eLin) * 0.05).toFixed(3)})`
+        : '';
     }
 
-    entryE = computeEntry();
-    const ek = 1 - Math.pow(1 - 0.10, dt);
-    entryES    += (entryE    - entryES)    * ek;
-    entryLiftS += (entryLift - entryLiftS) * ek;
+    /* linear camera drift on the whole scene — nothing on stage is ever
+       perfectly static during the entry, like AT's dolly move */
+    if (scene) {
+      scene.style.transform = eLin < 0.999
+        ? `translateY(${((1 - eLin) * 28).toFixed(1)}px) scale(${(1 + (1 - eLin) * 0.018).toFixed(4)})`
+        : '';
+    }
+
+    /* page position follows the master through the entry zone (wheel-driven);
+       for non-wheel scrolling (scrollbar/touch/keys) the master follows the
+       page instead — whichever moved last wins */
+    if (svcSection) {
+      const r = svcSection.getBoundingClientRect();
+      const driving = (now - lastWheelT < 300) ||
+                      (scrollOffset < -0.001 && Math.abs(targetOffset - scrollOffset) > 0.003);
+      if (driving && (scrollOffset < -0.001 || r.top > 0.5)) {
+        const desiredLift = Math.max(0, -scrollOffset) * vh;
+        const delta = r.top - desiredLift;
+        if (Math.abs(delta) > 0.5) window.scrollBy({ top: delta, behavior: 'instant' });
+      } else if (!driving && r.top > 0.5 && r.top < vh) {
+        const m = -Math.min(r.top, vh) / vh;
+        targetOffset = m;
+        scrollOffset += (m - scrollOffset) * Math.min(1, 0.35 * dt);
+        velocity = 0;
+      } else if (!driving && r.top >= vh && scrollOffset > -1) {
+        targetOffset = -1;
+        scrollOffset += (-1 - scrollOffset) * Math.min(1, 0.35 * dt);
+      }
+    }
+
     if (wrap) wrap.style.setProperty('--entry', entryES.toFixed(3));
 
-    /* intro exits slow + dims while the card show overtakes it (AT-style
-       parallax handoff). exit: 0 = untouched, 1 = section pinned. */
+    /* intro holds NEAR-FIXED and dissolves IN PLACE within a tight window
+       (0.25 → 0.6 of the entry): the card edge sweeps past, THEN the text
+       breaks apart, and the hero is fully gone before the card settles.
+       Never a lingering whole-sentence ghost (AT choreography). */
     if (introEl) {
-      const vh   = window.innerHeight;
-      const exit = Math.max(0, Math.min(1, 1 - entryLiftS / vh));
-      introEl.style.transform = exit > 0.001 ? `translateY(${(exit * vh * 0.16).toFixed(1)}px)` : '';
-      introEl.style.opacity   = (1 - exit * 0.55).toFixed(3);
+      const dis = sstep(0.25, 0.6, eLin); /* dissolve window */
+      if (eLin > 0.001) {
+        introEl.classList.add('dissolving');
+        introEl.style.transform = `translateY(${(eLin * vh * 0.5).toFixed(1)}px)`;
+        introEl.style.opacity   = (1 - dis).toFixed(3);
+        introEl.style.filter    = dis > 0.01 ? `blur(${(dis * 3).toFixed(2)}px)` : '';
+      } else {
+        introEl.classList.remove('dissolving');
+        introEl.style.transform = '';
+        introEl.style.opacity   = '';
+        introEl.style.filter    = '';
+      }
+      /* per-letter break-up: each glyph displaces, skews, blurs on its own
+         staggered phase — transformation, not crossfade */
+      if (disLetters.length) {
+        if (eLin > 0.05 && eLin < 0.99) {
+          disDirty = true;
+          for (let i = 0; i < disLetters.length; i++) {
+            const el = disLetters[i];
+            const lt = sstep(0.2 + i * 0.006, 0.52 + i * 0.006, eLin);
+            if (lt > 0.001) {
+              el.style.opacity   = (1 - lt).toFixed(3);
+              el.style.transform = `translate(${(Math.sin(i * 7) * 16 * lt).toFixed(1)}px,${(-24 * lt).toFixed(1)}px) skewX(${(8 * lt).toFixed(1)}deg)`;
+            } else {
+              el.style.opacity = ''; el.style.transform = '';
+            }
+          }
+        } else if (disDirty) {
+          disDirty = false;
+          for (const el of disLetters) { el.style.opacity = ''; el.style.transform = ''; }
+        }
+      }
     }
     updateAllCards();
     rafId = requestAnimationFrame(loop);
@@ -4240,77 +4347,36 @@ if (ncta) {
     startLoop();
   }
 
-  /* ─── wheel hijack — one tick = one card, normalized across devices ───
-     Problem: e.deltaY is in different units depending on device:
-       deltaMode 0 (PIXEL)  — trackpad/smooth wheel, ~1–10 px per frame
-       deltaMode 1 (LINE)   — classic mouse wheel, ~1–3 lines per click
-       deltaMode 2 (PAGE)   — rare, full page
-     A raw `deltaY * k` model overshoots on mouse, undershoots on trackpad.
-
-     Solution: normalize to a "tick count" (~steps the user intended)
-       PIXEL → divide by 100 (one mouse-wheel notch ≈ 100px in Chrome)
-       LINE  → multiply by 1 (one notch = one line)
-       PAGE  → multiply by 3
-     Then EITHER advance discretely (large impulse, like mouse wheel)
-     OR accumulate continuously (small drift, like trackpad).
-
-     Release: at the boundary, ZERO carousel velocity before letting
-     the wheel reach the page — prevents the jerk. */
-  /* ─── wheel = momentum, Active Theory-style ───
-     Every wheel event adds a velocity impulse; the RAF loop integrates it
-     with friction (×0.76/frame) and snapCheck settles onto the nearest
-     card once velocity dies. Cards STREAM through the helix with inertia
-     instead of stepping one-per-notch — that flow is the spiral feel.
-
-     deltaY normalization (units differ per device):
-       PIXEL (trackpad/smooth wheel) → /100   (~one notch ≈ 100px)
-       LINE  (classic mouse wheel)   → ×1
-       PAGE                          → ×3
-     One mouse notch ≈ 0.11 impulse ≈ travels ~0.5 card after friction;
-     two notches glide one card; a hard flick streams several. */
+  /* ─── wheel — ONE momentum integrator for entry AND spiral ───
+     deltaY normalization: PIXEL /100, LINE ×1, PAGE ×3.
+     Every event in the zone feeds the same velocity; the loop integrates
+     it into the master timeline, which drives page position (entry) and
+     card positions (spiral) alike. Boundary release at both ends hands
+     control back to native scrolling. */
   const IMPULSE = 0.055;
   const V_MAX   = 0.26;
-
-  /* damped virtual scroll for the entry/exit zone — the page itself glides
-     through the transition instead of jumping in raw wheel steps */
-  let approachVel = 0;
 
   window.addEventListener('wheel', e => {
     if (!svcSection) return;
     const r  = svcSection.getBoundingClientRect();
     const vh = window.innerHeight;
+    if (!(r.top < vh && r.bottom > vh * 0.35)) return; /* section off stage */
 
     let ticks;
     if (e.deltaMode === 1)       ticks = e.deltaY;            /* LINE */
     else if (e.deltaMode === 2)  ticks = e.deltaY * 3;        /* PAGE */
     else                         ticks = e.deltaY / 100;      /* PIXEL */
 
-    /* approach zone: section entering (or exiting back up) — hijack the
-       page scroll and feed it through a damped velocity so the whole
-       transition glides, AT-style */
-    const approaching = r.top > 2 && r.top < vh && r.bottom > vh * 0.5;
-    if (approaching) {
-      e.preventDefault();
-      approachVel += ticks * 110;
-      startLoop(); /* guarantee the drain loop is alive while we hold events */
-      return;
-    }
-
-    const inView = r.top <= 2 && r.bottom > vh * 0.35;
-    if (!inView) return;
-
-    /* Boundary release — let page scroll continue smoothly. */
-    const atStart = targetOffset <= 0.001;
-    const atEnd   = targetOffset >= (N-1) - 0.001;
-    if ((atStart && e.deltaY < 0) || (atEnd && e.deltaY > 0)) {
-      velocity = 0;
-      return; /* do NOT preventDefault — page scrolls naturally */
-    }
+    /* boundary release — hand back to native scroll at the ends */
+    const atTop = targetOffset <= -0.999;
+    const atEnd = targetOffset >= (N-1) - 0.001;
+    if ((atTop && ticks < 0) || (atEnd && ticks > 0)) { velocity = 0; return; }
 
     e.preventDefault();
-    approachVel = 0;
+    lastWheelT = performance.now();
     velocity += ticks * IMPULSE;
     velocity = Math.max(-V_MAX, Math.min(V_MAX, velocity));
+    startLoop();
   }, { passive: false });
 
   /* buttons */
@@ -4350,10 +4416,17 @@ if (ncta) {
   }, {passive:true});
   dragEl.addEventListener('touchend', () => { dragActive=false; });
 
-  /* init */
-  entryE = computeEntry();
-  entryES = entryE;
-  entryLiftS = entryLift;
+  /* init — derive the master from wherever the page currently is */
+  if (svcSection) {
+    const r0  = svcSection.getBoundingClientRect();
+    const vh0 = window.innerHeight;
+    scrollOffset = targetOffset = r0.top <= 0 ? 0 : -Math.min(Math.max(r0.top, 0), vh0) / vh0;
+  }
+  {
+    const e0 = Math.max(0, Math.min(1, scrollOffset + 1));
+    entryES    = 1 - Math.pow(1 - e0, 3);
+    entryLiftS = (1 - e0) * window.innerHeight;
+  }
   if (wrap) wrap.style.setProperty('--entry', entryES.toFixed(3));
   updateAllCards();
   startLoop();
