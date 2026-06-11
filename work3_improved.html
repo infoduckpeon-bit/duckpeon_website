@@ -2464,6 +2464,51 @@ body.menu-open .nl-face-light { opacity: 1; }
   color: var(--text-3);
 }
 
+/* ─── SERVICES — entry light plane ───
+   Steep lit edge rising from the bottom-right corner during the
+   transition (AT's tilted "borderline" is a lit plane of the incoming
+   scene, not a section border). Fades out once pinned. */
+#svc-entryplane {
+  position: absolute;
+  right: -30%;
+  bottom: -28%;
+  width: 165%;
+  height: 65%;
+  pointer-events: none;
+  z-index: 3;
+  transform: rotate(-16deg) translateY(calc((1 - var(--entry, 1)) * 14%));
+  transform-origin: 100% 100%;
+  opacity: min(0.9, calc((1 - var(--entry, 1)) * 1.5));
+  background: linear-gradient(180deg,
+    rgba(157,92,246,0.42) 0%,
+    rgba(124,58,237,0.16) 16%,
+    rgba(124,58,237,0.05) 40%,
+    rgba(124,58,237,0) 68%);
+  will-change: transform, opacity;
+}
+
+/* HUD, hint, headline and progress fade with the entry */
+.svc-hud, .svc-hint, .svc-header-overlay, .svc-progress {
+  opacity: calc(var(--entry, 1));
+}
+
+/* Entry: the lead card is allowed to rise ABOVE the section edge and float
+   over the intro's tail while it's still on screen — the AT overlap moment.
+   (overflow stays visible; the card paints above the intro by DOM order) */
+.intro { will-change: transform, opacity; }
+
+/* The section boundary IS a gradient: the card show's background starts
+   as the intro's exact color and deepens into blue-violet water below —
+   no seam line exists, the transition is the bloom itself (AT-style). */
+.services-sticky, .services {
+  background: linear-gradient(180deg,
+    #12101a 0%,
+    #0d0c1c 16%,
+    #090a1c 32%,
+    #070918 48%,
+    #070918 100%) !important;
+}
+
 /* ─── SERVICES — per-card accent tint (--ca = "R,G,B" set by JS) ─── */
 .svc-card-inner {
   background: linear-gradient(135deg,
@@ -2831,8 +2876,20 @@ body.menu-open .nl-face-light { opacity: 1; }
           <stop offset="50%" stop-color="#e040a0" stop-opacity="0.22"/>
           <stop offset="100%" stop-color="#9d5cf6" stop-opacity="0"/>
         </linearGradient>
+        <linearGradient id="sw-bgfade" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%"  stop-color="#12101a"/>
+          <stop offset="18%" stop-color="#0c0b1c"/>
+          <stop offset="40%" stop-color="#070b1e"/>
+          <stop offset="100%" stop-color="#070b1e"/>
+        </linearGradient>
+        <radialGradient id="sw-topbloom" cx="50%" cy="0%" r="75%">
+          <stop offset="0%"  stop-color="#7c3aed" stop-opacity="0.16"/>
+          <stop offset="55%" stop-color="#7c3aed" stop-opacity="0.05"/>
+          <stop offset="100%" stop-color="#7c3aed" stop-opacity="0"/>
+        </radialGradient>
       </defs>
-      <rect width="1440" height="900" fill="#0a0818"/>
+      <rect width="1440" height="900" fill="url(#sw-bgfade)"/>
+      <ellipse cx="760" cy="40" rx="980" ry="320" fill="url(#sw-topbloom)"/>
       <ellipse cx="720" cy="520" rx="700" ry="360" fill="url(#sw-pool)"/>
       <g filter="url(#sw-blur)">
         <ellipse cx="400" cy="420" rx="180" ry="95" fill="none" stroke="#7c3aed" stroke-width="1.2" opacity="0.5">
@@ -2887,6 +2944,7 @@ body.menu-open .nl-face-light { opacity: 1; }
         </rect>
       </g>
     </svg>
+      <div id="svc-entryplane" aria-hidden="true"></div>
       <div class="svc-scene" id="svc-scene"><!-- cards injected by JS --></div>
 
       <!-- Floating header overlay — top-left like Active Theory -->
@@ -3918,6 +3976,27 @@ if (ncta) {
   let lastRendered = 0;
   let flow = 0;
 
+  /* ── surfacing entry ──
+     0 → section approaching (cards submerged below viewport)
+     1 → section pinned (ring fully assembled)
+     Mirrored on exit so cards dive back when scrolling away. */
+  let entryE = 1;
+  let entryLift = 0; /* px the section top sits below the viewport top */
+  /* smoothed copies — cards follow these, so stepped wheel-scroll jumps
+     are absorbed into a glide instead of being amplified */
+  let entryES = 1, entryLiftS = 0;
+  const introEl = document.querySelector('.intro');
+  function computeEntry() {
+    if (!svcSection) return 1;
+    const r  = svcSection.getBoundingClientRect();
+    const vh = window.innerHeight;
+    entryLift = Math.max(0, r.top);
+    const tIn  = Math.max(0, Math.min(1, 1 - (r.top - vh * 0.08) / (vh * 0.80)));
+    const tOut = Math.max(0, Math.min(1, (r.bottom - vh * 0.20) / (vh * 0.70)));
+    const p = Math.min(tIn, tOut);
+    return 1 - Math.pow(1 - p, 3); /* easeOutCubic */
+  }
+
   /* ─── scene measurement ───
      Cards are absolutely positioned inside .svc-scene, so they live in
      SCENE-LOCAL coords, not viewport coords. window.innerWidth includes
@@ -4037,8 +4116,34 @@ if (ncta) {
       else if (a <= 2) op = 0.80 - 0.40 * (a - 1);   /* 0.80 → 0.40 */
       else             op = Math.max(0.20, 0.40 - 0.10 * (a - 2)); /* 0.40 → 0.20 — hued backs stay present */
 
+      /* surfacing entry: lead card rises on its own slow ramp; the RING
+         fades in much faster — structure is standing before the lead card
+         is halfway up (AT order: stage first, hero enters through it) */
+      const ce = Math.max(0, Math.min(1, entryES * (1.3 + Math.min(1, a) * 1.0) - a * 0.06));
+      op *= Math.pow(ce, 0.6); /* ghosts through the water haze early */
+
       const tx = CX + screenX;
-      const ty = CY + screenY;
+      /* AT entry mechanic: card viewport position = CY + lift*G with G>1,
+         so it starts below the viewport and rises G× faster than the
+         section edge, landing exactly in its slot at pin (lift=0).
+         Section-local: ty = viewportY - lift = CY + lift*(G-1) — always
+         at or below the slot, so it can never clip at the seam. Deeper
+         cards get bigger G and trail in later. */
+      /* Lead card entry: viewport position follows a power curve —
+         starts just below the viewport, rises FAST early (faster than the
+         seam, so it overtakes it upward and floats over the intro's tail —
+         the AT overlap), then decelerates and docks into its slot at pin.
+         Strictly rising in the viewport at all times: can never read as
+         "coming from above". Deeper cards trail in from below instead. */
+      /* AT entry (from video): the spiral structure is ALREADY at its slots
+         — ring cards just fade in at position with a small settle. Only the
+         LEAD card travels: it rises from below the viewport on the power
+         curve, overtaking the seam and floating over the intro's tail. */
+      const mixA = Math.min(1, a);
+      const ex = Math.min(1, entryLiftS / Math.max(1, sceneH));
+      const entryRise  = ((sceneH * 1.08 - CY) * Math.pow(ex, 1.8) - entryLiftS) * (1 - mixA);
+      const ringSettle = (1 - ce) * 70 * mixA;
+      const ty = CY + screenY + entryRise + ringSettle;
 
       /* perspective() must precede rotateY() so the rotation gets
          foreshortened. translate3d at the end positions the projected card.
@@ -4055,7 +4160,7 @@ if (ncta) {
       el.style.transform =
         `translate3d(${tx}px, ${ty}px, 0) ` +
         `perspective(${FOCAL}px) ` +
-        `rotateX(${exX + w * REST_X}deg) ` +
+        `rotateX(${exX + w * REST_X + (1 - ce) * 10}deg) ` +
         `rotateY(${rotY + exY + w * REST_Y}deg) ` +
         `rotate(${rotZ + w * REST_Z}deg) ` +
         `skewY(${bend}deg) ` +
@@ -4094,6 +4199,29 @@ if (ncta) {
     targetOffset  = Math.max(0, Math.min(N-1, targetOffset));
     snapCheck(1 - Math.pow(1 - 0.055, dt));           /* soft settle */
     scrollOffset += (targetOffset - scrollOffset) * (1 - Math.pow(1 - 0.06, dt));
+    /* drain the damped approach-scroll velocity into actual page scroll */
+    if (Math.abs(approachVel) > 0.5) {
+      const step = approachVel * (1 - Math.pow(1 - 0.13, dt));
+      window.scrollBy({ top: step, behavior: 'instant' });
+      approachVel -= step;
+    } else {
+      approachVel = 0;
+    }
+
+    entryE = computeEntry();
+    const ek = 1 - Math.pow(1 - 0.10, dt);
+    entryES    += (entryE    - entryES)    * ek;
+    entryLiftS += (entryLift - entryLiftS) * ek;
+    if (wrap) wrap.style.setProperty('--entry', entryES.toFixed(3));
+
+    /* intro exits slow + dims while the card show overtakes it (AT-style
+       parallax handoff). exit: 0 = untouched, 1 = section pinned. */
+    if (introEl) {
+      const vh   = window.innerHeight;
+      const exit = Math.max(0, Math.min(1, 1 - entryLiftS / vh));
+      introEl.style.transform = exit > 0.001 ? `translateY(${(exit * vh * 0.16).toFixed(1)}px)` : '';
+      introEl.style.opacity   = (1 - exit * 0.55).toFixed(3);
+    }
     updateAllCards();
     rafId = requestAnimationFrame(loop);
   }
@@ -4104,7 +4232,8 @@ if (ncta) {
   if (svcSection) {
     const obs = new IntersectionObserver(
       entries => entries.forEach(e => e.isIntersecting ? startLoop() : stopLoop()),
-      { threshold: 0.05 }
+      { threshold: 0 } /* any visibility — the loop must run whenever the wheel
+                          handler can capture events, or scroll deadlocks */
     );
     obs.observe(svcSection);
   } else {
@@ -4142,12 +4271,32 @@ if (ncta) {
   const IMPULSE = 0.055;
   const V_MAX   = 0.26;
 
+  /* damped virtual scroll for the entry/exit zone — the page itself glides
+     through the transition instead of jumping in raw wheel steps */
+  let approachVel = 0;
+
   window.addEventListener('wheel', e => {
-    let inView = true;
-    if (svcSection) {
-      const r = svcSection.getBoundingClientRect();
-      inView = r.top < window.innerHeight * 0.65 && r.bottom > window.innerHeight * 0.35;
+    if (!svcSection) return;
+    const r  = svcSection.getBoundingClientRect();
+    const vh = window.innerHeight;
+
+    let ticks;
+    if (e.deltaMode === 1)       ticks = e.deltaY;            /* LINE */
+    else if (e.deltaMode === 2)  ticks = e.deltaY * 3;        /* PAGE */
+    else                         ticks = e.deltaY / 100;      /* PIXEL */
+
+    /* approach zone: section entering (or exiting back up) — hijack the
+       page scroll and feed it through a damped velocity so the whole
+       transition glides, AT-style */
+    const approaching = r.top > 2 && r.top < vh && r.bottom > vh * 0.5;
+    if (approaching) {
+      e.preventDefault();
+      approachVel += ticks * 110;
+      startLoop(); /* guarantee the drain loop is alive while we hold events */
+      return;
     }
+
+    const inView = r.top <= 2 && r.bottom > vh * 0.35;
     if (!inView) return;
 
     /* Boundary release — let page scroll continue smoothly. */
@@ -4159,12 +4308,7 @@ if (ncta) {
     }
 
     e.preventDefault();
-
-    let ticks;
-    if (e.deltaMode === 1)       ticks = e.deltaY;            /* LINE */
-    else if (e.deltaMode === 2)  ticks = e.deltaY * 3;        /* PAGE */
-    else                         ticks = e.deltaY / 100;      /* PIXEL */
-
+    approachVel = 0;
     velocity += ticks * IMPULSE;
     velocity = Math.max(-V_MAX, Math.min(V_MAX, velocity));
   }, { passive: false });
@@ -4207,6 +4351,10 @@ if (ncta) {
   dragEl.addEventListener('touchend', () => { dragActive=false; });
 
   /* init */
+  entryE = computeEntry();
+  entryES = entryE;
+  entryLiftS = entryLift;
+  if (wrap) wrap.style.setProperty('--entry', entryES.toFixed(3));
   updateAllCards();
   startLoop();
 
