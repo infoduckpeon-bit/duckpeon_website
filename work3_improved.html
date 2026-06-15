@@ -1189,7 +1189,12 @@ section { padding: 128px 60px; }
 /* ─── SERVICES CSS 3D CAROUSEL ─── */
 .services-scroll-container {
   position: relative;
-  height: calc(100vh + 10 * 200px);
+  /* sticky pane (100vh) + ~1 viewport of travel: one viewport for the entry
+     coupling above the pin, then the pane unpins right after the last card so
+     the section slides away naturally into `work` (the carousel itself is
+     wheel-driven, so it needs NO extra native-scroll height — the old big
+     buffer was just dead scroll after card 10) */
+  height: 200vh;
 }
 
 .services-sticky {
@@ -3926,6 +3931,7 @@ if (ncta) {
   const btnNext    = document.getElementById('svc-next');
   const progFill   = document.getElementById('svc-progress-fill');
   const svcSection = document.getElementById('services-scroll-container');
+  const svcSticky  = document.querySelector('.services-sticky');
   if (!scene) { console.warn('svc-scene missing'); return; }
 
   /* build cards */
@@ -4268,11 +4274,17 @@ if (ncta) {
     }
 
     /* linear camera drift on the whole scene — nothing on stage is ever
-       perfectly static during the entry, like AT's dolly move */
-    if (scene) {
+       perfectly static during the entry, like AT's dolly move.
+       (skipped during exit AND while parked below: the exit owns the scene
+       opacity/blur then, and restoring it would make the dissolved cards
+       "come back" while the section is still pinned at the exit point) */
+    if (scene && !exiting && !parkedBelow) {
       scene.style.transform = eLin < 0.999
         ? `translateY(${((1 - eLin) * 28).toFixed(1)}px) scale(${(1 + (1 - eLin) * 0.018).toFixed(4)})`
         : '';
+      /* re-arm the scene + stage after a parked exit clears (full visibility) */
+      if (scene.style.opacity !== '') { scene.style.opacity = ''; scene.style.filter = ''; }
+      if (svcSticky && svcSticky.style.opacity !== '') svcSticky.style.opacity = '';
     }
 
     /* page position follows the master through the entry zone (wheel-driven);
@@ -4280,6 +4292,14 @@ if (ncta) {
        page instead — whichever moved last wins */
     if (svcSection && !exiting) {
       const r = svcSection.getBoundingClientRect();
+      /* parked below: we exited downward and the page is in the next section.
+         Keep page-follow OFF so it can't haul the page back to the pin. Release
+         only when the section has scrolled fully above the viewport (legit
+         re-entry from the top re-arms everything). */
+      if (parkedBelow) {
+        if (r.bottom <= 1) { parkedBelow = false; }   /* section fully above */
+        else { return; }                               /* still adjacent — hands off */
+      }
       const driving = (now - lastWheelT < 300) ||
                       (scrollOffset < -0.001 && Math.abs(targetOffset - scrollOffset) > 0.003);
       if (driving && (scrollOffset < -0.001 || r.top > 0.5)) {
@@ -4371,28 +4391,69 @@ if (ncta) {
      to raw native scroll there feels like hitting a wall. Instead we glide the
      page from the pin to the container's exit point (where `work` reaches the
      top) so the next section rises in continuously. Symmetric upward. */
+  /* next section + its inner elements for the departure choreography */
+  const workSec   = document.getElementById('work');
+  const workRise  = workSec ? [...workSec.querySelectorAll('.section-tag, .work-headline, .work-meta, .work-strip')] : [];
+
   let exiting = false;
+  let exitLockUntil = 0;  /* after a down-exit, ignore wheel re-grab while the
+                             trackpad momentum tail decays (else it snaps back
+                             into the card show) */
+  let parkedBelow = false; /* true once we've exited downward: the loop's
+                              page-follow MUST NOT run (it would yank the page
+                              back up to the pin the instant work appears).
+                              Cleared only when the section is fully above
+                              the viewport again. */
   function smoothExit(dir) {
     if (exiting) return;
     exiting = true;
     velocity = 0;
-    /* lock the master to the exact boundary so the last (or first) card sits
-       perfectly centered while the page glides out — no residual coast */
+    /* lock the master to the boundary card so the spiral never whips */
     targetOffset = dir > 0 ? (N-1) : -1;
+
     const docTop = svcSection.getBoundingClientRect().top + window.scrollY;
-    const exitY  = dir > 0
-      ? docTop + svcSection.offsetHeight - window.innerHeight /* bottom: work at top */
-      : docTop - window.innerHeight;                          /* top: back above section */
+    const vh     = window.innerHeight;
+    const exitY  = dir > 0 ? docTop + svcSection.offsetHeight - vh   /* work at top */
+                           : docTop - vh;                            /* back above section */
+
+    /* ── UP exit: nothing fancy, just glide the page back to the entry ── */
+    if (dir < 0) {
+      const startY = window.scrollY, dist = exitY - startY, t0 = performance.now();
+      const DUR = Math.min(700, Math.max(320, Math.abs(dist) * 0.6));
+      (function up(now){
+        const p = Math.min(1,(now-t0)/DUR), e = 1-Math.pow(1-p,3);
+        window.scrollTo({ top: startY + dist*e, behavior:'instant' });
+        if (p<1) requestAnimationFrame(up); else exiting = false;
+      })(performance.now());
+      return;
+    }
+
+    /* ── DOWN exit: NATURAL SLIDE (no fade, fully reversible) ──
+       Just smooth-scroll the page from the pin to the exit point. The card
+       stage stays fully visible and the sticky pane carries it up off-screen
+       as `work` slides in beneath — a normal section hand-off. Nothing is
+       hidden, so scrolling back up simply slides the cards back down. */
+    const t0     = performance.now();
     const startY = window.scrollY;
     const dist   = exitY - startY;
-    const t0     = performance.now();
-    const DUR    = Math.min(700, Math.max(320, Math.abs(dist) * 0.6));
+    const DUR    = Math.min(900, Math.max(420, Math.abs(dist) * 0.4));
+
+    function finish() {
+      exiting = false;
+      window.scrollTo({ top: exitY, behavior: 'instant' });
+      exitLockUntil = performance.now() + 500;
+      lastWheelT    = 0;
+    }
+
+    /* easeInOutCubic — gentle both ends */
+    const easeInOut = t => t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t + 2, 3) / 2;
+
     function step(now) {
       const p = Math.min(1, (now - t0) / DUR);
-      const e = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
+      const e = easeInOut(p);
       window.scrollTo({ top: startY + dist * e, behavior: 'instant' });
       if (p < 1) requestAnimationFrame(step);
-      else exiting = false;
+      else finish();
     }
     requestAnimationFrame(step);
   }
@@ -4400,6 +4461,10 @@ if (ncta) {
   window.addEventListener('wheel', e => {
     if (!svcSection) return;
     if (exiting) { e.preventDefault(); return; } /* don't re-grab mid-release */
+    /* post-exit lockout: a trackpad's inertial tail keeps firing wheel events
+       after the gesture; without this they re-enter the card show. Stay out of
+       the way (native scroll) until the tail decays. */
+    if (performance.now() < exitLockUntil) { velocity = 0; return; }
     const r  = svcSection.getBoundingClientRect();
     const vh = window.innerHeight;
     /* Only hijack while the sticky pane still fills the viewport (entry zone:
