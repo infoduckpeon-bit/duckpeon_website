@@ -4428,18 +4428,21 @@ if (ncta) {
       return;
     }
 
-    /* ── DOWN exit: NATURAL SLIDE (no fade, fully reversible) ──
-       Just smooth-scroll the page from the pin to the exit point. The card
-       stage stays fully visible and the sticky pane carries it up off-screen
-       as `work` slides in beneath — a normal section hand-off. Nothing is
-       hidden, so scrolling back up simply slides the cards back down. */
+    /* ── DOWN exit: CHOREOGRAPHED DEPARTURE (distinct from the entry) ──
+       The container is now short (no dead-scroll zone), so the page genuinely
+       scrolls work in over ~1 viewport. On top of that real scroll we layer a
+       DEPARTURE on the card scene: it recedes into depth (Z-push), tilts back
+       and drifts up — a "leaving" verb, the counterpart to the entry's rise.
+       Nothing is hidden or held, so it stays reversible: finish clears the
+       transform and scrolling back up brings the cards cleanly back. */
     const t0     = performance.now();
     const startY = window.scrollY;
     const dist   = exitY - startY;
-    const DUR    = Math.min(900, Math.max(420, Math.abs(dist) * 0.4));
+    const DUR    = Math.min(1000, Math.max(560, Math.abs(dist) * 0.6));
 
     function finish() {
       exiting = false;
+      if (scene) { scene.style.transform=''; scene.style.opacity=''; scene.style.filter=''; }
       window.scrollTo({ top: exitY, behavior: 'instant' });
       exitLockUntil = performance.now() + 500;
       lastWheelT    = 0;
@@ -4452,6 +4455,17 @@ if (ncta) {
       const p = Math.min(1, (now - t0) / DUR);
       const e = easeInOut(p);
       window.scrollTo({ top: startY + dist * e, behavior: 'instant' });
+
+      /* the scene departs INTO the screen as it rides up and away */
+      if (scene) {
+        const a = e * e;  /* ease-in: holds the cards a beat, then they let go */
+        scene.style.transform =
+          `perspective(1500px) translateZ(${(-260*a).toFixed(0)}px) ` +
+          `rotateX(${(8*a).toFixed(2)}deg) scale(${(1 - 0.10*a).toFixed(3)})`;
+        scene.style.opacity = (1 - 0.55*a).toFixed(3);   /* dim, never fully gone */
+        scene.style.filter  = a > 0.02 ? `blur(${(a*3).toFixed(1)}px)` : '';
+      }
+
       if (p < 1) requestAnimationFrame(step);
       else finish();
     }
