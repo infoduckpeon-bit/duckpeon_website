@@ -4237,12 +4237,20 @@ if (ncta) {
     const dt  = Math.min((now - lastT) / 16.667, 3);  /* in 60fps frames */
     lastT = now;
 
-    velocity     *= Math.pow(0.90, dt);               /* long smooth coast */
-    /* entry consumes momentum slower so the transition breathes */
-    targetOffset += velocity * dt * (targetOffset < 0 ? 0.45 : 1);
-    targetOffset  = Math.max(-1, Math.min(N-1, targetOffset));
-    snapCheck(1 - Math.pow(1 - 0.055, dt));           /* soft settle */
-    scrollOffset += (targetOffset - scrollOffset) * (1 - Math.pow(1 - 0.06, dt));
+    if (exiting) {
+      /* during the glide the master holds at the boundary card — the page
+         moves, the spiral does not. Ease scrollOffset onto target (don't hard-
+         snap) so the last card settles smoothly, never popping into place. */
+      velocity = 0;
+      scrollOffset += (targetOffset - scrollOffset) * (1 - Math.pow(1 - 0.06, dt));
+    } else {
+      velocity     *= Math.pow(0.90, dt);               /* long smooth coast */
+      /* entry consumes momentum slower so the transition breathes */
+      targetOffset += velocity * dt * (targetOffset < 0 ? 0.45 : 1);
+      targetOffset  = Math.max(-1, Math.min(N-1, targetOffset));
+      snapCheck(1 - Math.pow(1 - 0.055, dt));           /* soft settle */
+      scrollOffset += (targetOffset - scrollOffset) * (1 - Math.pow(1 - 0.06, dt));
+    }
 
     /* derive ALL entry visuals from the master — no second clock */
     const vh   = window.innerHeight;
@@ -4270,7 +4278,7 @@ if (ncta) {
     /* page position follows the master through the entry zone (wheel-driven);
        for non-wheel scrolling (scrollbar/touch/keys) the master follows the
        page instead — whichever moved last wins */
-    if (svcSection) {
+    if (svcSection && !exiting) {
       const r = svcSection.getBoundingClientRect();
       const driving = (now - lastWheelT < 300) ||
                       (scrollOffset < -0.001 && Math.abs(targetOffset - scrollOffset) > 0.003);
@@ -4356,21 +4364,67 @@ if (ncta) {
   const IMPULSE = 0.055;
   const V_MAX   = 0.26;
 
+  /* ─── smooth release past the pinned section ───
+     The carousel keeps the page pinned at the sticky-top for its entire run.
+     When the last card is reached and the user keeps wheeling DOWN, the page
+     still has the full sticky travel (~2000px) sitting below it — handing back
+     to raw native scroll there feels like hitting a wall. Instead we glide the
+     page from the pin to the container's exit point (where `work` reaches the
+     top) so the next section rises in continuously. Symmetric upward. */
+  let exiting = false;
+  function smoothExit(dir) {
+    if (exiting) return;
+    exiting = true;
+    velocity = 0;
+    /* lock the master to the exact boundary so the last (or first) card sits
+       perfectly centered while the page glides out — no residual coast */
+    targetOffset = dir > 0 ? (N-1) : -1;
+    const docTop = svcSection.getBoundingClientRect().top + window.scrollY;
+    const exitY  = dir > 0
+      ? docTop + svcSection.offsetHeight - window.innerHeight /* bottom: work at top */
+      : docTop - window.innerHeight;                          /* top: back above section */
+    const startY = window.scrollY;
+    const dist   = exitY - startY;
+    const t0     = performance.now();
+    const DUR    = Math.min(700, Math.max(320, Math.abs(dist) * 0.6));
+    function step(now) {
+      const p = Math.min(1, (now - t0) / DUR);
+      const e = 1 - Math.pow(1 - p, 3); /* easeOutCubic */
+      window.scrollTo({ top: startY + dist * e, behavior: 'instant' });
+      if (p < 1) requestAnimationFrame(step);
+      else exiting = false;
+    }
+    requestAnimationFrame(step);
+  }
+
   window.addEventListener('wheel', e => {
     if (!svcSection) return;
+    if (exiting) { e.preventDefault(); return; } /* don't re-grab mid-release */
     const r  = svcSection.getBoundingClientRect();
     const vh = window.innerHeight;
-    if (!(r.top < vh && r.bottom > vh * 0.35)) return; /* section off stage */
+    /* Only hijack while the sticky pane still fills the viewport (entry zone:
+       top approaching 0; carousel: top<=0 & bottom>=vh). Once the page has
+       glided PAST the exit point the container bottom rises above the fold —
+       release to native scroll so the next section scrolls normally (was the
+       cause of "stuck at card 10, can't go down": the handler kept re-grabbing
+       the wheel after exit and re-firing the exit in place). */
+    const onStage = r.top < vh && r.bottom > vh + 1;
+    if (!onStage) return;
 
     let ticks;
     if (e.deltaMode === 1)       ticks = e.deltaY;            /* LINE */
     else if (e.deltaMode === 2)  ticks = e.deltaY * 3;        /* PAGE */
     else                         ticks = e.deltaY / 100;      /* PIXEL */
 
-    /* boundary release — hand back to native scroll at the ends */
-    const atTop = targetOffset <= -0.999;
-    const atEnd = targetOffset >= (N-1) - 0.001;
-    if ((atTop && ticks < 0) || (atEnd && ticks > 0)) { velocity = 0; return; }
+    /* boundary release — glide past the pinned section at the ends.
+       Trigger as soon as the last/first card dominates the view (within ~0.6
+       of the boundary) AND the user is still pushing outward — no need to coast
+       all the way to the exact clamp first, which left a dead patch of wheeling
+       after card 10. */
+    const atEnd = targetOffset >= (N-1) - 0.05;
+    const atTop = targetOffset <= -1 + 0.05;
+    if (atEnd && ticks > 0) { e.preventDefault(); smoothExit(1);  return; }
+    if (atTop && ticks < 0) { e.preventDefault(); smoothExit(-1); return; }
 
     e.preventDefault();
     lastWheelT = performance.now();
