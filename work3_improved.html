@@ -4456,14 +4456,14 @@ if (ncta) {
       const e = easeInOut(p);
       window.scrollTo({ top: startY + dist * e, behavior: 'instant' });
 
-      /* the scene departs INTO the screen as it rides up and away */
+      /* the scene departs INTO the screen as it rides up and away — pure
+         depth motion, NO opacity fade and NO blur: the cards stay solid and
+         simply recede in 3D space as work slides in beneath them */
       if (scene) {
         const a = e * e;  /* ease-in: holds the cards a beat, then they let go */
         scene.style.transform =
           `perspective(1500px) translateZ(${(-260*a).toFixed(0)}px) ` +
           `rotateX(${(8*a).toFixed(2)}deg) scale(${(1 - 0.10*a).toFixed(3)})`;
-        scene.style.opacity = (1 - 0.55*a).toFixed(3);   /* dim, never fully gone */
-        scene.style.filter  = a > 0.02 ? `blur(${(a*3).toFixed(1)}px)` : '';
       }
 
       if (p < 1) requestAnimationFrame(step);
