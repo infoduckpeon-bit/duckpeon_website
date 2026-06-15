@@ -4279,8 +4279,10 @@ if (ncta) {
        opacity/blur then, and restoring it would make the dissolved cards
        "come back" while the section is still pinned at the exit point) */
     if (scene && !exiting && !parkedBelow) {
+      /* translate-only dolly — NO scale (the scale read as a squeeze in/out,
+         especially when scrolling back up into the section) */
       scene.style.transform = eLin < 0.999
-        ? `translateY(${((1 - eLin) * 28).toFixed(1)}px) scale(${(1 + (1 - eLin) * 0.018).toFixed(4)})`
+        ? `translateY(${((1 - eLin) * 28).toFixed(1)}px)`
         : '';
       /* re-arm the scene + stage after a parked exit clears (full visibility) */
       if (scene.style.opacity !== '') { scene.style.opacity = ''; scene.style.filter = ''; }
@@ -4454,18 +4456,10 @@ if (ncta) {
     function step(now) {
       const p = Math.min(1, (now - t0) / DUR);
       const e = easeInOut(p);
+      /* pure natural slide — page scrolls, sticky carries the cards up off
+         screen as work slides in. No transform on the scene (any scale/scale-
+         back read as a squeeze in-then-out), fully reversible. */
       window.scrollTo({ top: startY + dist * e, behavior: 'instant' });
-
-      /* the scene departs INTO the screen as it rides up and away — pure
-         depth motion, NO opacity fade and NO blur: the cards stay solid and
-         simply recede in 3D space as work slides in beneath them */
-      if (scene) {
-        const a = e * e;  /* ease-in: holds the cards a beat, then they let go */
-        scene.style.transform =
-          `perspective(1500px) translateZ(${(-260*a).toFixed(0)}px) ` +
-          `rotateX(${(8*a).toFixed(2)}deg) scale(${(1 - 0.10*a).toFixed(3)})`;
-      }
-
       if (p < 1) requestAnimationFrame(step);
       else finish();
     }
