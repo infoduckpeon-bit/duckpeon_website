@@ -363,75 +363,73 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 @media(max-width:900px){.case-grid{grid-template-columns:1fr}}
 
 /* ═══════════════════════════════════════════════════════════
-   NETWORK — creator constellation.
-   Grammar: RELATION. Radial field, nodes joined by hairlines,
-   metrics sit inside the field rather than in a stat row.
+   NETWORK — clustered creator graph.
+   Grammar: RELATION. Communities of peers with lateral ties and
+   a few bridges between them. Deliberately NOT hub-and-spoke:
+   no node dominates, and the centre carries no special weight.
    ═══════════════════════════════════════════════════════════ */
-/* .net/.prop carry .rv only to receive the shared observer's .in class —
-   they must not inherit the translate/fade meant for inline blocks. */
 .net.rv,.prop.rv{opacity:1;transform:none;transition:none}
 .net{padding-top:clamp(100px,13vw,180px);padding-bottom:clamp(100px,13vw,180px)}
-.net-grid{display:grid;grid-template-columns:0.86fr 1.14fr;gap:clamp(34px,5vw,80px);align-items:center}
-.net-lead{font-size:clamp(26px,3.5vw,50px);font-weight:500;letter-spacing:-.04em;
-  line-height:1.06;margin:24px 0 0;max-width:15ch;color:var(--purple)}
+.net-grid{display:grid;grid-template-columns:0.62fr 1.38fr;gap:clamp(28px,3.6vw,54px);align-items:center}
+.net-lead{font-size:clamp(26px,3.3vw,46px);font-weight:500;letter-spacing:-.04em;
+  line-height:1.06;margin:24px 0 0;max-width:13ch;color:var(--purple)}
 .net-lead .ser{color:var(--ac)}
-.net-desc{color:var(--mu);font-size:15px;line-height:1.6;margin:22px 0 0;max-width:38ch}
-/* primary metric — the only large number in this section */
-.net-primary{margin-top:clamp(28px,3.4vw,44px);border-top:1px solid var(--ln);padding-top:20px}
-.net-primary b{display:block;font-size:clamp(46px,6.4vw,92px);font-weight:600;letter-spacing:-.05em;
+.net-desc{color:var(--mu);font-size:14.5px;line-height:1.6;margin:20px 0 0;max-width:32ch}
+/* primary metric — the only large number here, and smaller than 12M
+   so the two sections do not close on the same note */
+.net-primary{margin-top:clamp(26px,3vw,40px);border-top:1px solid var(--ln);padding-top:18px}
+.net-primary b{display:block;font-size:clamp(40px,4.6vw,66px);font-weight:600;letter-spacing:-.05em;
   line-height:.9;font-variant-numeric:tabular-nums;color:var(--pink)}
-.net-primary span{display:block;margin-top:10px;font-family:var(--mono);font-size:10px;
+.net-primary span{display:block;margin-top:9px;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
 
-.net-stage{position:relative;aspect-ratio:1/.82;width:100%}
+.net-stage{position:relative;aspect-ratio:1/.62;width:100%}
 .net-svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
 .net-svg .lnk{stroke:var(--ln);stroke-width:1;fill:none;
   stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
-  transition:stroke-dashoffset 1.5s var(--ease)}
+  transition:stroke-dashoffset 1.1s var(--ease)}
 .net.in .net-svg .lnk{stroke-dashoffset:0}
+/* bridges between communities read slightly stronger — they are the
+   point of the picture: separate scenes that actually connect */
+.net-svg .lnk.bridge{stroke:var(--ac);opacity:.42}
 .net-svg .nd{fill:var(--purple);opacity:0;transform-box:fill-box;transform-origin:center;
-  transform:scale(.2);transition:opacity .7s var(--ease),transform .9s var(--ease)}
-.net.in .net-svg .nd{opacity:.5;transform:scale(1)}
-/* hub: the node the primary metric hangs off */
-.net-svg .nd.hub{fill:var(--pink);opacity:0}
-.net.in .net-svg .nd.hub{opacity:1}
-.net-svg .ring{fill:none;stroke:var(--ac);stroke-width:1;opacity:0;
-  transform-box:fill-box;transform-origin:center;transform:scale(.6);
-  transition:opacity 1s var(--ease) .5s,transform 1.2s var(--ease) .5s}
-.net.in .net-svg .ring{opacity:.34;transform:scale(1)}
-/* platform tags pinned to the field */
+  transform:scale(.3);transition:opacity .6s var(--ease),transform .7s var(--ease)}
+.net.in .net-svg .nd{opacity:.42;transform:scale(1)}
+.net-svg .nd.key{fill:var(--pink);opacity:0}
+.net.in .net-svg .nd.key{opacity:.95}
+/* platform tags sit on cluster edges, not on a centre */
 .net-tag{position:absolute;font-family:var(--mono);font-size:9px;letter-spacing:.13em;
-  text-transform:uppercase;color:var(--mu);white-space:nowrap;
-  opacity:0;transform:translateY(6px);transition:opacity .8s var(--ease),transform .8s var(--ease)}
-.net.in .net-tag{opacity:.72;transform:none}
+  text-transform:uppercase;color:var(--mu);white-space:nowrap;transform:translate(-50%,-50%);
+  opacity:0;transition:opacity .8s var(--ease)}
+.net.in .net-tag{opacity:.66}
 .net-tag.k{color:var(--ac);opacity:0}
 .net.in .net-tag.k{opacity:1}
-/* secondary metrics — marginalia on the field, deliberately small */
+/* secondary metrics — placed in the composition's own clear air */
 .net-sub{position:absolute;opacity:0;transform:translateY(10px);
   transition:opacity .9s var(--ease),transform .9s var(--ease)}
 .net.in .net-sub{opacity:1;transform:none}
-.net-sub b{display:block;font-family:var(--display);font-size:clamp(19px,2.1vw,28px);font-weight:600;
+.net-sub b{display:block;font-family:var(--display);font-size:clamp(19px,2vw,26px);font-weight:600;
   letter-spacing:-.03em;line-height:1;font-variant-numeric:tabular-nums;color:var(--purple)}
-.net-sub span{display:block;margin-top:7px;font-family:var(--mono);font-size:9px;
+.net-sub span{display:block;margin-top:6px;font-family:var(--mono);font-size:9px;
   letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
-.net-sub::before{content:'';position:absolute;left:-14px;top:3px;width:1px;height:calc(100% - 6px);
-  background:var(--ln)}
 
 @media(max-width:900px){
-  .net-grid{grid-template-columns:1fr;gap:clamp(30px,6vw,48px)}
-  .net-lead{max-width:20ch}
-  .net-stage{aspect-ratio:1/.72;max-width:520px}
+  .net-grid{grid-template-columns:1fr;gap:clamp(26px,5vw,40px)}
+  .net-lead{max-width:18ch}
+  .net-stage{aspect-ratio:1/.66}
 }
 @media(max-width:640px){
-  .net-stage{aspect-ratio:1/.86}
+  .net-stage{aspect-ratio:1/.78}
   .net-tag.hide-s{display:none}
-  .net-primary b{font-size:clamp(42px,13vw,62px)}
+  .net-primary b{font-size:clamp(40px,12vw,58px)}
+  .net-sub b{font-size:17px}
 }
 
 /* ═══════════════════════════════════════════════════════════
-   PROPAGATION — meme spread over 48 hours.
-   Grammar: TIME. Deliberately horizontal and sequential so it
-   reads as nothing like the radial network above.
+   PROPAGATION — one idea moving through 48 hours.
+   Grammar: TIME. Horizontal, sequential, accelerating. Stages
+   are joined by branch paths so each visibly descends from the
+   one before rather than reading as separate measurements.
    ═══════════════════════════════════════════════════════════ */
 .prop{padding-top:clamp(100px,13vw,180px);padding-bottom:clamp(100px,13vw,180px)}
 .prop-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;flex-wrap:wrap}
@@ -440,70 +438,52 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .prop-lead .ser{color:var(--ac)}
 .prop-note{color:var(--mu);font-size:14px;line-height:1.6;max-width:34ch}
 
-/* the timeline rail */
-.prop-track{margin-top:clamp(50px,7vw,88px);position:relative}
-.prop-rail{position:absolute;left:0;right:0;top:var(--rail);height:1px;background:var(--ln)}
-.prop-rail::after{content:'';position:absolute;inset:0;background:var(--ac);
-  transform:scaleX(0);transform-origin:left;transition:transform 2.4s var(--ease)}
-.prop.in .prop-rail::after{transform:scaleX(1)}
-/* rail sits just under the time/name pair, level with the tick tops */
-.prop-stops{--rail:52px;display:grid;grid-template-columns:repeat(5,1fr);position:relative}
-.prop-stop{position:relative;padding-right:clamp(14px,2vw,30px)}
-.prop-time{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--purple);
-  opacity:0;transform:translateY(8px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
-.prop.in .prop-time{opacity:1;transform:none}
-.prop-name{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;
-  color:var(--mu);margin-top:6px;height:12px;
-  opacity:0;transition:opacity .7s var(--ease)}
-.prop.in .prop-name{opacity:.8}
-/* tick that meets the rail */
-.prop-tick{margin-top:9px;width:1px;height:16px;background:var(--ln);
-  transform:scaleY(0);transform-origin:top;transition:transform .6s var(--ease)}
-.prop.in .prop-tick{transform:scaleY(1)}
-/* the multiplying dot field — this is the propagation itself */
-.prop-dots{margin-top:16px;display:flex;flex-wrap:wrap;gap:5px;width:100%;
-  min-height:46px;align-content:flex-start}
-.prop-dots i{width:5px;height:5px;border-radius:50%;background:var(--purple);opacity:0;flex:none;
-  transform:scale(.3);transition:opacity .5s var(--ease),transform .6s var(--ease)}
-.prop.in .prop-dots i{opacity:.42;transform:scale(1)}
-.prop-stop:last-child .prop-dots i{background:var(--pink)}
-.prop.in .prop-stop:last-child .prop-dots i{opacity:.8}
-.prop-count{margin-top:14px;font-family:var(--mono);font-size:9px;letter-spacing:.11em;
-  text-transform:uppercase;color:var(--mu);opacity:0;transition:opacity .8s var(--ease)}
-.prop.in .prop-count{opacity:.7}
+.prop-track{margin-top:clamp(46px,6vw,78px);position:relative}
+/* single SVG carries both the branch paths and the dot field, so
+   transmission between stages is drawn, not implied by proximity */
+.prop-svg{display:block;width:100%;height:auto;overflow:visible}
+.prop-svg .branch{fill:none;stroke:var(--ln);stroke-width:1;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+  transition:stroke-dashoffset 1.15s var(--ease)}
+.prop.in .prop-svg .branch{stroke-dashoffset:0}
+.prop-svg .axis{stroke:var(--ln);stroke-width:1}
+.prop-svg .axis-live{stroke:var(--ac);stroke-width:1;
+  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
+  transition:stroke-dashoffset 2.3s var(--ease)}
+.prop.in .prop-svg .axis-live{stroke-dashoffset:0}
+.prop-svg .pd{fill:var(--purple);opacity:0;transform-box:fill-box;transform-origin:center;
+  transform:scale(.3);transition:opacity .45s var(--ease),transform .55s var(--ease)}
+.prop.in .prop-svg .pd{opacity:.4;transform:scale(1)}
+.prop-svg .pd.peak{fill:var(--pink)}
+.prop.in .prop-svg .pd.peak{opacity:.72}
+.prop-svg .tick{stroke:var(--ln);stroke-width:1;
+  transform:scaleY(0);transform-origin:top;transition:transform .5s var(--ease)}
+.prop.in .prop-svg .tick{transform:scaleY(1)}
+.prop-svg text{font-family:var(--mono);text-transform:uppercase}
+.prop-svg .t-time{font-size:11px;letter-spacing:.14em;fill:var(--purple);
+  opacity:0;transition:opacity .6s var(--ease)}
+.prop.in .prop-svg .t-time{opacity:1}
+.prop-svg .t-name{font-size:8.5px;letter-spacing:.12em;fill:var(--mu);
+  opacity:0;transition:opacity .6s var(--ease)}
+.prop.in .prop-svg .t-name{opacity:.85}
+.prop-svg .t-count{font-size:8.5px;letter-spacing:.11em;fill:var(--mu);
+  opacity:0;transition:opacity .6s var(--ease)}
+.prop.in .prop-svg .t-count{opacity:.7}
+.prop-svg .t-count.hi{fill:var(--ac);opacity:0}
+.prop.in .prop-svg .t-count.hi{opacity:1}
 
-/* terminal outcome — the payoff the timeline builds to */
-.prop-out{margin-top:clamp(40px,5vw,66px);border-top:1px solid var(--ln);padding-top:clamp(24px,3vw,36px);
-  display:flex;align-items:flex-end;justify-content:space-between;gap:34px;flex-wrap:wrap}
-/* the payoff resolves with the section, after the timeline has played */
-.prop-out-main,.prop-out-side{opacity:0;transform:translateY(22px);
-  transition:opacity .9s var(--ease),transform .9s var(--ease)}
-.prop.in .prop-out-main{opacity:1;transform:none;transition-delay:1.15s}
-.prop.in .prop-out-side{opacity:1;transform:none;transition-delay:1.3s}
-.prop-out-main b{display:block;font-size:clamp(56px,9.5vw,140px);font-weight:600;letter-spacing:-.05em;
-  line-height:.86;font-variant-numeric:tabular-nums;color:var(--pink)}
-.prop-out-main span{display:block;margin-top:12px;font-family:var(--mono);font-size:10px;
+/* terminal outcome — 12M alone, with 6.2% as a caption on the peak */
+.prop-out{margin-top:clamp(46px,6vw,84px);display:flex;align-items:flex-end;gap:clamp(24px,4vw,60px);flex-wrap:wrap}
+.prop-out b{display:block;font-size:clamp(60px,10.5vw,158px);font-weight:600;letter-spacing:-.055em;
+  line-height:.84;font-variant-numeric:tabular-nums;color:var(--pink)}
+.prop-out span{display:block;margin-top:12px;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
-.prop-out-side{display:flex;gap:clamp(26px,3.4vw,54px)}
-.prop-out-side div b{display:block;font-size:clamp(20px,2.3vw,30px);font-weight:600;letter-spacing:-.03em;
-  line-height:1;font-variant-numeric:tabular-nums;color:var(--purple)}
-.prop-out-side div span{display:block;margin-top:7px;font-family:var(--mono);font-size:9px;
-  letter-spacing:.12em;text-transform:uppercase;color:var(--mu)}
+.prop-out-main{opacity:0;transform:translateY(20px);
+  transition:opacity .9s var(--ease),transform .9s var(--ease)}
+.prop.in .prop-out-main{opacity:1;transform:none;transition-delay:1.5s}
 
 @media(max-width:860px){
-  /* vertical story on small screens, not a squeezed timeline */
-  .prop-stops{grid-template-columns:1fr;gap:0}
-  .prop-rail{display:none}
-  .prop-stop{display:grid;grid-template-columns:64px 1fr;align-items:start;
-    gap:16px;padding:16px 0;border-top:1px solid var(--ln)}
-  .prop-stop:first-child{border-top:0}
-  .prop-tick{display:none}
-  .prop-name{grid-column:1;grid-row:2;margin-top:4px;height:auto}
-  .prop-time{grid-column:1;grid-row:1}
-  .prop-dots{grid-column:2;grid-row:1 / span 2;margin-top:2px;min-height:0;max-width:100%;
-    align-content:flex-start}
-  .prop-count{grid-column:2;grid-row:3;margin-top:6px}
-  .prop-out{flex-direction:column;align-items:flex-start;gap:26px}
+  .prop-out b{font-size:clamp(56px,17vw,96px)}
 }
 
 /* ═══ SERVICES ═══ */
@@ -766,15 +746,15 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   .hero-media,.hero-media video,.frame-media,.frame-body{transform:none!important;filter:none!important}
   .loader,.cursor,.giant{display:none}
   /* network + propagation resolve to their finished state, no drawing-in */
-  .net-svg .lnk{stroke-dashoffset:0!important}
-  .net-svg .nd,.net-svg .ring,.net-tag,.net-sub,
-  .prop-time,.prop-name,.prop-tick,.prop-dots i,.prop-count,
-  .prop-out-main,.prop-out-side{
-    opacity:1!important;transform:none!important}
-  .net-svg .nd{opacity:.5!important}
-  .net-svg .ring{opacity:.34!important}
-  .prop-dots i{opacity:.42!important}
-  .prop-rail::after{transform:scaleX(1)!important}
+  .net-svg .lnk,.prop-svg .branch,.prop-svg .axis-live{stroke-dashoffset:0!important}
+  .net-svg .nd,.net-tag,.net-sub,.prop-svg .pd,.prop-svg .tick,
+  .prop-svg text,.prop-out-main{opacity:1!important;transform:none!important}
+  .net-svg .nd{opacity:.42!important}
+  .net-svg .lnk.bridge{opacity:.42!important}
+  .prop-svg .pd{opacity:.4!important}
+  .prop-svg .pd.peak{opacity:.72!important}
+  .prop-svg .t-name{opacity:.85!important}
+  .prop-svg .t-count{opacity:.7!important}
   .hdr-brand{opacity:1!important}
   .logo-glow{animation:none;filter:drop-shadow(0 0 8px rgba(226,99,140,.5))}
 }
@@ -958,7 +938,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
     <div>
       <div class="eyebrow rv"><span>Network scale</span></div>
       <h2 class="net-lead split">People already <span class="ser">inside</span> culture.</h2>
-      <p class="net-desc rv d1">Micro, mid and macro creators across fashion, music and internet culture — briefed as one network, not booked one at a time.</p>
+      <p class="net-desc rv d1">Micro, mid and macro creators who already share audiences — briefed as one network, not booked one at a time.</p>
       <div class="net-primary rv d2">
         <b data-count="200" data-suffix="+">0+</b>
         <span>Creators in the network</span>
@@ -966,25 +946,22 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
     </div>
 
     <div class="net-stage">
-      <!-- Representative field: ~22 nodes standing in for the network,
-           joined by hairlines that draw in on entry. Not 200 literal dots. -->
-      <svg class="net-svg" viewBox="0 0 600 492" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+      <!-- Clustered graph: four overlapping communities of peers.
+           Nodes and links are generated in JS from a fixed cluster
+           spec, so the layout is organic-looking but deterministic. -->
+      <svg class="net-svg" viewBox="0 0 760 470" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
         <g id="net-links"></g>
         <g id="net-nodes"></g>
       </svg>
-      <!-- tags sit beside their nodes; percentages track the 600x492 viewBox -->
-      <div class="net-tag k" style="left:52%;top:33.5%">CREATOR</div>
-      <div class="net-tag" style="left:74.5%;top:22%">IG</div>
-      <div class="net-tag" style="left:80.5%;top:47.5%">TT</div>
-      <div class="net-tag" style="left:63%;top:71%">YT</div>
-      <div class="net-tag hide-s" style="left:13%;top:57.5%">FASHION</div>
-      <div class="net-tag hide-s" style="left:29%;top:80%">MUSIC</div>
-      <div class="net-tag hide-s" style="left:16.5%;top:33%">CULTURE</div>
+      <div class="net-tag k" id="net-tag-creator">CREATOR</div>
+      <div class="net-tag" id="net-tag-ig">IG</div>
+      <div class="net-tag" id="net-tag-tt">TT</div>
+      <div class="net-tag hide-s" id="net-tag-yt">YT</div>
 
-      <div class="net-sub" style="left:0;top:5%">
+      <div class="net-sub" id="net-sub-a">
         <b data-count="50" data-suffix="M+">0M+</b><span>Combined audience</span>
       </div>
-      <div class="net-sub" style="right:0;top:82%">
+      <div class="net-sub" id="net-sub-b">
         <b data-count="8.5" data-suffix="%">0%</b><span>Avg. engagement</span>
       </div>
     </div>
@@ -1001,57 +978,20 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
     <p class="prop-note rv d1">ARKA Fashion Week 4. One asset, seeded into 200+ pages and groups, tracked from origin to peak.</p>
   </div>
 
-  <!-- Propagation timeline: dots multiply left to right across five stops.
-       Counts are representative marks, not one dot per page. -->
+  <!-- Propagation drawn as one SVG: branch paths carry each stage out of
+       the previous one, and dot density accelerates rather than counting up. -->
   <div class="prop-track">
-    <div class="prop-stops">
-      <div class="prop-rail"></div>
-      <div class="prop-stop">
-        <div class="prop-time">00H</div>
-        <div class="prop-name">Origin</div>
-        <div class="prop-tick"></div>
-        <div class="prop-dots" data-dots="1"></div>
-        <div class="prop-count">1 asset</div>
-      </div>
-      <div class="prop-stop">
-        <div class="prop-time">06H</div>
-        <div class="prop-name">First pickup</div>
-        <div class="prop-tick"></div>
-        <div class="prop-dots" data-dots="4"></div>
-        <div class="prop-count">4 pages</div>
-      </div>
-      <div class="prop-stop">
-        <div class="prop-time">18H</div>
-        <div class="prop-name">Spread</div>
-        <div class="prop-tick"></div>
-        <div class="prop-dots" data-dots="14"></div>
-        <div class="prop-count">40+ pages</div>
-      </div>
-      <div class="prop-stop">
-        <div class="prop-time">32H</div>
-        <div class="prop-name">Trend</div>
-        <div class="prop-tick"></div>
-        <div class="prop-dots" data-dots="30"></div>
-        <div class="prop-count">140+ pages</div>
-      </div>
-      <div class="prop-stop">
-        <div class="prop-time">48H</div>
-        <div class="prop-name">Peak</div>
-        <div class="prop-tick"></div>
-        <div class="prop-dots" data-dots="44"></div>
-        <div class="prop-count">200+ pages</div>
-      </div>
-    </div>
+    <svg class="prop-svg" viewBox="0 0 1200 338" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+      <g id="prop-branches"></g>
+      <g id="prop-dots"></g>
+      <g id="prop-marks"></g>
+    </svg>
   </div>
 
   <div class="prop-out">
     <div class="prop-out-main">
       <b data-count="12" data-suffix="M">0M</b>
       <span>Impressions at 48 hours</span>
-    </div>
-    <div class="prop-out-side">
-      <div><b data-count="6.2" data-suffix="%">0%</b><span>Engagement rate</span></div>
-      <div><b data-count="200" data-suffix="+">0+</b><span>Pages &amp; groups</span></div>
     </div>
   </div>
 </section>
@@ -1482,63 +1422,183 @@ function scramble(el,text){
     f+=1.4;if(f>=text.length){clearInterval(el._sc);el.textContent=text}},24)}
 
 /* ═══ CREATOR NETWORK + MEME PROPAGATION ═══
-   Both are built once at parse time so the shared IntersectionObserver
-   below picks them up; neither adds a scroll handler. */
+   Both build their geometry once at parse time and animate purely via
+   CSS transitions triggered by the shared IntersectionObserver below.
+   Neither reads scroll position nor touches the RAF loop. */
+const SVGNS='http://www.w3.org/2000/svg';
+const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
+  for(const k in a)e.setAttribute(k,a[k]);return e};
+
+/* ---- Creator network: clustered communities, no dominant centre ---- */
 (function(){
   const svg=document.querySelector('.net-svg');
-  if(svg){
-    const L=svg.querySelector('#net-links'),N=svg.querySelector('#net-nodes');
-    const W=600,H=492,hub=[300,196];
-    /* Hand-placed so the field stays composed rather than random: a hub,
-       an inner ring of platform-adjacent nodes, and an outer scatter. */
-    /* ring is ordered around the hub; each outer node is attached to its
-       nearest ring node so links radiate outward instead of criss-crossing. */
-    const inner=[[300,196]],
-      ring=[[300,86],[430,132],[470,250],[398,352],[262,372],[150,318],[118,196],[188,108]],
-      outer=[[300,26],[386,44],[520,74],[556,196],[556,318],[452,430],[318,452],[196,444],
-             [78,392],[38,262],[52,132],[168,36]];
-    const nodes=[...inner,...ring,...outer];
-    const link=(a,b)=>{
-      const d=Math.hypot(b[0]-a[0],b[1]-a[1]);
-      const p=document.createElementNS('http://www.w3.org/2000/svg','line');
-      p.setAttribute('class','lnk');
-      p.setAttribute('x1',a[0]);p.setAttribute('y1',a[1]);
-      p.setAttribute('x2',b[0]);p.setAttribute('y2',b[1]);
-      p.style.setProperty('--len',d.toFixed(1));
-      p.style.transitionDelay=(180+Math.random()*520).toFixed(0)+'ms';
-      L.appendChild(p);
-    };
-    ring.forEach(r=>link(hub,r));   // hub → ring
-    // each outer node joins its nearest ring node: radial, never crossing
-    outer.forEach(o=>{
-      let best=ring[0],bd=Infinity;
-      ring.forEach(r=>{const d=Math.hypot(r[0]-o[0],r[1]-o[1]);if(d<bd){bd=d;best=r}});
-      link(best,o);
+  if(!svg)return;
+  const L=svg.querySelector('#net-links'),N=svg.querySelector('#net-nodes');
+  /* Four communities. Coordinates are hand-placed in the 760x470 viewBox
+     so the field stays composed; each cluster resolves in turn, which
+     gives the reveal a deterministic order with no random delays. */
+  const clusters=[
+    {pts:[[128,150],[74,96],[188,92],[62,206],[150,232],[214,168]]},
+    {pts:[[386,96],[318,44],[452,52],[330,150],[440,158],[386,214],[268,110]]},
+    {pts:[[628,152],[566,86],[690,96],[588,222],[684,214],[726,150]]},
+    {pts:[[300,336],[212,300],[386,306],[268,414],[380,404],[470,352],[164,378],[452,254]]}
+  ];
+  const all=[];
+  clusters.forEach((c,ci)=>c.pts.forEach((p,pi)=>all.push({p,ci,pi,i:all.length})));
+  /* intra-cluster ties: each node joins its two nearest peers, producing
+     overlapping triangles rather than spokes off a centre */
+  const seg=[],seen=new Set();
+  clusters.forEach((c,ci)=>{
+    c.pts.forEach((p,pi)=>{
+      c.pts.map((q,qi)=>({q,qi,d:Math.hypot(q[0]-p[0],q[1]-p[1])}))
+        .filter(x=>x.qi!==pi).sort((x,y)=>x.d-y.d).slice(0,2)
+        .forEach(x=>{
+          const key=ci+':'+Math.min(pi,x.qi)+'-'+Math.max(pi,x.qi);
+          if(seen.has(key))return;seen.add(key);
+          seg.push({a:p,b:x.q,ci,bridge:false});
+        });
     });
-    // a few neighbouring ring ties so the field reads as connected, not a star
-    [[0,1],[2,3],[4,5],[6,7]].forEach(([a,c])=>link(ring[a],ring[c]));
-    /* concentric ring marks the hub without becoming decoration */
-    const ring1=document.createElementNS('http://www.w3.org/2000/svg','circle');
-    ring1.setAttribute('class','ring');
-    ring1.setAttribute('cx',hub[0]);ring1.setAttribute('cy',hub[1]);ring1.setAttribute('r',54);
-    L.appendChild(ring1);
-    nodes.forEach((n,i)=>{
-      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
-      const isHub=i===0;
-      c.setAttribute('class','nd'+(isHub?' hub':''));
-      c.setAttribute('cx',n[0]);c.setAttribute('cy',n[1]);
-      c.setAttribute('r',isHub?7:(i<=ring.length?4:2.8));
-      c.style.transitionDelay=(120+i*46)+'ms';
-      N.appendChild(c);
-    });
-  }
-  /* propagation dot fields — count per stop set by data-dots */
-  document.querySelectorAll('.prop-dots').forEach((d,si)=>{
-    const n=parseInt(d.dataset.dots||0,10);
-    let html='';
-    for(let i=0;i<n;i++) html+=`<i style="transition-delay:${si*260+i*26}ms"></i>`;
-    d.innerHTML=html;
   });
+  /* bridges between communities — the reason this reads as one network
+     rather than four unrelated scenes */
+  [[0,5,1,6],[1,4,2,1],[1,5,3,7],[3,5,2,3],[0,4,3,6]].forEach(([c1,i1,c2,i2])=>{
+    seg.push({a:clusters[c1].pts[i1],b:clusters[c2].pts[i2],
+      ci:Math.max(c1,c2),bridge:true});
+  });
+  const CL_STEP=260,BRIDGE_AT=clusters.length*CL_STEP;
+  seg.forEach(sg=>{
+    const d=Math.hypot(sg.b[0]-sg.a[0],sg.b[1]-sg.a[1]);
+    const el=mk('line',{class:'lnk'+(sg.bridge?' bridge':''),
+      x1:sg.a[0],y1:sg.a[1],x2:sg.b[0],y2:sg.b[1]});
+    el.style.setProperty('--len',d.toFixed(1));
+    el.style.transitionDelay=(sg.bridge?BRIDGE_AT:sg.ci*CL_STEP+90)+'ms';
+    L.appendChild(el);
+  });
+  /* varied node weight; the pink one is a creator out on the periphery,
+     deliberately not at the centre of the field */
+  const KEY=all.find(n=>n.ci===3&&n.pi===5);
+  const BIG=new Set([0,7,13,20,25]);
+  all.forEach(n=>{
+    const isKey=n===KEY;
+    const c=mk('circle',{class:'nd'+(isKey?' key':''),cx:n.p[0],cy:n.p[1],
+      r:isKey?6.5:(BIG.has(n.i)?4.6:3)});
+    c.style.transitionDelay=(n.ci*CL_STEP+n.pi*52)+'ms';
+    N.appendChild(c);
+  });
+  /* pin the HTML labels to real node coordinates (viewBox → %) */
+  const VW=760,VH=470;
+  const pos=(el,x,y,dx,dy)=>{if(!el)return;
+    el.style.left=((x+(dx||0))/VW*100)+'%';el.style.top=((y+(dy||0))/VH*100)+'%'};
+  pos(document.getElementById('net-tag-creator'),KEY.p[0],KEY.p[1],0,-24);
+  pos(document.getElementById('net-tag-ig'),clusters[1].pts[1][0],clusters[1].pts[1][1],0,-20);
+  pos(document.getElementById('net-tag-tt'),clusters[2].pts[2][0],clusters[2].pts[2][1],0,-20);
+  pos(document.getElementById('net-tag-yt'),clusters[0].pts[3][0],clusters[0].pts[3][1],-6,20);
+  /* metrics sit in the corners the graph genuinely leaves empty */
+  const sa=document.getElementById('net-sub-a'),sb=document.getElementById('net-sub-b');
+  const narrow=matchMedia('(max-width:900px)').matches;
+  if(sa){sa.style.left='0';sa.style.top=narrow?'-9%':'0'}
+  if(sb){sb.style.right='0';sb.style.bottom=narrow?'-9%':'0';sb.style.textAlign='right'}
+})();
+
+/* ---- Meme propagation: branches carry each stage out of the last ---- */
+(function(){
+  const svg=document.querySelector('.prop-svg');
+  if(!svg)return;
+  const B=svg.querySelector('#prop-branches'),D=svg.querySelector('#prop-dots'),
+        M=svg.querySelector('#prop-marks');
+  const VW=1200,BASE=96,FY=BASE+96;
+  /* counts accelerate (1→4→18→52→110) and the spray tightens, so the
+     growth is read as density rather than counted dot by dot */
+  const stops=[
+    {t:'00H',n:'Origin',      c:'1 asset',   x:78,  dots:1,  spread:0},
+    {t:'06H',n:'First pickup',c:'4 pages',   x:286, dots:4,  spread:26},
+    {t:'18H',n:'Spread',      c:'40+ pages', x:512, dots:18, spread:56},
+    {t:'32H',n:'Trend',       c:'140+ pages',x:762, dots:52, spread:84},
+    {t:'48H',n:'Peak',        c:'200+ pages',x:1024,dots:110,spread:112,peak:true}
+  ];
+  /* the 48h axis: static hairline plus a coloured line that draws across,
+     making duration the organising mark of the section */
+  B.appendChild(mk('line',{class:'axis',x1:60,y1:BASE,x2:VW-20,y2:BASE}));
+  const live=mk('line',{class:'axis-live',x1:60,y1:BASE,x2:VW-20,y2:BASE});
+  live.style.setProperty('--len',VW-80);
+  B.appendChild(live);
+
+  /* golden-angle spiral keeps spacing even at any count; a seeded jitter
+     stops it reading as a machined pattern. Seeded = deterministic. */
+  const field=(cx,n,spread,seed)=>{
+    const pts=[];let s=seed;
+    const rnd=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff};
+    for(let i=0;i<n;i++){
+      const t=n===1?0:i/(n-1),ang=i*2.39996,rad=Math.sqrt(t)*spread;
+      pts.push([cx+Math.cos(ang)*rad*1.06+(rnd()-.5)*6,
+                FY+Math.sin(ang)*rad*.66+(rnd()-.5)*6]);
+    }
+    return pts;
+  };
+  /* Mobile reflows the same data as a vertical story: stops run down the
+     page at legible type size instead of scaling the whole strip down. */
+  const VERT=matchMedia('(max-width:720px)').matches;
+  if(VERT){
+    const VH2=880,CX=92,TOP=44,STEP=166;
+    svg.setAttribute('viewBox','0 0 440 '+VH2);
+    B.textContent='';D.textContent='';M.textContent='';
+    B.appendChild(mk('line',{class:'axis',x1:CX,y1:TOP,x2:CX,y2:TOP+STEP*4+40}));
+    const lv=mk('line',{class:'axis-live',x1:CX,y1:TOP,x2:CX,y2:TOP+STEP*4+40});
+    lv.style.setProperty('--len',STEP*4+40);
+    B.appendChild(lv);
+    stops.forEach((st,si)=>{
+      const y=TOP+si*STEP,t0=si*300;
+      const dot=mk('circle',{class:'pd'+(st.peak?' peak':''),cx:CX,cy:y,r:3.4});
+      dot.style.transitionDelay=t0+'ms';D.appendChild(dot);
+      const tt=mk('text',{class:'t-time',x:CX-20,y:y+5,'text-anchor':'end'});
+      tt.textContent=st.t;tt.style.transitionDelay=t0+'ms';M.appendChild(tt);
+      const tn=mk('text',{class:'t-name',x:CX+22,y:y-6,'text-anchor':'start'});
+      tn.textContent=st.n;tn.style.transitionDelay=(t0+70)+'ms';M.appendChild(tn);
+      const tc=mk('text',{class:'t-count'+(st.peak?' hi':''),x:CX+22,y:y+12,'text-anchor':'start'});
+      tc.textContent=st.c;tc.style.transitionDelay=(t0+150)+'ms';M.appendChild(tc);
+      // cluster grows to the right of the rail so acceleration stays visible
+      field(CX+228,st.dots,Math.min(st.spread,78)*.58,7919+si*131).forEach((pt,i)=>{
+        const c=mk('circle',{class:'pd'+(st.peak?' peak':''),
+          cx:pt[0].toFixed(1),cy:(y+(pt[1]-FY)*.5).toFixed(1),r:2.3});
+        c.style.transitionDelay=(t0+110+i*8)+'ms';D.appendChild(c);
+      });
+    });
+    const eg=mk('text',{class:'t-count',x:CX+22,y:TOP+STEP*4+30,'text-anchor':'start'});
+    eg.textContent='6.2% engagement';
+    eg.style.transitionDelay=(stops.length*300+150)+'ms';M.appendChild(eg);
+    return;
+  }
+  stops.forEach((st,si)=>{
+    const t0=si*300;
+    if(si>0){
+      const pv=stops[si-1],mx=(pv.x+st.x)/2;
+      const path=mk('path',{class:'branch',
+        d:'M'+pv.x+','+FY+' C'+mx+','+(FY-48)+' '+mx+','+(FY-48)+' '+st.x+','+FY});
+      path.style.setProperty('--len',(Math.abs(st.x-pv.x)*1.25).toFixed(0));
+      path.style.transitionDelay=(t0-140)+'ms';
+      B.appendChild(path);
+    }
+    const tk=mk('line',{class:'tick',x1:st.x,y1:BASE,x2:st.x,y2:BASE+62});
+    tk.style.transitionDelay=t0+'ms';
+    B.appendChild(tk);
+    field(st.x,st.dots,st.spread,7919+si*131).forEach((p,i)=>{
+      const c=mk('circle',{class:'pd'+(st.peak?' peak':''),
+        cx:p[0].toFixed(1),cy:p[1].toFixed(1),r:2.6});
+      c.style.transitionDelay=(t0+120+i*9)+'ms';
+      D.appendChild(c);
+    });
+    const tt=mk('text',{class:'t-time',x:st.x,y:BASE-32,'text-anchor':'middle'});
+    tt.textContent=st.t;tt.style.transitionDelay=t0+'ms';M.appendChild(tt);
+    const tn=mk('text',{class:'t-name',x:st.x,y:BASE-15,'text-anchor':'middle'});
+    tn.textContent=st.n;tn.style.transitionDelay=(t0+70)+'ms';M.appendChild(tn);
+    const tc=mk('text',{class:'t-count'+(st.peak?' hi':''),x:st.x,y:FY+112,'text-anchor':'middle'});
+    tc.textContent=st.c;tc.style.transitionDelay=(t0+180)+'ms';M.appendChild(tc);
+  });
+  /* 6.2% rides with the peak as a caption, never as a competing statistic */
+  const eng=mk('text',{class:'t-count',x:stops[4].x,y:FY+130,'text-anchor':'middle'});
+  eng.textContent='6.2% engagement';
+  eng.style.transitionDelay=(stops.length*300+180)+'ms';
+  M.appendChild(eng);
 })();
 
 /* ═══ CLIENT BELT ═══
