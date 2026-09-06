@@ -438,50 +438,60 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .prop-lead .ser{color:var(--ac)}
 .prop-note{color:var(--mu);font-size:14px;line-height:1.6;max-width:34ch}
 
-.prop-track{margin-top:clamp(46px,6vw,78px);position:relative}
-/* single SVG carries both the branch paths and the dot field, so
-   transmission between stages is drawn, not implied by proximity */
-.prop-svg{display:block;width:100%;height:auto;overflow:visible}
-.prop-svg .trace{fill:none;stroke:var(--ln);stroke-width:1;
-  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
-  transition:stroke-dashoffset .9s var(--ease)}
-.prop.in .prop-svg .trace{stroke-dashoffset:0}
-/* traces that carry the signal forward read in the accent */
-.prop-svg .trace.live{stroke:var(--ac);opacity:.5}
-.prop-svg .axis{stroke:var(--ln);stroke-width:1}
-.prop-svg .axis-live{stroke:var(--ac);stroke-width:1;
-  stroke-dasharray:var(--len);stroke-dashoffset:var(--len);
-  transition:stroke-dashoffset 2.3s var(--ease)}
-.prop.in .prop-svg .axis-live{stroke-dashoffset:0}
-/* nodes: purple = existing network, pink = actively carrying the idea.
-   Pink share climbs stage by stage, so colour tracks propagation. */
-.prop-svg .pd{fill:var(--purple);opacity:0;transform-box:fill-box;transform-origin:center;
-  transform:scale(.2);transition:opacity .5s var(--ease),transform .6s var(--ease)}
-.prop.in .prop-svg .pd{opacity:.34;transform:scale(1)}
-.prop-svg .pd.on{fill:var(--ac)}
-.prop.in .prop-svg .pd.on{opacity:.9}
-.prop-svg .pd.origin{fill:var(--pink)}
-.prop.in .prop-svg .pd.origin{opacity:1}
-/* halo marks the origin as the source without adding a decorative ring */
-.prop-svg .halo{fill:none;stroke:var(--ac);stroke-width:1;opacity:0;
-  transform-box:fill-box;transform-origin:center;transform:scale(.4);
-  transition:opacity 1s var(--ease) .15s,transform 1.2s var(--ease) .15s}
-.prop.in .prop-svg .halo{opacity:.3;transform:scale(1)}
-.prop-svg .tick{stroke:var(--ln);stroke-width:1;
-  transform:scaleY(0);transform-origin:top;transition:transform .5s var(--ease)}
-.prop.in .prop-svg .tick{transform:scaleY(1)}
-.prop-svg text{font-family:var(--mono);text-transform:uppercase}
-.prop-svg .t-time{font-size:11px;letter-spacing:.14em;fill:var(--purple);
-  opacity:0;transition:opacity .6s var(--ease)}
-.prop.in .prop-svg .t-time{opacity:1}
-.prop-svg .t-name{font-size:8.5px;letter-spacing:.12em;fill:var(--mu);
-  opacity:0;transition:opacity .6s var(--ease)}
-.prop.in .prop-svg .t-name{opacity:.85}
-.prop-svg .t-count{font-size:8.5px;letter-spacing:.11em;fill:var(--mu);
-  opacity:0;transition:opacity .6s var(--ease)}
-.prop.in .prop-svg .t-count{opacity:.7}
-.prop-svg .t-count.hi{fill:var(--ac);opacity:0}
-.prop.in .prop-svg .t-count.hi{opacity:1}
+/* ── Amplification stages ──────────────────────────────────────
+   Not a diagram of spread: the asset itself repeating. One word,
+   restated more times and more densely at each stage, until the
+   type outgrows its own frame. Mass and scale carry the story. */
+.prop-track{margin-top:clamp(44px,5.6vw,74px);
+  display:grid;grid-template-columns:repeat(5,1fr);
+  gap:0;align-items:stretch;border-top:1px solid var(--ln)}
+.stg{position:relative;padding:18px clamp(6px,1vw,14px) 0;min-height:clamp(200px,24vw,330px);
+  display:flex;flex-direction:column}
+.stg + .stg{border-left:1px solid var(--ln)}
+.stg-time{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--purple);
+  opacity:0;transform:translateY(7px);
+  transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.prop.in .stg-time{opacity:1;transform:none}
+.stg-name{font-family:var(--mono);font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--mu);margin-top:5px;opacity:0;transition:opacity .7s var(--ease)}
+.prop.in .stg-name{opacity:.85}
+.stg-count{font-family:var(--mono);font-size:8.5px;letter-spacing:.11em;text-transform:uppercase;
+  color:var(--mu);margin-top:auto;padding-top:14px;opacity:0;
+  transition:opacity .7s var(--ease)}
+.prop.in .stg-count{opacity:.7}
+.stg:last-child .stg-count{color:var(--ac)}
+
+/* the amplifying field */
+.stg-field{position:relative;flex:1;margin-top:16px;overflow:visible}
+.stg-field b{position:absolute;left:0;top:50%;
+  font-family:var(--display);font-weight:700;letter-spacing:-.045em;
+  font-size:var(--fs);line-height:.82;color:var(--purple);
+  white-space:nowrap;text-transform:uppercase;
+  transform:translate(var(--tx),calc(-50% + var(--ty))) rotate(var(--rot)) scale(.84);
+  opacity:0;transition:opacity .75s var(--ease),transform .95s var(--ease)}
+.prop.in .stg-field b{opacity:var(--op);
+  transform:translate(var(--tx),calc(-50% + var(--ty))) rotate(var(--rot)) scale(1)}
+/* pink marks the copies actively carrying the idea; its share climbs */
+.stg-field b.on{color:var(--ac)}
+/* overlap darkens where repetitions stack, so density reads as pressure */
+.stg-field b.mul{mix-blend-mode:multiply}
+
+@media(max-width:860px){
+  .prop-track{grid-template-columns:1fr;border-top:0}
+  .stg{min-height:0;padding:16px 0;border-top:1px solid var(--ln);
+    display:grid;grid-template-columns:62px 1fr;column-gap:14px;align-items:start}
+  .stg + .stg{border-left:0}
+  .stg-time{grid-column:1;grid-row:1}
+  .stg-name{grid-column:1;grid-row:2;margin-top:3px}
+  .stg-count{grid-column:1;grid-row:3;margin-top:6px;padding-top:0}
+  .stg-field{grid-column:2;grid-row:1 / span 3;margin-top:0;
+    min-height:clamp(78px,23vw,124px);overflow:hidden}
+  /* vw type collapses at phone widths, so each stage gets an explicit size */
+  .stg-field b{font-size:var(--fsm);left:50%;
+    transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) rotate(var(--rot)) scale(.84)}
+  .prop.in .stg-field b{
+    transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) rotate(var(--rot)) scale(1)}
+}
 
 /* terminal outcome — 12M alone, with 6.2% as a caption on the peak */
 .prop-out{margin-top:clamp(46px,6vw,84px);display:flex;align-items:flex-end;gap:clamp(24px,4vw,60px);flex-wrap:wrap}
@@ -756,18 +766,16 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
     clip-path:none!important;filter:none!important}
   .hero-media,.hero-media video,.frame-media,.frame-body{transform:none!important;filter:none!important}
   .loader,.cursor,.giant{display:none}
-  /* network + propagation resolve to their finished state, no drawing-in */
-  .net-svg .lnk,.prop-svg .trace,.prop-svg .axis-live{stroke-dashoffset:0!important}
-  .net-svg .nd,.net-tag,.net-sub,.prop-svg .pd,.prop-svg .tick,.prop-svg .halo,
-  .prop-svg text,.prop-out-main{opacity:1!important;transform:none!important}
+  /* network + amplification resolve to their finished state */
+  .net-svg .lnk{stroke-dashoffset:0!important}
+  .net-svg .nd,.net-tag,.net-sub,.prop-out-main,
+  .stg-time,.stg-name,.stg-count{opacity:1!important;transform:none!important}
   .net-svg .nd{opacity:.42!important}
   .net-svg .lnk.bridge{opacity:.42!important}
-  .prop-svg .pd{opacity:.34!important}
-  .prop-svg .pd.on{opacity:.9!important}
-  .prop-svg .halo{opacity:.3!important}
-  .prop-svg .pd.origin{opacity:1!important}
-  .prop-svg .t-name{opacity:.85!important}
-  .prop-svg .t-count{opacity:.7!important}
+  .stg-name{opacity:.85!important}
+  .stg-count{opacity:.7!important}
+  /* type keeps its stacked opacity so the mass still grows without motion */
+  .stg-field b{transform:translate(var(--tx),calc(-50% + var(--ty))) rotate(var(--rot)) scale(1)!important}
   .hdr-brand{opacity:1!important}
   .logo-glow{animation:none;filter:drop-shadow(0 0 8px rgba(226,99,140,.5))}
 }
@@ -993,13 +1001,9 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
   <!-- Propagation drawn as one SVG: branch paths carry each stage out of
        the previous one, and dot density accelerates rather than counting up. -->
-  <div class="prop-track">
-    <svg class="prop-svg" viewBox="0 0 1200 476" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
-      <g id="prop-branches"></g>
-      <g id="prop-dots"></g>
-      <g id="prop-marks"></g>
-    </svg>
-  </div>
+  <!-- Five states of one asset: the word repeats and thickens as it spreads.
+       Repetitions are generated so mass can scale with the stage. -->
+  <div class="prop-track" id="prop-track"></div>
 
   <div class="prop-out">
     <div class="prop-out-main">
@@ -1513,135 +1517,72 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
   if(sb){sb.style.right='0';sb.style.bottom=narrow?'-9%':'0';sb.style.textAlign='right'}
 })();
 
-/* ---- Meme propagation: a signal spreading through a network ----
-   Density, not linework, carries the story. Each stage is an organic
-   cluster whose size, count and pink share climb; only a handful of
-   traces are drawn, as evidence of transmission rather than a map of
-   every relationship. */
+/* ---- Meme amplification: the asset repeating itself ----
+   No network graph. The campaign's own word is set once at 00H and
+   restated more times, larger and tighter, at each stage until the
+   type outgrows its column. Repetition IS the propagation, so the
+   picture is the medium the meme actually travels in.
+   Layout is deterministic: every offset comes from a seeded sequence. */
 (function(){
-  const svg=document.querySelector('.prop-svg');
-  if(!svg)return;
-  const B=svg.querySelector('#prop-branches'),D=svg.querySelector('#prop-dots'),
-        M=svg.querySelector('#prop-marks');
-  const VERT=matchMedia('(max-width:720px)').matches;
-  /* n  = points drawn, rising steeply so 48H has real visual mass
-     lit = share already carrying the idea (drives the pink ramp)
-     r   = cluster radius */
-  const stops=[
-    {t:'00H',n:1,  lit:1,   r:0,   c:'1 asset'},
-    {t:'06H',n:7,  lit:.30, r:34,  c:'4 pages'},
-    {t:'18H',n:26, lit:.42, r:54,  c:'40+ pages'},
-    {t:'32H',n:62, lit:.58, r:76,  c:'140+ pages'},
-    {t:'48H',n:170,lit:.80, r:104, c:'200+ pages', peak:true}
+  const track=document.getElementById('prop-track');
+  if(!track)return;
+  const WORD='ARKA';
+  /* n    copies drawn — mass climbs steeply toward the peak
+     fs   type size in vw, so the word physically grows
+     lit  share set in pink (actively carrying the idea)
+     sx   horizontal scatter, sy vertical, rot max tilt */
+  const stages=[
+    {t:'00H',n:'Origin',       c:'1 asset',    k:1,  fs:1.15,fsm:15,lit:0,   sx:0,  sy:0,  rot:0},
+    {t:'06H',n:'First pickup', c:'4 pages',    k:4,  fs:1.55,fsm:19,lit:.28, sx:26, sy:34, rot:4},
+    {t:'18H',n:'Spread',       c:'40+ pages',  k:10, fs:2.1, fsm:24,lit:.45, sx:52, sy:60, rot:6},
+    {t:'32H',n:'Trend',        c:'140+ pages', k:20, fs:2.8, fsm:30,lit:.62, sx:74, sy:86, rot:8},
+    {t:'48H',n:'Peak',         c:'200+ pages', k:34, fs:3.7, fsm:38,lit:.82, sx:104,sy:112,rot:10}
   ];
-  const NAMES=['Origin','First pickup','Spread','Trend','Peak'];
-  const STEP=420;                       // ms between stages
-  let _s=48271;
+  let _s=90210;
   const rnd=()=>{_s=(_s*1103515245+12345)&0x7fffffff;return _s/0x7fffffff};
 
-  /* Organic cluster: golden-angle spiral keeps spacing even at any count,
-     a radial bias pushes points outward, and seeded jitter breaks the
-     geometry so the field never reads as a printed pattern. */
-  const cloud=(cx,cy,n,rad,squash)=>{
-    const pts=[];
-    for(let i=0;i<n;i++){
-      const t=n===1?0:i/(n-1);
-      const ang=i*2.39996+rnd()*.5;
-      const rr=Math.pow(t,.56)*rad*(.78+rnd()*.34);
-      pts.push([cx+Math.cos(ang)*rr,cy+Math.sin(ang)*rr*squash]);
-    }
-    return pts;
-  };
+  stages.forEach((st,si)=>{
+    const col=document.createElement('div');
+    col.className='stg';
+    const t0=si*380;                      // stages resolve in time order
 
-  const GEO=VERT
-    ? {vb:'0 0 500 1040',xs:null,ys:[74,264,456,652,872],cx:326,axis:[92,56,92,932],squash:1,
-       rBase:.62,tx:70,label:'left'}
-    : {vb:'0 0 1200 470',xs:[96,326,558,806,1076],cy:262,axis:[60,96,1160,96],squash:.86,
-       rBase:1,tx:0,label:'top'};
-  svg.setAttribute('viewBox',GEO.vb);
+    const time=document.createElement('div');
+    time.className='stg-time';time.textContent=st.t;
+    time.style.transitionDelay=t0+'ms';
 
-  /* time axis — the 48h frame the whole section hangs on */
-  const ax=mk('line',{class:'axis',x1:GEO.axis[0],y1:GEO.axis[1],x2:GEO.axis[2],y2:GEO.axis[3]});
-  B.appendChild(ax);
-  const live=mk('line',{class:'axis-live',x1:GEO.axis[0],y1:GEO.axis[1],x2:GEO.axis[2],y2:GEO.axis[3]});
-  live.style.setProperty('--len',
-    Math.hypot(GEO.axis[2]-GEO.axis[0],GEO.axis[3]-GEO.axis[1]).toFixed(0));
-  B.appendChild(live);
+    const name=document.createElement('div');
+    name.className='stg-name';name.textContent=st.n;
+    name.style.transitionDelay=(t0+70)+'ms';
 
-  const centres=[];
-  stops.forEach((st,si)=>{
-    const t0=si*STEP;
-    const cx=VERT?GEO.cx:GEO.xs[si];
-    const cy=VERT?GEO.ys[si]:GEO.cy;
-    centres.push([cx,cy]);
-    const rad=st.r*GEO.rBase;
-    const pts=cloud(cx,cy,st.n,rad,GEO.squash);
+    const field=document.createElement('div');
+    field.className='stg-field';
 
-    /* a few traces only: the nearest points to the incoming direction, so
-       the eye reads "it arrived here and spread" without a wire diagram */
-    if(si>0){
-      const [px,py]=centres[si-1];
-      const near=pts.map((p,i)=>({p,i,d:Math.hypot(p[0]-px,p[1]-py)}))
-        .sort((a,b)=>a.d-b.d).slice(0,Math.min(4,1+si));
-      near.forEach((h,k)=>{
-        const d='M'+px.toFixed(1)+','+py.toFixed(1)+' L'+h.p[0].toFixed(1)+','+h.p[1].toFixed(1);
-        const tr=mk('path',{class:'trace'+(k===0?' live':''),d});
-        tr.style.setProperty('--len',h.d.toFixed(0));
-        tr.style.transitionDelay=(t0-160+k*60)+'ms';
-        B.appendChild(tr);
-      });
+    for(let i=0;i<st.k;i++){
+      const b=document.createElement('b');
+      b.textContent=WORD;
+      const p=st.k===1?0:i/(st.k-1);
+      const lit=i<Math.round(st.k*st.lit);
+      b.className=(lit?'on ':'')+(i?'mul':'');
+      b.style.setProperty('--fs',st.fs+'vw');
+      b.style.setProperty('--fsm',st.fsm+'px');
+      b.style.setProperty('--tx',((rnd()-.5)*st.sx).toFixed(1)+'%');
+      b.style.setProperty('--ty',((rnd()-.5)*st.sy).toFixed(1)+'px');
+      b.style.setProperty('--rot',((rnd()-.5)*st.rot).toFixed(1)+'deg');
+      /* later copies sit lighter so stacking reads as texture, not mud */
+      b.style.setProperty('--op',(si===0?1:(lit?.5:.2)-p*.06).toFixed(2));
+      /* copies land in sequence within the stage: pickup, then multiply */
+      b.style.transitionDelay=(t0+120+i*(st.k>20?26:60))+'ms';
+      field.appendChild(b);
     }
 
-    /* points activate from the incoming edge outward, so the cluster fills
-       in the direction the signal arrived from — causality, not shimmer */
-    const [ox,oy]=si?centres[si-1]:[cx,cy];
-    pts.map((p,i)=>({p,i,d:Math.hypot(p[0]-ox,p[1]-oy)}))
-       .sort((a,b)=>a.d-b.d)
-       .forEach((h,order)=>{
-      const lit=order/pts.length<st.lit;
-      const c=mk('circle',{
-        class:'pd'+(si===0?' origin':(lit?' on':'')),
-        cx:h.p[0].toFixed(1),cy:h.p[1].toFixed(1),
-        r:si===0?5.5:(lit?2.5:2.1)});
-      c.style.transitionDelay=(t0+order*(st.peak?5:11))+'ms';
-      D.appendChild(c);
-    });
-    if(si===0){
-      const halo=mk('circle',{class:'halo',cx,cy,r:15});
-      B.appendChild(halo);
-    }
+    const count=document.createElement('div');
+    count.className='stg-count';
+    count.textContent=st.c+(si===4?' · 6.2% engagement':'');
+    count.style.transitionDelay=(t0+150)+'ms';
 
-    /* labels keep the existing typographic system */
-    const tk=VERT
-      ? mk('line',{class:'tick',x1:GEO.axis[0],y1:cy,x2:GEO.axis[0]+26,y2:cy})
-      : mk('line',{class:'tick',x1:cx,y1:GEO.axis[1],x2:cx,y2:GEO.axis[1]+34});
-    tk.style.transitionDelay=t0+'ms';B.appendChild(tk);
-
-    if(VERT){
-      const tt=mk('text',{class:'t-time',x:GEO.axis[0]-14,y:cy+4,'text-anchor':'end'});
-      tt.textContent=st.t;tt.style.transitionDelay=t0+'ms';M.appendChild(tt);
-      const tn=mk('text',{class:'t-name',x:GEO.axis[0]+34,y:cy-4,'text-anchor':'start'});
-      tn.textContent=NAMES[si];tn.style.transitionDelay=(t0+70)+'ms';M.appendChild(tn);
-      const tc=mk('text',{class:'t-count'+(st.peak?' hi':''),x:GEO.axis[0]+34,y:cy+11,'text-anchor':'start'});
-      tc.textContent=st.c;tc.style.transitionDelay=(t0+150)+'ms';M.appendChild(tc);
-    }else{
-      const tt=mk('text',{class:'t-time',x:cx,y:GEO.axis[1]-32,'text-anchor':'middle'});
-      tt.textContent=st.t;tt.style.transitionDelay=t0+'ms';M.appendChild(tt);
-      const tn=mk('text',{class:'t-name',x:cx,y:GEO.axis[1]-15,'text-anchor':'middle'});
-      tn.textContent=NAMES[si];tn.style.transitionDelay=(t0+70)+'ms';M.appendChild(tn);
-      const tc=mk('text',{class:'t-count'+(st.peak?' hi':''),x:cx,y:GEO.cy+168,'text-anchor':'middle'});
-      tc.textContent=st.c;tc.style.transitionDelay=(t0+150)+'ms';M.appendChild(tc);
-    }
+    col.append(time,name,field,count);
+    track.appendChild(col);
   });
-
-  /* 6.2% rides with the peak as a caption, never a competing statistic */
-  const last=centres[centres.length-1];
-  const eng=VERT
-    ? mk('text',{class:'t-count',x:GEO.axis[0]+34,y:last[1]+26,'text-anchor':'start'})
-    : mk('text',{class:'t-count',x:last[0],y:GEO.cy+186,'text-anchor':'middle'});
-  eng.textContent='6.2% engagement';
-  eng.style.transitionDelay=(stops.length*STEP+150)+'ms';
-  M.appendChild(eng);
 })();
 
 /* ═══ CLIENT BELT ═══
