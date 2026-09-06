@@ -981,7 +981,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   <!-- Propagation drawn as one SVG: branch paths carry each stage out of
        the previous one, and dot density accelerates rather than counting up. -->
   <div class="prop-track">
-    <svg class="prop-svg" viewBox="0 0 1200 338" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
+    <svg class="prop-svg" viewBox="0 0 1200 476" fill="none" aria-hidden="true" preserveAspectRatio="xMidYMid meet">
       <g id="prop-branches"></g>
       <g id="prop-dots"></g>
       <g id="prop-marks"></g>
@@ -1500,105 +1500,153 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
   if(sb){sb.style.right='0';sb.style.bottom=narrow?'-9%':'0';sb.style.textAlign='right'}
 })();
 
-/* ---- Meme propagation: branches carry each stage out of the last ---- */
+/* ---- Meme propagation: a branching transmission tree ----
+   Every node at a stage descends from a real parent in the stage before,
+   joined by elbow paths (drop, then run). Not a curve through five points:
+   the lines are the transmission itself, so the picture says "one thing
+   became many" rather than "a measurement changed over time". */
 (function(){
   const svg=document.querySelector('.prop-svg');
   if(!svg)return;
   const B=svg.querySelector('#prop-branches'),D=svg.querySelector('#prop-dots'),
         M=svg.querySelector('#prop-marks');
-  const VW=1200,BASE=96,FY=BASE+96;
-  /* counts accelerate (1→4→18→52→110) and the spray tightens, so the
-     growth is read as density rather than counted dot by dot */
-  const stops=[
-    {t:'00H',n:'Origin',      c:'1 asset',   x:78,  dots:1,  spread:0},
-    {t:'06H',n:'First pickup',c:'4 pages',   x:286, dots:4,  spread:26},
-    {t:'18H',n:'Spread',      c:'40+ pages', x:512, dots:18, spread:56},
-    {t:'32H',n:'Trend',       c:'140+ pages',x:762, dots:52, spread:84},
-    {t:'48H',n:'Peak',        c:'200+ pages',x:1024,dots:110,spread:112,peak:true}
-  ];
-  /* the 48h axis: static hairline plus a coloured line that draws across,
-     making duration the organising mark of the section */
-  B.appendChild(mk('line',{class:'axis',x1:60,y1:BASE,x2:VW-20,y2:BASE}));
-  const live=mk('line',{class:'axis-live',x1:60,y1:BASE,x2:VW-20,y2:BASE});
-  live.style.setProperty('--len',VW-80);
-  B.appendChild(live);
-
-  /* golden-angle spiral keeps spacing even at any count; a seeded jitter
-     stops it reading as a machined pattern. Seeded = deterministic. */
-  const field=(cx,n,spread,seed)=>{
-    const pts=[];let s=seed;
-    const rnd=()=>{s=(s*1103515245+12345)&0x7fffffff;return s/0x7fffffff};
-    for(let i=0;i<n;i++){
-      const t=n===1?0:i/(n-1),ang=i*2.39996,rad=Math.sqrt(t)*spread;
-      pts.push([cx+Math.cos(ang)*rad*1.06+(rnd()-.5)*6,
-                FY+Math.sin(ang)*rad*.66+(rnd()-.5)*6]);
-    }
-    return pts;
-  };
-  /* Mobile reflows the same data as a vertical story: stops run down the
-     page at legible type size instead of scaling the whole strip down. */
   const VERT=matchMedia('(max-width:720px)').matches;
-  if(VERT){
-    const VH2=880,CX=92,TOP=44,STEP=166;
-    svg.setAttribute('viewBox','0 0 440 '+VH2);
-    B.textContent='';D.textContent='';M.textContent='';
-    B.appendChild(mk('line',{class:'axis',x1:CX,y1:TOP,x2:CX,y2:TOP+STEP*4+40}));
-    const lv=mk('line',{class:'axis-live',x1:CX,y1:TOP,x2:CX,y2:TOP+STEP*4+40});
-    lv.style.setProperty('--len',STEP*4+40);
-    B.appendChild(lv);
-    stops.forEach((st,si)=>{
-      const y=TOP+si*STEP,t0=si*300;
-      const dot=mk('circle',{class:'pd'+(st.peak?' peak':''),cx:CX,cy:y,r:3.4});
-      dot.style.transitionDelay=t0+'ms';D.appendChild(dot);
-      const tt=mk('text',{class:'t-time',x:CX-20,y:y+5,'text-anchor':'end'});
-      tt.textContent=st.t;tt.style.transitionDelay=t0+'ms';M.appendChild(tt);
-      const tn=mk('text',{class:'t-name',x:CX+22,y:y-6,'text-anchor':'start'});
-      tn.textContent=st.n;tn.style.transitionDelay=(t0+70)+'ms';M.appendChild(tn);
-      const tc=mk('text',{class:'t-count'+(st.peak?' hi':''),x:CX+22,y:y+12,'text-anchor':'start'});
-      tc.textContent=st.c;tc.style.transitionDelay=(t0+150)+'ms';M.appendChild(tc);
-      // cluster grows to the right of the rail so acceleration stays visible
-      field(CX+228,st.dots,Math.min(st.spread,78)*.58,7919+si*131).forEach((pt,i)=>{
-        const c=mk('circle',{class:'pd'+(st.peak?' peak':''),
-          cx:pt[0].toFixed(1),cy:(y+(pt[1]-FY)*.5).toFixed(1),r:2.3});
-        c.style.transitionDelay=(t0+110+i*8)+'ms';D.appendChild(c);
+  /* Visible branch counts imply the real page counts; 200 literal lines
+     would be noise, so density carries the scale instead. */
+  const stops=[
+    {t:'00H',n:'Origin',      c:'1 asset',    show:1},
+    {t:'06H',n:'First pickup',c:'4 pages',    show:4},
+    {t:'18H',n:'Spread',      c:'40+ pages',  show:11},
+    {t:'32H',n:'Trend',       c:'140+ pages', show:26},
+    {t:'48H',n:'Peak',        c:'200+ pages', show:54, peak:true}
+  ];
+  const STEP=340;                       // ms between stages
+  /* deterministic jitter so the tree looks grown, not machined */
+  let _s=20261;
+  const rnd=()=>{_s=(_s*1103515245+12345)&0x7fffffff;return _s/0x7fffffff};
+
+  if(!VERT){
+    /* ── horizontal: time runs left to right, branches fan vertically ── */
+    const BASE=92,MID=228,SPAN=112;
+    const xs=[80,300,540,800,1080];
+    // lay each generation out across a vertical span, tightening as it grows
+    const gens=stops.map((st,si)=>{
+      const n=st.show,half=SPAN*(0.32+si*0.17);
+      /* later generations fan across x as well as y, so the peak reads as a
+         spreading field rather than a vertical wall at the right edge */
+      const band=si>=3?(si===4?140:70):(si?14:0);
+      return Array.from({length:n},(_,i)=>{
+        const t=n===1?0.5:i/(n-1);
+        return {x:xs[si]+(i%3-1)*band*0.42+(rnd()-.5)*(si?16:0),
+                y:MID+(t-0.5)*2*half+(rnd()-.5)*(si?9:0)};
       });
     });
-    const eg=mk('text',{class:'t-count',x:CX+22,y:TOP+STEP*4+30,'text-anchor':'start'});
-    eg.textContent='6.2% engagement';
-    eg.style.transitionDelay=(stops.length*300+150)+'ms';M.appendChild(eg);
+    // connect: each child picks a parent, parents distributed evenly
+    gens.forEach((gen,si)=>{
+      if(!si)return;
+      const par=gens[si-1];
+      gen.forEach((nd,i)=>{
+        const p=par[Math.floor(i*par.length/gen.length)];
+        /* vary the break depth per child so siblings fork at different points
+           instead of sharing one vertical bus (which reads as rectangles) */
+        const mx=p.x+(nd.x-p.x)*(0.3+(i%4)*0.11);
+        const d='M'+p.x.toFixed(1)+','+p.y.toFixed(1)+
+                ' H'+mx.toFixed(1)+
+                ' V'+nd.y.toFixed(1)+
+                ' H'+nd.x.toFixed(1);
+        const path=mk('path',{class:'branch',d});
+        const len=Math.abs(mx-p.x)+Math.abs(nd.y-p.y)+Math.abs(nd.x-mx);
+        path.style.setProperty('--len',len.toFixed(0));
+        path.style.transitionDelay=(si*STEP+i*7)+'ms';
+        B.appendChild(path);
+      });
+    });
+    // nodes
+    gens.forEach((gen,si)=>{
+      const st=stops[si];
+      gen.forEach((nd,i)=>{
+        const c=mk('circle',{class:'pd'+(st.peak?' peak':''),
+          cx:nd.x.toFixed(1),cy:nd.y.toFixed(1),r:si?2.5:4.2});
+        c.style.transitionDelay=(si*STEP+i*7+90)+'ms';
+        D.appendChild(c);
+      });
+    });
+    // axis + labels keep the 48h frame
+    B.appendChild(mk('line',{class:'axis',x1:60,y1:BASE,x2:1180,y2:BASE}));
+    const live=mk('line',{class:'axis-live',x1:60,y1:BASE,x2:1180,y2:BASE});
+    live.style.setProperty('--len',1120);B.appendChild(live);
+    stops.forEach((st,si)=>{
+      const t0=si*STEP,x=xs[si];
+      const tk=mk('line',{class:'tick',x1:x,y1:BASE,x2:x,y2:BASE+40});
+      tk.style.transitionDelay=t0+'ms';B.appendChild(tk);
+      const tt=mk('text',{class:'t-time',x,y:BASE-32,'text-anchor':'middle'});
+      tt.textContent=st.t;tt.style.transitionDelay=t0+'ms';M.appendChild(tt);
+      const tn=mk('text',{class:'t-name',x,y:BASE-15,'text-anchor':'middle'});
+      tn.textContent=st.n;tn.style.transitionDelay=(t0+70)+'ms';M.appendChild(tn);
+      const tc=mk('text',{class:'t-count'+(st.peak?' hi':''),x,y:MID+SPAN+96,'text-anchor':'middle'});
+      tc.textContent=st.c;tc.style.transitionDelay=(t0+150)+'ms';M.appendChild(tc);
+    });
+    const eng=mk('text',{class:'t-count',x:xs[4],y:MID+SPAN+114,'text-anchor':'middle'});
+    eng.textContent='6.2% engagement';
+    eng.style.transitionDelay=(stops.length*STEP+150)+'ms';M.appendChild(eng);
     return;
   }
-  stops.forEach((st,si)=>{
-    const t0=si*300;
-    if(si>0){
-      const pv=stops[si-1],mx=(pv.x+st.x)/2;
-      const path=mk('path',{class:'branch',
-        d:'M'+pv.x+','+FY+' C'+mx+','+(FY-48)+' '+mx+','+(FY-48)+' '+st.x+','+FY});
-      path.style.setProperty('--len',(Math.abs(st.x-pv.x)*1.25).toFixed(0));
-      path.style.transitionDelay=(t0-140)+'ms';
+
+  /* ── mobile: same tree turned 90°, time runs down the page ── */
+  const VH2=1010,CX=76,TOP=52,SY=198,SPANX=104;
+  svg.setAttribute('viewBox','0 0 460 '+VH2);
+  const gens=stops.map((st,si)=>{
+    const n=st.show,half=SPANX*(0.26+si*0.19);
+    return Array.from({length:n},(_,i)=>{
+      const t=n===1?0.5:i/(n-1);
+      /* tree lives right of the label column so branches never cross type */
+      return {y:TOP+si*SY+(rnd()-.5)*(si?12:0),
+              x:CX+236+(t-0.5)*2*half+(rnd()-.5)*(si?8:0)};
+    });
+  });
+  gens.forEach((gen,si)=>{
+    if(!si)return;
+    const par=gens[si-1];
+    gen.forEach((nd,i)=>{
+      const p=par[Math.floor(i*par.length/gen.length)];
+      /* break each elbow at its own depth so siblings don't share one bus
+         and form rectangles -- the split should read as a fork, not a bracket */
+      const my=p.y+(nd.y-p.y)*(0.3+(i%4)*0.11);
+      const d='M'+p.x.toFixed(1)+','+p.y.toFixed(1)+
+              ' V'+my.toFixed(1)+' H'+nd.x.toFixed(1)+' V'+nd.y.toFixed(1);
+      const path=mk('path',{class:'branch',d});
+      path.style.setProperty('--len',
+        (Math.abs(my-p.y)+Math.abs(nd.x-p.x)+Math.abs(nd.y-my)).toFixed(0));
+      path.style.transitionDelay=(si*STEP+i*7)+'ms';
       B.appendChild(path);
-    }
-    const tk=mk('line',{class:'tick',x1:st.x,y1:BASE,x2:st.x,y2:BASE+62});
-    tk.style.transitionDelay=t0+'ms';
-    B.appendChild(tk);
-    field(st.x,st.dots,st.spread,7919+si*131).forEach((p,i)=>{
+    });
+  });
+  gens.forEach((gen,si)=>{
+    const st=stops[si];
+    gen.forEach((nd,i)=>{
       const c=mk('circle',{class:'pd'+(st.peak?' peak':''),
-        cx:p[0].toFixed(1),cy:p[1].toFixed(1),r:2.6});
-      c.style.transitionDelay=(t0+120+i*9)+'ms';
+        cx:nd.x.toFixed(1),cy:nd.y.toFixed(1),r:si?2.2:3.6});
+      c.style.transitionDelay=(si*STEP+i*7+90)+'ms';
       D.appendChild(c);
     });
-    const tt=mk('text',{class:'t-time',x:st.x,y:BASE-32,'text-anchor':'middle'});
-    tt.textContent=st.t;tt.style.transitionDelay=t0+'ms';M.appendChild(tt);
-    const tn=mk('text',{class:'t-name',x:st.x,y:BASE-15,'text-anchor':'middle'});
-    tn.textContent=st.n;tn.style.transitionDelay=(t0+70)+'ms';M.appendChild(tn);
-    const tc=mk('text',{class:'t-count'+(st.peak?' hi':''),x:st.x,y:FY+112,'text-anchor':'middle'});
-    tc.textContent=st.c;tc.style.transitionDelay=(t0+180)+'ms';M.appendChild(tc);
   });
-  /* 6.2% rides with the peak as a caption, never as a competing statistic */
-  const eng=mk('text',{class:'t-count',x:stops[4].x,y:FY+130,'text-anchor':'middle'});
-  eng.textContent='6.2% engagement';
-  eng.style.transitionDelay=(stops.length*300+180)+'ms';
-  M.appendChild(eng);
+  B.appendChild(mk('line',{class:'axis',x1:CX,y1:TOP,x2:CX,y2:TOP+SY*4+30}));
+  const lv=mk('line',{class:'axis-live',x1:CX,y1:TOP,x2:CX,y2:TOP+SY*4+30});
+  lv.style.setProperty('--len',SY*4+30);B.appendChild(lv);
+  stops.forEach((st,si)=>{
+    const t0=si*STEP,y=TOP+si*SY;
+    const dot=mk('circle',{class:'pd'+(st.peak?' peak':''),cx:CX,cy:y,r:3.2});
+    dot.style.transitionDelay=t0+'ms';D.appendChild(dot);
+    const tt=mk('text',{class:'t-time',x:CX-16,y:y+5,'text-anchor':'end'});
+    tt.textContent=st.t;tt.style.transitionDelay=t0+'ms';M.appendChild(tt);
+    const tn=mk('text',{class:'t-name',x:CX+14,y:y-7,'text-anchor':'start'});
+    tn.textContent=st.n;tn.style.transitionDelay=(t0+70)+'ms';M.appendChild(tn);
+    const tc=mk('text',{class:'t-count'+(st.peak?' hi':''),x:CX+14,y:y+11,'text-anchor':'start'});
+    tc.textContent=st.c;tc.style.transitionDelay=(t0+150)+'ms';M.appendChild(tc);
+  });
+  const eg=mk('text',{class:'t-count',x:CX+14,y:TOP+SY*4+28,'text-anchor':'start'});
+  eg.textContent='6.2% engagement';
+  eg.style.transitionDelay=(stops.length*STEP+150)+'ms';M.appendChild(eg);
 })();
 
 /* ═══ CLIENT BELT ═══
