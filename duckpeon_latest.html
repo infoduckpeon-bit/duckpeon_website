@@ -392,6 +392,8 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 /* bridges between communities read slightly stronger — they are the
    point of the picture: separate scenes that actually connect */
 .net-svg .lnk.bridge{stroke:var(--ac);opacity:.42}
+/* thin ties to lightly-connected people vary the graph's density */
+.net-svg .lnk.thin{opacity:.45}
 .net-svg .nd{fill:var(--purple);opacity:0;transform-box:fill-box;transform-origin:center;
   transform:scale(.3);transition:opacity .6s var(--ease),transform .7s var(--ease)}
 .net.in .net-svg .nd{opacity:.42;transform:scale(1)}
@@ -493,18 +495,27 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
     transform:translate(calc(-50% + var(--tx)),calc(-50% + var(--ty))) rotate(var(--rot)) scale(1)}
 }
 
-/* terminal outcome — 12M alone, with 6.2% as a caption on the peak */
-.prop-out{margin-top:clamp(46px,6vw,84px);display:flex;align-items:flex-end;gap:clamp(24px,4vw,60px);flex-wrap:wrap}
-.prop-out b{display:block;font-size:clamp(60px,10.5vw,158px);font-weight:600;letter-spacing:-.055em;
-  line-height:.84;font-variant-numeric:tabular-nums;color:var(--pink)}
-.prop-out span{display:block;margin-top:12px;font-family:var(--mono);font-size:10px;
+/* terminal outcome — 12M resolves out of the peak column on the RIGHT,
+   deliberately mirroring Network Scale's lower-LEFT 200+ so the two
+   sections do not close on the same composition. */
+.prop-out{margin-top:clamp(26px,3vw,44px);display:flex;justify-content:flex-end}
+.prop-out-main{position:relative;text-align:right;max-width:min(62%,620px);
+  padding-top:clamp(16px,2vw,26px);border-top:1px solid var(--ln)}
+.prop-out b{display:block;font-size:clamp(52px,8.4vw,124px);font-weight:600;letter-spacing:-.055em;
+  line-height:.86;font-variant-numeric:tabular-nums;color:var(--pink)}
+/* the label sits inline with the figure rather than stacked beneath it */
+.prop-out span{display:block;margin-top:10px;font-family:var(--mono);font-size:10px;
   letter-spacing:.14em;text-transform:uppercase;color:var(--mu)}
-.prop-out-main{opacity:0;transform:translateY(20px);
+.prop-out em{display:block;font-family:var(--serif);font-style:italic;font-weight:400;
+  font-size:clamp(15px,1.5vw,21px);color:var(--purple);margin-bottom:10px;letter-spacing:-.01em}
+.prop-out-main{opacity:0;transform:translateY(18px);
   transition:opacity .9s var(--ease),transform .9s var(--ease)}
-.prop.in .prop-out-main{opacity:1;transform:none;transition-delay:1.5s}
+.prop.in .prop-out-main{opacity:1;transform:none;transition-delay:1.7s}
 
 @media(max-width:860px){
-  .prop-out b{font-size:clamp(56px,17vw,96px)}
+  .prop-out{justify-content:flex-start}
+  .prop-out-main{max-width:100%;text-align:left}
+  .prop-out b{font-size:clamp(52px,15vw,92px)}
 }
 
 /* ═══ SERVICES ═══ */
@@ -774,8 +785,9 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   .net-svg .lnk.bridge{opacity:.42!important}
   .stg-name{opacity:.85!important}
   .stg-count{opacity:.7!important}
-  /* type keeps its stacked opacity so the mass still grows without motion */
-  .stg-field b{transform:translate(var(--tx),calc(-50% + var(--ty))) rotate(var(--rot)) scale(1)!important}
+  /* type resolves to its stacked opacity so the mass still grows without motion */
+  .stg-field b{opacity:var(--op)!important;
+    transform:translate(var(--tx),calc(-50% + var(--ty))) rotate(var(--rot)) scale(1)!important}
   .hdr-brand{opacity:1!important}
   .logo-glow{animation:none;filter:drop-shadow(0 0 8px rgba(226,99,140,.5))}
 }
@@ -996,7 +1008,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
       <div class="eyebrow rv"><span>Meme amplification</span></div>
       <h2 class="prop-lead split">How an idea <span class="ser">travels</span> in 48 hours.</h2>
     </div>
-    <p class="prop-note rv d1">ARKA Fashion Week 4. One asset, seeded into 200+ pages and groups, tracked from origin to peak.</p>
+    <p class="prop-note rv d1">One piece of content, seeded through culture-first communities and amplified by the network — from origin to peak.</p>
   </div>
 
   <!-- Propagation drawn as one SVG: branch paths carry each stage out of
@@ -1007,8 +1019,9 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
   <div class="prop-out">
     <div class="prop-out-main">
+      <em>&mdash; and it lands here.</em>
       <b data-count="12" data-suffix="M">0M</b>
-      <span>Impressions at 48 hours</span>
+      <span>Impressions at peak</span>
     </div>
   </div>
 </section>
@@ -1460,6 +1473,9 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
     {pts:[[628,152],[566,86],[690,96],[588,222],[684,214],[726,150]]},
     {pts:[[300,336],[212,300],[386,306],[268,414],[380,404],[470,352],[164,378],[452,254]]}
   ];
+  /* loosely-attached people: one tie each, so the graph has thin edges as
+     well as dense middles rather than a uniform mesh */
+  const fringe=[[36,300],[520,40],[726,304],[92,436]];
   const all=[];
   clusters.forEach((c,ci)=>c.pts.forEach((p,pi)=>all.push({p,ci,pi,i:all.length})));
   /* intra-cluster ties: each node joins its two nearest peers, producing
@@ -1482,13 +1498,25 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
     seg.push({a:clusters[c1].pts[i1],b:clusters[c2].pts[i2],
       ci:Math.max(c1,c2),bridge:true});
   });
+  fringe.forEach((f,i)=>{
+    let best=null,bd=Infinity;
+    clusters.forEach(c=>c.pts.forEach(q=>{
+      const d=Math.hypot(q[0]-f[0],q[1]-f[1]);if(d<bd){bd=d;best=q}}));
+    seg.push({a:best,b:f,ci:clusters.length,bridge:false,thin:true});
+  });
   const CL_STEP=260,BRIDGE_AT=clusters.length*CL_STEP;
+  /* Reveal reads people -> relationships -> network:
+     PEOPLE (0-700ms) every node fades in, cluster by cluster
+     TIES   (700ms+)  connections form inside each community
+     BRIDGES(last)    the links between communities close the graph */
+  const PEOPLE=700;
   seg.forEach(sg=>{
     const d=Math.hypot(sg.b[0]-sg.a[0],sg.b[1]-sg.a[1]);
-    const el=mk('line',{class:'lnk'+(sg.bridge?' bridge':''),
+    const el=mk('line',{class:'lnk'+(sg.bridge?' bridge':'')+(sg.thin?' thin':''),
       x1:sg.a[0],y1:sg.a[1],x2:sg.b[0],y2:sg.b[1]});
     el.style.setProperty('--len',d.toFixed(1));
-    el.style.transitionDelay=(sg.bridge?BRIDGE_AT:sg.ci*CL_STEP+90)+'ms';
+    el.style.transitionDelay=
+      (sg.bridge?PEOPLE+BRIDGE_AT:PEOPLE+sg.ci*CL_STEP)+'ms';
     L.appendChild(el);
   });
   /* varied node weight; the pink one is a creator out on the periphery,
@@ -1499,7 +1527,13 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
     const isKey=n===KEY;
     const c=mk('circle',{class:'nd'+(isKey?' key':''),cx:n.p[0],cy:n.p[1],
       r:isKey?6.5:(BIG.has(n.i)?4.6:3)});
-    c.style.transitionDelay=(n.ci*CL_STEP+n.pi*52)+'ms';
+    c.style.transitionDelay=(n.ci*120+n.pi*38)+'ms';
+    N.appendChild(c);
+  });
+  /* fringe people settle last, after the network has formed around them */
+  fringe.forEach((f,i)=>{
+    const c=mk('circle',{class:'nd',cx:f[0],cy:f[1],r:2.6});
+    c.style.transitionDelay=(PEOPLE+BRIDGE_AT+140+i*90)+'ms';
     N.appendChild(c);
   });
   /* pin the HTML labels to real node coordinates (viewBox → %) */
@@ -1526,7 +1560,7 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
 (function(){
   const track=document.getElementById('prop-track');
   if(!track)return;
-  const WORD='ARKA';
+  const WORD='ONE';
   /* n    copies drawn — mass climbs steeply toward the peak
      fs   type size in vw, so the word physically grows
      lit  share set in pink (actively carrying the idea)
