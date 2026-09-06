@@ -394,6 +394,23 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .net-svg .lnk.bridge{stroke:var(--ac);opacity:.42}
 /* thin ties to lightly-connected people vary the graph's density */
 .net-svg .lnk.thin{opacity:.45}
+
+/* ── hover: reveal one person's relationships ──────────────────
+   Everything recedes a step; the hovered node, its edges and its
+   direct contacts hold. Restrained -- no glow, no big scaling. */
+.net-svg .nd,.net-svg .lnk{transition:opacity .38s var(--ease),
+  r .38s var(--ease),stroke .38s var(--ease),fill .38s var(--ease)}
+/* must out-specify `.net.in .net-svg .nd` which sets the resting opacity */
+.net.in .net-svg.probing .nd{opacity:.13}
+.net.in .net-svg.probing .lnk{opacity:.08}
+.net.in .net-svg.probing .lnk.bridge{opacity:.1}
+.net.in .net-svg.probing .lnk.thin{opacity:.08}
+.net.in .net-svg.probing .nd.near{opacity:.72}
+.net.in .net-svg.probing .nd.self{opacity:1;fill:var(--ac)}
+.net.in .net-svg.probing .lnk.near{opacity:.85;stroke:var(--ac)}
+/* the hovered person grows a touch; contacts firm up slightly */
+.net-svg.probing .nd.self{r:7}
+.net-svg.probing .nd.near{r:4.6}
 .net-svg .nd{fill:var(--purple);opacity:0;transform-box:fill-box;transform-origin:center;
   transform:scale(.3);transition:opacity .6s var(--ease),transform .7s var(--ease)}
 .net.in .net-svg .nd{opacity:.42;transform:scale(1)}
@@ -447,9 +464,19 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .prop-track{margin-top:clamp(44px,5.6vw,74px);
   display:grid;grid-template-columns:repeat(5,1fr);
   gap:0;align-items:stretch;border-top:1px solid var(--ln)}
+/* no dividing rules: the echo has to cross stage boundaries for the field
+   to read as one spreading idea rather than five separate charts */
 .stg{position:relative;padding:18px clamp(6px,1vw,14px) 0;min-height:clamp(200px,24vw,330px);
   display:flex;flex-direction:column}
-.stg + .stg{border-left:1px solid var(--ln)}
+/* later stages stack above earlier ones so the saturation reads on top */
+.stg:nth-child(1){z-index:1}.stg:nth-child(2){z-index:2}.stg:nth-child(3){z-index:3}
+.stg:nth-child(4){z-index:4}.stg:nth-child(5){z-index:5}
+/* a single tick under each label keeps the timeline structure legible */
+.stg::before{content:'';position:absolute;left:0;top:0;width:1px;height:26px;
+  background:var(--ln);transform:scaleY(0);transform-origin:top;
+  transition:transform .5s var(--ease)}
+.prop.in .stg::before{transform:scaleY(1)}
+.stg:first-child::before{display:none}
 .stg-time{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--purple);
   opacity:0;transform:translateY(7px);
   transition:opacity .7s var(--ease),transform .7s var(--ease)}
@@ -482,7 +509,6 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   .prop-track{grid-template-columns:1fr;border-top:0}
   .stg{min-height:0;padding:16px 0;border-top:1px solid var(--ln);
     display:grid;grid-template-columns:62px 1fr;column-gap:14px;align-items:start}
-  .stg + .stg{border-left:0}
   .stg-time{grid-column:1;grid-row:1}
   .stg-name{grid-column:1;grid-row:2;margin-top:3px}
   .stg-count{grid-column:1;grid-row:3;margin-top:6px;padding-top:0}
@@ -1507,6 +1533,7 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
       const d=Math.hypot(q[0]-f[0],q[1]-f[1]);if(d<bd){bd=d;best=q}}));
     seg.push({a:best,b:f,ci:clusters.length,bridge:false,thin:true});
   });
+  const K=pt=>pt[0]+'_'+pt[1];
   const CL_STEP=260,BRIDGE_AT=clusters.length*CL_STEP;
   /* Reveal reads people -> relationships -> network:
      PEOPLE (0-700ms) every node fades in, cluster by cluster
@@ -1516,7 +1543,8 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
   seg.forEach(sg=>{
     const d=Math.hypot(sg.b[0]-sg.a[0],sg.b[1]-sg.a[1]);
     const el=mk('line',{class:'lnk'+(sg.bridge?' bridge':'')+(sg.thin?' thin':''),
-      x1:sg.a[0],y1:sg.a[1],x2:sg.b[0],y2:sg.b[1]});
+      x1:sg.a[0],y1:sg.a[1],x2:sg.b[0],y2:sg.b[1],
+      'data-a':K(sg.a),'data-b':K(sg.b)});
     el.style.setProperty('--len',d.toFixed(1));
     el.style.transitionDelay=
       (sg.bridge?PEOPLE+BRIDGE_AT:PEOPLE+sg.ci*CL_STEP)+'ms';
@@ -1529,13 +1557,13 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
   all.forEach(n=>{
     const isKey=n===KEY;
     const c=mk('circle',{class:'nd'+(isKey?' key':''),cx:n.p[0],cy:n.p[1],
-      r:isKey?6.5:(BIG.has(n.i)?4.6:3)});
+      r:isKey?6.5:(BIG.has(n.i)?4.6:3),'data-k':K(n.p)});
     c.style.transitionDelay=(n.ci*120+n.pi*38)+'ms';
     N.appendChild(c);
   });
   /* fringe people settle last, after the network has formed around them */
   fringe.forEach((f,i)=>{
-    const c=mk('circle',{class:'nd',cx:f[0],cy:f[1],r:2.6});
+    const c=mk('circle',{class:'nd',cx:f[0],cy:f[1],r:2.6,'data-k':K(f)});
     c.style.transitionDelay=(PEOPLE+BRIDGE_AT+140+i*90)+'ms';
     N.appendChild(c);
   });
@@ -1548,6 +1576,49 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
   pos(document.getElementById('net-tag-tt'),clusters[2].pts[2][0],clusters[2].pts[2][1],0,-20);
   pos(document.getElementById('net-tag-yt'),clusters[0].pts[3][0],clusters[0].pts[3][1],-6,20);
   /* metrics sit in the corners the graph genuinely leaves empty */
+  /* Hover reveals one person's relationships: the node lifts, its edges and
+     direct contacts brighten, the rest of the graph recedes. Pointer-driven
+     only — the graph is complete and legible with no interaction at all. */
+  if(matchMedia('(hover:hover) and (pointer:fine)').matches){
+    const adj=new Map();                       // node key -> Set of neighbour keys
+    const edges=[...L.querySelectorAll('.lnk')];
+    edges.forEach(e=>{
+      const a=e.getAttribute('data-a'),b=e.getAttribute('data-b');
+      if(!adj.has(a))adj.set(a,new Set());
+      if(!adj.has(b))adj.set(b,new Set());
+      adj.get(a).add(b);adj.get(b).add(a);
+    });
+    const nodes=[...N.querySelectorAll('.nd')];
+    const byKey=new Map(nodes.map(n=>[n.getAttribute('data-k'),n]));
+    let active=null;
+    const clear=()=>{
+      svg.classList.remove('probing');
+      nodes.forEach(n=>n.classList.remove('near','self'));
+      edges.forEach(e=>e.classList.remove('near'));
+      active=null;
+    };
+    const focus=k=>{
+      if(k===active)return;
+      clear();active=k;
+      svg.classList.add('probing');
+      const me=byKey.get(k);if(me)me.classList.add('self');
+      (adj.get(k)||new Set()).forEach(nk=>{
+        const n=byKey.get(nk);if(n)n.classList.add('near');
+      });
+      edges.forEach(e=>{
+        if(e.getAttribute('data-a')===k||e.getAttribute('data-b')===k)e.classList.add('near');
+      });
+    };
+    /* generous hit targets without drawing anything visible */
+    nodes.forEach(n=>{
+      const hit=mk('circle',{cx:n.getAttribute('cx'),cy:n.getAttribute('cy'),
+        r:17,fill:'transparent',style:'cursor:pointer'});
+      hit.addEventListener('pointerenter',()=>focus(n.getAttribute('data-k')));
+      N.appendChild(hit);
+    });
+    svg.addEventListener('pointerleave',clear);
+  }
+
   const sa=document.getElementById('net-sub-a'),sb=document.getElementById('net-sub-b');
   const narrow=matchMedia('(max-width:900px)').matches;
   if(sa){sa.style.left='0';sa.style.top=narrow?'-9%':'0'}
@@ -1570,10 +1641,10 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
      sx   horizontal scatter, sy vertical, rot max tilt */
   const stages=[
     {t:'00H',n:'Origin',       c:'1 asset',    k:1,  fs:1.15,fsm:15,lit:0,   sx:0,  sy:0,  rot:0},
-    {t:'06H',n:'First pickup', c:'4 pages',    k:4,  fs:1.55,fsm:19,lit:.28, sx:26, sy:34, rot:4},
-    {t:'18H',n:'Spread',       c:'40+ pages',  k:10, fs:2.1, fsm:24,lit:.45, sx:52, sy:60, rot:6},
-    {t:'32H',n:'Trend',        c:'140+ pages', k:20, fs:2.8, fsm:30,lit:.62, sx:74, sy:86, rot:8},
-    {t:'48H',n:'Peak',         c:'200+ pages', k:34, fs:3.7, fsm:38,lit:.82, sx:104,sy:112,rot:10}
+    {t:'06H',n:'First pickup', c:'4 pages',    k:4,  fs:1.55,fsm:19,lit:.28, sx:58, sy:40, rot:4},
+    {t:'18H',n:'Spread',       c:'40+ pages',  k:10, fs:2.1, fsm:24,lit:.45, sx:104,sy:70, rot:6},
+    {t:'32H',n:'Trend',        c:'140+ pages', k:20, fs:2.8, fsm:30,lit:.62, sx:140,sy:98, rot:8},
+    {t:'48H',n:'Peak',         c:'200+ pages', k:34, fs:3.7, fsm:38,lit:.82, sx:186,sy:126,rot:10}
   ];
   let _s=90210;
   const rnd=()=>{_s=(_s*1103515245+12345)&0x7fffffff;return _s/0x7fffffff};
@@ -1602,7 +1673,10 @@ const mk=(t,a)=>{const e=document.createElementNS(SVGNS,t);
       b.className=(lit?'on ':'')+(i?'mul':'');
       b.style.setProperty('--fs',st.fs+'vw');
       b.style.setProperty('--fsm',st.fsm+'px');
-      b.style.setProperty('--tx',((rnd()-.5)*st.sx).toFixed(1)+'%');
+      /* later stages lean left so the field spreads back across the
+         composition rather than piling against the right edge */
+      const bias=si>=3?-0.22:0;
+      b.style.setProperty('--tx',(((rnd()-.5)+bias)*st.sx).toFixed(1)+'%');
       b.style.setProperty('--ty',((rnd()-.5)*st.sy).toFixed(1)+'px');
       b.style.setProperty('--rot',((rnd()-.5)*st.rot).toFixed(1)+'deg');
       /* later copies sit lighter so stacking reads as texture, not mud */
