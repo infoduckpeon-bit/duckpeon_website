@@ -499,7 +499,10 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    deliberately mirroring Network Scale's lower-LEFT 200+ so the two
    sections do not close on the same composition. */
 .prop-out{margin-top:clamp(26px,3vw,44px);display:flex;justify-content:flex-end}
-.prop-out-main{position:relative;text-align:right;max-width:min(62%,620px);
+/* flex-basis + shrink:0 stop the block collapsing to its narrowest child;
+   without it the box sizes to the label and the figure overflows it */
+.prop-out-main{position:relative;text-align:right;
+  flex:0 1 auto;min-width:min(46%,440px);max-width:min(62%,620px);
   padding-top:clamp(16px,2vw,26px);border-top:1px solid var(--ln)}
 .prop-out b{display:block;font-size:clamp(52px,8.4vw,124px);font-weight:600;letter-spacing:-.055em;
   line-height:.86;font-variant-numeric:tabular-nums;color:var(--pink)}
