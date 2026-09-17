@@ -68,6 +68,15 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 /* On dark aubergine surfaces the glow can be brighter */
 .overlay .brand-d,.hero .brand-d,.giant .brand-d,.statement .brand-d,.work .brand-d{
   filter:drop-shadow(0 0 6px rgba(246,161,189,.5)) drop-shadow(0 0 20px rgba(226,99,140,.3))}
+/* the mark carries its own purple plate, which turns into a solid block against
+   the hero art — a cream rim separates it the way the cream page did */
+/* brandGlow animates `filter`, and an animated property wins over a normal
+   declaration whatever its specificity — the glow has to stop for the rim */
+.giant.over-art .brand-d{
+  animation:none;
+  filter:drop-shadow(1.5px 0 0 rgba(244,237,226,.92)) drop-shadow(-1.5px 0 0 rgba(244,237,226,.92))
+    drop-shadow(0 1.5px 0 rgba(244,237,226,.92)) drop-shadow(0 -1.5px 0 rgba(244,237,226,.92))
+    drop-shadow(0 0 24px rgba(226,99,140,.34))}
 @media(prefers-reduced-motion:reduce){.brand-d{animation:none}}
 
 
@@ -121,7 +130,17 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
 .vf-prog{position:absolute;top:-1px;left:0;height:1px;background:var(--ac);width:0}
 .vf-read{position:absolute;bottom:-1px;font-family:var(--mono);font-size:9px;
   letter-spacing:.09em;color:var(--mu);background:var(--bg);padding:0 9px;
-  transform:translateY(50%);text-transform:uppercase;white-space:nowrap}
+  transform:translateY(50%);text-transform:uppercase;white-space:nowrap;
+  transition:opacity .5s var(--ease)}
+/* over the hero art the cream pill reads as an opaque chip laid on the frame,
+   and the wordmark's descender runs under it — drop the plate and tint to match */
+body.hero-art .vf-read{background:transparent;color:rgba(244,237,226,.82)}
+body.hero-art .viewfinder{border-color:rgba(244,237,226,.22)}
+/* The wordmark's baseline lands on the frame's bottom rule, where the left
+   readout sits. Moving it to the top rule stacks it under the header's social
+   row, so over the art it simply fades out; it returns on the next section,
+   where the same coordinates are legible against the cream page. */
+body.hero-art .vf-read.l{opacity:0}
 .vf-read.l{left:28px}.vf-read.r{right:28px}
 @media(max-width:760px){.vf-read.r{display:none}.viewfinder{inset:8px}}
 
@@ -209,25 +228,46 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   transform:scale(1.28);filter:blur(8px);
   transition:transform 2.4s var(--ease) .1s,filter 1.4s var(--ease) .1s}
 .ready .hero-media video{transform:scale(1.02);filter:blur(0)}
+/* the hero art is dark purple, so the scrim now lifts legibility rather than
+   knocking back a bright plate: dark top for the headline, dark foot for the
+   wordmark, art left clean through the middle */
 .hero-media::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,rgba(244,237,226,.35) 0%,transparent 22%,transparent 78%,rgba(244,237,226,.55) 100%)}
+  background:
+    linear-gradient(180deg,rgba(26,13,32,.58) 0%,rgba(26,13,32,.14) 26%,transparent 46%,
+      rgba(26,13,32,.22) 68%,rgba(26,13,32,.62) 100%)}
 .crosshairs{position:absolute;inset:0;z-index:1;pointer-events:none}
-.xh{position:absolute;width:11px;height:11px;opacity:.35;color:var(--aubergine)}
+.xh{position:absolute;width:11px;height:11px;opacity:.42;color:var(--cream)}
 .xh::before,.xh::after{content:'';position:absolute;background:currentColor}
 .xh::before{width:11px;height:1px;top:5px;left:0}
 .xh::after{width:1px;height:11px;top:0;left:5px}
 .hero-content{position:absolute;inset:0;z-index:2;padding:calc(70px + var(--gut)) var(--edge) 0}
 .hero-hl{position:relative;z-index:2;font-size:clamp(28px,3.5vw,52px);font-weight:500;
-  letter-spacing:-.03em;line-height:1.12;max-width:14ch;color:var(--purple)}
+  letter-spacing:-.03em;line-height:1.12;max-width:14ch;color:var(--cream);
+  text-shadow:0 1px 26px rgba(26,13,32,.5)}
 .hero-sub{display:flex;align-items:center;gap:10px;margin-top:20px;
   font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
-  color:var(--muted)}
+  color:rgba(244,237,226,.72)}
 .hero-sub::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--chartreuse);
   box-shadow:0 0 12px rgba(212,245,66,.7);
   flex:none;animation:pulse 2.8s var(--ease) infinite}
 .hero-tag{position:absolute;top:calc(70px + var(--gut));right:var(--edge);z-index:2;
   text-align:right;font-family:var(--serif);font-style:italic;
-  font-size:clamp(24px,3vw,46px);line-height:1.06;color:var(--aubergine)}
+  font-size:clamp(24px,3vw,46px);line-height:1.06;color:var(--cream);
+  text-shadow:0 1px 26px rgba(26,13,32,.45)}
+/* below ~640px the headline and the tag are both absolute on the same row and
+   collide (they measured -29px apart at 360). The tag moves under the headline
+   and left-aligns with it rather than shrinking both to fit. */
+@media(max-width:640px){
+  /* .hero-tag is a sibling of .hero-content, so it is placed by the section
+     grid, not by the content block — order keeps it under the headline */
+  .hero{display:grid;grid-template-rows:auto auto 1fr;
+    align-content:start;padding:calc(70px + var(--gut)) 0 0}
+  /* the media stays absolute and section-filling; only the type is re-flowed */
+  .hero-media,.crosshairs{position:absolute;inset:0}
+  .hero-content{position:static;grid-row:1;padding:0 var(--edge);order:1;z-index:2}
+  .hero-tag{position:static;grid-row:2;order:2;text-align:left;
+    margin:16px 0 0;padding:0 var(--edge);font-size:clamp(21px,7.2vw,32px)}
+  .hero-hl{max-width:none}}
 
 /* ═══ GIANT WORDMARK ═══ */
 .giant{position:fixed;z-index:810;pointer-events:none;left:0;right:0;bottom:0;
@@ -236,6 +276,10 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   line-height:.82;font-stretch:105%;color:var(--purple);white-space:nowrap;
   transform-origin:center bottom;will-change:transform}
 .giant sup{font-size:.13em;vertical-align:super;color:var(--aubergine);opacity:.55}
+/* over the hero art the wordmark is cream — purple on that frame measures
+   1.14:1. `.over-art` is dropped once the giant clears the video. */
+.giant.over-art .giant-text{color:var(--cream)}
+.giant.over-art sup{color:var(--cream);opacity:.6}
 
 /* ═══ STATEMENT ═══ */
 
@@ -891,8 +935,11 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 <section class="hero" id="top"
   data-bg="244,237,226" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".2" data-ac="212,245,66">
   <div class="hero-media" id="hero-media">
-    <video src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerEscapes.mp4"
-      muted loop playsinline autoplay preload="metadata"></video>
+    <!-- sources are injected by the tier picker below: the choice depends on
+         viewport, DPR and saveData, which a `media` attribute can't express -->
+    <video id="hero-video" poster="asset/hero/hero-poster.jpg"
+      muted loop playsinline autoplay preload="none"
+      disablepictureinpicture disableremoteplayback></video>
   </div>
   <div class="crosshairs" id="xhairs" aria-hidden="true"></div>
   <div class="hero-content">
@@ -1378,6 +1425,9 @@ function tick(){
     giantText.style.transform=`scale(${scale})`;
     giant.style.transform=`translateY(${ty}px)`;
     giant.style.opacity=String(p>.92?0:1);
+    /* cream while the wordmark sits on the video, purple once it has left it */
+    giant.classList.toggle('over-art',p<.55);
+    document.body.classList.toggle('hero-art',p<.55);
     hdrBrand.classList.toggle('vis',p>.88);
   }
 
@@ -1771,6 +1821,48 @@ document.querySelectorAll('.qa-q').forEach(btn=>{
   function t(){const d=new Date(Date.now()+new Date().getTimezoneOffset()*60000+6*3600000);
     el.textContent=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':')}
   t();setInterval(t,1000);document.getElementById('yr').textContent=new Date().getFullYear()})();
+
+/* ═══ HERO VIDEO ═══
+   Pick one file and attach it directly — no <source media> ladder, because that
+   is resolved once at parse time and would strand a desktop tab that opened
+   narrow on the 720p copy. AV1 is ~27% smaller than H.264 at matched VMAF on
+   this dithered pixel-art footage, so it is preferred wherever it decodes. */
+(function(){
+  const v=document.getElementById('hero-video');
+  if(!v)return;
+  const conn=navigator.connection||{};
+  const small=Math.max(innerWidth,innerHeight)<900||(innerWidth<900&&innerHeight<900);
+  const thin=conn.saveData===true||/(^|-)2g$/.test(conn.effectiveType||'');
+  /* a 1x phone screen cannot resolve 1440p; neither can a data-saver session */
+  const wantHi=!thin&&!small&&(devicePixelRatio>1||innerWidth>=1280);
+  const av1=v.canPlayType('video/mp4; codecs="av01.0.12M.08"')==='probably';
+  const src=!wantHi?'asset/hero/hero-720.h264.mp4'
+    :(av1?'asset/hero/hero-1440.av1.mp4':'asset/hero/hero-1440.h264.mp4');
+  v.src=src;
+  v.preload='auto';
+  v.load();
+  /* The hero opens on the art, so the chrome starts in its over-art state and
+     the giant morph in tick() takes it from there. That morph is gated on
+     !REDUCED and the giant is display:none under it, so when motion is reduced
+     the class is driven off the hero's own position instead. */
+  document.body.classList.add('hero-art');
+  if(REDUCED){
+    const hero=document.getElementById('top');
+    const sync=()=>document.body.classList.toggle('hero-art',
+      hero.getBoundingClientRect().bottom>innerHeight*.45);
+    addEventListener('scroll',sync,{passive:true});
+    addEventListener('resize',sync,{passive:true});
+    sync();
+    /* a looping background video is the motion the setting asks to avoid, so it
+       holds on the first frame — the frame still carries the composition */
+    v.removeAttribute('autoplay');v.pause();
+    v.addEventListener('play',()=>v.pause());
+    return;
+  }
+  /* autoplay can still be refused (low power mode); the poster then stands in */
+  const play=()=>{const p=v.play();if(p&&p.catch)p.catch(()=>{})};
+  if(v.readyState>=2)play();else v.addEventListener('loadeddata',play,{once:true});
+})();
 
 /* ═══ LOAD ═══ */
 (function(){const loader=document.getElementById('loader');

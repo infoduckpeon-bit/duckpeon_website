@@ -2,3 +2,7 @@ node_modules/
 _vframes/
 _vframes_fix/
 *.log
+
+# hero master: 93MB 4K mastering file, not served — the tiers in asset/hero/
+# are encoded from it (see HERO-ENCODE.md)
+asset/Hero.mp4
