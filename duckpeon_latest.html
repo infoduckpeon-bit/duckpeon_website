@@ -230,11 +230,18 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    edge. `--mark` is the wordmark's cap height and doubles as the art's bottom
    inset, so the two always meet exactly. */
 .hero{position:relative;height:100svh;overflow:hidden;
-  --mark:clamp(58px,13.5vw,196px);--frame:clamp(7px,.75vw,13px);
+  --frame:clamp(7px,.75vw,13px);
+  /* DUCKPEON measures 5.12em wide at -.045em tracking and its caps are .74em,
+     so sizing the word to 103.5% of the frame width (a 1.75% bleed each side,
+     as the comp has) fixes the band height rather than guessing it in vw. */
+  --mark-fs:calc((100vw - var(--frame) * 2) * 1.035 / 5.12);
+  --mark:calc(var(--mark-fs) * .74);
+  /* the reference leaves ~8% of the viewport as cream under the art */
+  --foot:8svh;
   padding-left:0;padding-right:0;background:var(--cream)}
 /* a thin cream frame, as in the reference (~11px on a 1512 comp) */
 .hero-media{position:absolute;left:var(--frame);right:var(--frame);top:var(--frame);
-  bottom:var(--mark);z-index:0;overflow:hidden}
+  bottom:calc(var(--mark) + var(--foot));z-index:0;overflow:hidden}
 .hero-media img{width:100%;height:100%;object-fit:cover;object-position:center 42%;
   display:block;transform:scale(1.06);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
@@ -251,34 +258,30 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   letter-spacing:-.025em;line-height:1.02;max-width:15ch;color:var(--cream);
   text-shadow:0 2px 30px rgba(40,18,36,.45)}
 
-/* ══ WORDMARK — the art's bottom edge, clipped to the letterforms ══ */
-.hero-mark{position:absolute;left:0;right:0;bottom:0;z-index:2;
-  height:var(--mark);pointer-events:none;overflow:hidden}
+/* ══ WORDMARK — cream letterforms knocked out of the art's foot ══
+   The band is the art continuing past the headline area; the type sits on top
+   in cream, so the letters read as holes punched in the image and the scene
+   shows between and around them. */
+.hero-mark{position:absolute;left:var(--frame);right:var(--frame);bottom:var(--foot);
+  z-index:2;height:var(--mark);pointer-events:none;overflow:hidden;
+  /* the same art, bottom-anchored, so this band continues the scene above */
+  background-image:var(--mark-img);
+  background-size:100% auto;
+  background-position:center bottom;
+  background-repeat:no-repeat}
 /* Measured from the loaded face: Inter Tight caps are .74em tall. Sizing at
    --mark/.74 makes the caps exactly the band height; line-height:var(--mark)
    centres that line box on the band, so the cap line sits on the band top and
    the baseline on its foot with no clipping either side. */
 .hero-mark span{display:block;font-family:var(--hero);font-weight:800;
   text-transform:uppercase;letter-spacing:-.045em;
-  font-size:calc(var(--mark) / .74);line-height:var(--mark);
-  text-align:center;white-space:nowrap;
-  /* the glyphs are filled with the same art, aligned to the section so the
-     foliage inside the counters continues the scene above it */
-  background-image:var(--mark-img);
-  /* the fill is the foot of the same art — the flowers and foliage that sit
-     just past the visible edge — so the glyphs read as the scene continuing
-     down into them rather than a second, unrelated crop */
-  background-size:100% auto;
-  background-position:center bottom;
-  background-repeat:no-repeat;
-  background-origin:border-box;
-  -webkit-background-clip:text;background-clip:text;
-  color:transparent}
-@supports not ((-webkit-background-clip:text) or (background-clip:text)){
-  .hero-mark span{color:var(--purple);background-image:none}}
+  font-size:var(--mark-fs);line-height:var(--mark);
+  text-align:center;white-space:nowrap;color:var(--cream);
+  /* the 3.5% overshoot in --mark-fs is the bleed; only the outer stems of the
+     D and N cross the frame, at every width */
+  }
 
 @media(max-width:640px){
-  .hero{--mark:clamp(42px,15vw,92px)}
   .hero-hl{max-width:none;font-size:clamp(27px,8.2vw,44px)}
   .hero-content{padding-top:clamp(64px,11vh,96px)}}
 
