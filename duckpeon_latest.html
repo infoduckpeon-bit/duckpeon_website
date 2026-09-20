@@ -230,28 +230,28 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    edge. `--mark` is the wordmark's cap height and doubles as the art's bottom
    inset, so the two always meet exactly. */
 .hero{position:relative;height:100svh;overflow:hidden;
-  --frame:clamp(7px,.75vw,13px);
+  /* No frame token: the PNG carries its own 23px cream border (1.04% of its
+     width) on all four sides, so adding one here doubled it. */
   /* DUCKPEON measures 5.12em wide at -.045em tracking and its caps are .74em,
-     so sizing the word to 103.5% of the frame width (a 1.75% bleed each side,
-     as the comp has) fixes the band height rather than guessing it in vw. */
-  --mark-fs:calc((100vw - var(--frame) * 2) * 1.035 / 5.12);
+     so sizing the word to 103.5% of the viewport gives the ~1.75%-a-side bleed
+     the comp has, and fixes the band height rather than guessing it in vw. */
+  --mark-fs:calc(100vw * 1.035 / 5.12);
   /* Width-derived so the word always runs edge to edge -- that bleed is the
      signature of the mark. The 32svh cap is only a backstop for extreme
      letterbox windows, where an uncapped band would leave no scene at all. */
   --mark:min(calc(var(--mark-fs) * .74),32svh);
-  /* Measured off the comp: the cream below the wordmark's baseline is only
-     3.3% of the frame, and the glyphs overhang the art's bottom edge rather
-     than sitting under it -- the art stops 19% of the cap height above the
-     baseline, so the letters straddle that edge. */
+  /* the cream below the wordmark's baseline, measured off the comp */
   --foot:3.3svh;
-  --overhang:calc(var(--mark) * .19);
   padding-left:0;padding-right:0;background:var(--cream)}
-/* a thin cream frame, as in the reference (~11px on a 1512 comp) */
-.hero-media{position:absolute;left:var(--frame);right:var(--frame);top:var(--frame);
-  bottom:calc(var(--foot) + var(--overhang));z-index:0;overflow:hidden}
+/* The art box stops at the wordmark's cap line. Width-scaled and top-anchored,
+   that puts the centre ducks' feet ~53px above the letters -- the comp measures
+   54px -- and the 198px it crops from the bottom is exactly what the wordmark
+   band then reveals through the glyphs. */
+.hero-media{position:absolute;left:0;right:0;top:0;
+  bottom:calc(var(--mark) + var(--foot));z-index:0;overflow:hidden}
 /* top-anchored rather than centre-cropped: it fixes the image's origin to the
-   frame's top edge, which is what lets the wordmark band continue the same
-   scene with a single offset instead of chasing a centred crop */
+   top edge, which is what lets the wordmark band continue the same scene with
+   a single offset instead of chasing a centred crop */
 .hero-media img{width:100%;height:100%;object-fit:cover;object-position:center top;
   display:block;transform:scale(1.06);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
@@ -277,11 +277,11 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 /* Same image, same width scale, offset by exactly the distance from the frame's
    top to this band -- so the scene runs continuously across the seam instead of
    the two layers sampling different crops. */
-.hero-mark{position:absolute;left:var(--frame);right:var(--frame);bottom:var(--foot);
+.hero-mark{position:absolute;left:0;right:0;bottom:var(--foot);
   z-index:3;height:var(--mark);pointer-events:none;overflow:hidden;
   background-image:var(--mark-img);
   background-size:100% auto;
-  background-position:center calc(-1 * (100svh - var(--frame) - var(--foot) - var(--mark)));
+  background-position:center calc(-1 * (100svh - var(--foot) - var(--mark)));
   background-repeat:no-repeat}
 /* Measured from the loaded face: Inter Tight caps are .74em tall. Sizing at
    --mark/.74 makes the caps exactly the band height; line-height:var(--mark)
