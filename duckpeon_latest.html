@@ -237,9 +237,10 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      the comp has, and fixes the band height rather than guessing it in vw. */
   /* weight 500: DUCKPEON is 5.2794em at zero tracking, less 7 x .0297em of
      negative tracking = 5.0715em; caps measure .75em on the loaded face.
-     1.018 rather than 1.035 so only the outer stems cross the frame and the
-     N's right edge stays visible. */
-  --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.018 / 5.0715);
+     The D and N each carry an ~.048em side bearing, so the INK is that much
+     narrower than the advance at each end. 1.0394 widens the word until the
+     ink itself spans the frame, rather than the advance box. */
+  --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.0394 / 5.0715);
   /* Width-derived, so the word always runs edge to edge -- that bleed is the
      mark's signature and the comp never breaks it. */
   --mark:calc(var(--mark-fs) * .75);
@@ -318,9 +319,10 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   text-align:center;white-space:nowrap;color:var(--cream);
   /* The D carries a .078em left side bearing, so its ink starts right of the
      line box and a strip of art shows beside the stem. Pulling the line back
-     lands the stem on the edge; .0353em rather than the full bearing, so the
-     N reaches the right edge too. */
-  transform:translateX(-.0353em);
+     lands the stem on the edge. With --mark-fs widened so the ink spans the
+     frame, .0813em centres that span: the D's ink starts at the left edge and
+     the N's ends at the right. */
+  transform:translateX(-.0813em);
   /* the 3.5% overshoot in --mark-fs is the bleed; only the outer stems of the
      D and N cross the frame */
   }
