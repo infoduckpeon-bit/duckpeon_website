@@ -234,8 +234,9 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      width) on all four sides, so adding one here doubled it. */
   /* DUCKPEON measures 5.12em wide at -.045em tracking and its caps are .74em,
      so sizing the word to 103.5% of the viewport gives the ~1.75%-a-side bleed
-     the comp has, and fixes the band height rather than guessing it in vw. */
-  --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.035 / 5.12);
+     the comp has, and fixes the band height rather than guessing it in vw.
+     5.346em / .75em cap are measured at weight 600 on the loaded face. */
+  --mark-fs:calc(100vw * 1.035 / 5.346);
   /* Width-derived, so the word always runs edge to edge -- that bleed is the
      mark's signature and the comp never breaks it. */
   --mark:calc(var(--mark-fs) * .74);
@@ -254,14 +255,14 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    wordmark seam), so the margin is a real inset -- and only on the three sides
    that are not the seam, so art and letters still meet flush. */
 .hero-media{position:absolute;left:var(--edge-m);right:var(--edge-m);top:var(--edge-m);
-  bottom:calc(var(--mark) + var(--foot));z-index:0;overflow:hidden}
-/* Centre-anchored. The ducks sit 45-70% down the raw art; on a wide, short
-   window the box keeps only ~52% of the image, so top-anchoring cropped them
-   away entirely and they survived only inside the letters. Centring keeps them
-   in frame, and the band below mirrors the same anchor so the seam still
-   matches to the pixel. */
+  bottom:calc(var(--mark) + var(--foot));z-index:0;overflow:hidden;
+}
+/* Top-anchored: the art box shows the image's head and the wordmark band its
+   foot, and the two together are exactly the drawn image -- which is why the
+   scene runs continuously across the seam. (Centre-anchoring breaks this: it
+   discards rows from the bottom that the band still has to show.) */
 .hero-media img{width:100%;height:100%;object-fit:cover;
-  object-position:center 50%;
+  object-position:center top;
   display:block;transform:scale(1.04);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
@@ -286,24 +287,45 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 /* Same image, same width scale, offset by exactly the distance from the frame's
    top to this band -- so the scene runs continuously across the seam instead of
    the two layers sampling different crops. */
+/* Shares the art's inset exactly -- a different width here would scale the
+   band's background differently and the scene would run out partway down the
+   letters. The type overflows this box to reach the page edges. */
 .hero-mark{position:absolute;left:var(--edge-m);right:var(--edge-m);bottom:var(--foot);
   z-index:3;height:var(--mark);pointer-events:none;overflow:hidden;
   background-image:var(--mark-img);
-  background-size:100% auto;
-  /* (band top - art top) + the centre-crop offset the art box applies, so the
-     two layers stay one continuous image */
-  background-position:center calc(
-    -1 * (100svh - var(--foot) - var(--mark))
-    - max(0px,(var(--art-drawn-h) - (100svh - var(--foot) - var(--mark)))) / 2);
+  /* `cover` mirrors the art's object-fit exactly, so both layers scale the
+     same way whichever axis dominates. The offset is the gap between the two
+     boxes plus the art's own centre-crop, so the scene runs straight through
+     the seam into the letters. */
+  /* The art box is (100svh - foot - mark - edge). Its image is cover-scaled, so
+     it is at least that tall; the band continues from exactly that offset with
+     the same scale, giving one continuous image across the seam. */
+  background-size:auto calc(max(
+    var(--art-drawn-h),
+    100svh - var(--foot) - var(--mark) - var(--edge-m) + var(--mark)));
+  background-position:center calc(-1 * (100svh - var(--foot) - var(--mark) - var(--edge-m)));
   background-repeat:no-repeat}
-/* Measured from the loaded face: Inter Tight caps are .74em tall. Sizing at
-   --mark/.74 makes the caps exactly the band height; line-height:var(--mark)
+/* Measured from the loaded face: Inter Tight caps are .75em tall. Sizing at
+   --mark/.75 makes the caps exactly the band height; line-height:var(--mark)
    centres that line box on the band, so the cap line sits on the band top and
    the baseline on its foot with no clipping either side. */
-.hero-mark span{display:block;font-family:var(--hero);font-weight:800;
+/* 600, not 800: at 800 the stem/cap ratio measures .236 against the comp's
+   .164, which reads as a much fatter face. 600 measures .176. */
+.hero-mark span{display:block;font-family:var(--hero);font-weight:600;
   text-transform:uppercase;letter-spacing:-.045em;
-  font-size:calc(var(--mark) / .74);line-height:var(--mark);
-  text-align:center;white-space:nowrap;color:var(--cream);
+  font-size:calc(var(--mark) / .75);line-height:var(--mark);
+  white-space:nowrap;color:var(--cream);
+  /* text-align:center centres the ADVANCE box, and letter-spacing pads that
+     box after the final N, so the ink sits right-of-centre and the D stops
+     short of the edge. Anchoring left and letting the line overflow puts the D
+     on x=0 once its .047em left side bearing (measured on the loaded face) is
+     pulled back; --mark-fs's 3.5% overshoot runs the N past the right edge,
+     which is what the comp shows. */
+  text-align:left;
+  /* -.047em cancels the D's left side bearing (measured on the loaded face),
+     and the negative inset carries the line out to the page edge, since the
+     band itself is inset with the art */
+  margin-left:calc(-.047em - var(--edge-m));
   /* the 3.5% overshoot in --mark-fs is the bleed; only the outer stems of the
      D and N cross the frame */
   }
