@@ -297,14 +297,16 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   /* the box spans the page so the D and N can reach its edges, while the
      background is inset to stay aligned with the art above */
   padding-inline:var(--edge-m);box-sizing:border-box;
-  background-origin:content-box;background-clip:content-box;
+  background-origin:padding-box;background-clip:padding-box;
   background-image:var(--mark-img);
-  background-size:100% auto;
+  background-size:calc(100% - 2 * var(--edge-m)) auto;
   /* (band top - art top) + the centre-crop offset the art box applies, so the
      two layers stay one continuous image */
-  background-position:center calc(
-    -1 * (100svh - var(--foot) - var(--mark))
-    - max(0px,(var(--art-drawn-h) - (100svh - var(--foot) - var(--mark)))) / 2);
+  /* Anchored to the image's bottom rather than offset from the art: the
+     computed offset could ask for rows past the image's end, leaving the foot
+     of the band with nothing to paint -- which is what made the N's right stem
+     disappear into cream. */
+  background-position:var(--edge-m) bottom;
   background-repeat:no-repeat}
 /* Measured from the loaded face: Inter Tight caps are .74em tall. Sizing at
    --mark/.74 makes the caps exactly the band height; line-height:var(--mark)
@@ -1885,16 +1887,21 @@ document.querySelectorAll('.qa-q').forEach(btn=>{
   };
   const fit=()=>{
     const hero=band.closest('.hero');
+    const art=document.querySelector('.hero-media');
+    if(!art)return;
     for(let i=0;i<2;i++){
+      const box=art.getBoundingClientRect();
       const ink=inkOf();
       const w=ink.right-ink.left;
-      if(!(w>0))return;
-      /* scale so the ink spans the viewport, then centre what is left */
-      const fs=ink.fs*(innerWidth/w);
+      if(!(w>0)||!(box.width>0))return;
+      /* Fit to the ART box, not the viewport: a glyph outside the art has no
+         image to reveal and paints cream on cream, which reads as a cut-off
+         letter even though its geometry is correct. */
+      const fs=ink.fs*(box.width/w);
       hero.style.setProperty('--mark-fs',fs+'px');
       const after=inkOf();
       hero.style.setProperty('--mark-dx',
-        (-after.left-(after.right-after.left-innerWidth)/2)+'px');
+        (box.left-after.left-(after.right-after.left-box.width)/2)+'px');
     }
   };
   const run=()=>{fit();};
