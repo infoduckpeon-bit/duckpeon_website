@@ -236,12 +236,13 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      so sizing the word to 103.5% of the viewport gives the ~1.75%-a-side bleed
      the comp has, and fixes the band height rather than guessing it in vw. */
   --mark-fs:calc(100vw * 1.035 / 5.12);
-  /* Width-derived so the word always runs edge to edge -- that bleed is the
-     signature of the mark. The 32svh cap is only a backstop for extreme
-     letterbox windows, where an uncapped band would leave no scene at all. */
-  --mark:min(calc(var(--mark-fs) * .74),32svh);
+  /* Width-derived, so the word always runs edge to edge -- that bleed is the
+     mark's signature and the comp never breaks it. */
+  --mark:calc(var(--mark-fs) * .74);
   /* the cream below the wordmark's baseline, measured off the comp */
   --foot:3.3svh;
+  /* the art is width-scaled: 1244/2211 of the viewport width */
+  --art-drawn-h:calc(100vw * 1244 / 2211);
   padding-left:0;padding-right:0;background:var(--cream)}
 /* The art box stops at the wordmark's cap line. Width-scaled and top-anchored,
    that puts the centre ducks' feet ~53px above the letters -- the comp measures
@@ -249,10 +250,13 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    band then reveals through the glyphs. */
 .hero-media{position:absolute;left:0;right:0;top:0;
   bottom:calc(var(--mark) + var(--foot));z-index:0;overflow:hidden}
-/* top-anchored rather than centre-cropped: it fixes the image's origin to the
-   top edge, which is what lets the wordmark band continue the same scene with
-   a single offset instead of chasing a centred crop */
-.hero-media img{width:100%;height:100%;object-fit:cover;object-position:center top;
+/* Centre-anchored. The ducks sit 45-70% down the raw art; on a wide, short
+   window the box keeps only ~52% of the image, so top-anchoring cropped them
+   away entirely and they survived only inside the letters. Centring keeps them
+   in frame, and the band below mirrors the same anchor so the seam still
+   matches to the pixel. */
+.hero-media img{width:100%;height:100%;object-fit:cover;
+  object-position:center 50%;
   display:block;transform:scale(1.06);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
@@ -281,7 +285,11 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   z-index:3;height:var(--mark);pointer-events:none;overflow:hidden;
   background-image:var(--mark-img);
   background-size:100% auto;
-  background-position:center calc(-1 * (100svh - var(--foot) - var(--mark)));
+  /* (band top - art top) + the centre-crop offset the art box applies, so the
+     two layers stay one continuous image */
+  background-position:center calc(
+    -1 * (100svh - var(--foot) - var(--mark))
+    - max(0px,(var(--art-drawn-h) - (100svh - var(--foot) - var(--mark)))) / 2);
   background-repeat:no-repeat}
 /* Measured from the loaded face: Inter Tight caps are .74em tall. Sizing at
    --mark/.74 makes the caps exactly the band height; line-height:var(--mark)
@@ -292,7 +300,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   font-size:calc(var(--mark) / .74);line-height:var(--mark);
   text-align:center;white-space:nowrap;color:var(--cream);
   /* the 3.5% overshoot in --mark-fs is the bleed; only the outer stems of the
-     D and N cross the frame, at every width */
+     D and N cross the frame */
   }
 
 @media(max-width:640px){
