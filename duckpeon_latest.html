@@ -257,9 +257,13 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    matches to the pixel. */
 .hero-media img{width:100%;height:100%;object-fit:cover;
   object-position:center 50%;
-  display:block;transform:scale(1.06);filter:blur(7px);
+  display:block;transform:scale(1.025);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
-.ready .hero-media img{transform:scale(1);filter:blur(0)}
+/* 1.025, not 1: the PNG carries a 23px cream border (1.04% of its width) and
+   at rest the crop can land on it, printing a hairline across the seam. The
+   scale pushes that baked frame outside the clip. The wordmark band applies
+   the same factor so the two layers stay aligned. */
+.ready .hero-media img{transform:scale(1.025);filter:blur(0)}
 /* The comp carries no scrim -- the headline sits on dark foliage, which
    measures 5.61:1 against cream. Only the brightest ~8% of that zone (the moon
    and the sky gaps) drops as low as 1.73:1, so the tint is a soft corner wash
