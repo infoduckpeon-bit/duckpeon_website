@@ -316,10 +316,11 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   text-transform:uppercase;letter-spacing:-.0297em;
   font-size:calc(var(--mark) / .75);line-height:var(--mark);
   text-align:center;white-space:nowrap;color:var(--cream);
-  /* The D carries a .078em left side bearing, so its ink starts that far right
-     of the line box and a strip of art shows beside the stem. Pulling the line
-     back by the bearing lands the stem on the art's left edge, as in the comp. */
-  transform:translateX(-.078em);
+  /* The D carries a .078em left side bearing, so its ink starts right of the
+     line box and a strip of art shows beside the stem. Pulling the line back
+     lands the stem on the edge; .0353em rather than the full bearing, so the
+     N reaches the right edge too. */
+  transform:translateX(-.0353em);
   /* the 3.5% overshoot in --mark-fs is the bleed; only the outer stems of the
      D and N cross the frame */
   }
