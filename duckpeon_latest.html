@@ -235,7 +235,10 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      so sizing the word to 103.5% of the frame width (a 1.75% bleed each side,
      as the comp has) fixes the band height rather than guessing it in vw. */
   --mark-fs:calc((100vw - var(--frame) * 2) * 1.035 / 5.12);
-  --mark:calc(var(--mark-fs) * .74);
+  /* Width-derived so the word always runs edge to edge -- that bleed is the
+     signature of the mark. The 32svh cap is only a backstop for extreme
+     letterbox windows, where an uncapped band would leave no scene at all. */
+  --mark:min(calc(var(--mark-fs) * .74),32svh);
   /* Measured off the comp: the cream below the wordmark's baseline is only
      3.3% of the frame, and the glyphs overhang the art's bottom edge rather
      than sitting under it -- the art stops 19% of the cap height above the
@@ -253,11 +256,13 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   display:block;transform:scale(1.06);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
-/* The art runs bright across the sky (cream measures 1.01:1 on its lightest
-   patches), so the headline gets a scrim rather than relying on the art. */
+/* The comp carries no scrim -- the headline sits on dark foliage, which
+   measures 5.61:1 against cream. Only the brightest ~8% of that zone (the moon
+   and the sky gaps) drops as low as 1.73:1, so the tint is a soft corner wash
+   over the type only. A full-width band was dimming the ducks at centre. */
 .hero-media::after{content:'';position:absolute;inset:0;z-index:1;
-  background:linear-gradient(180deg,rgba(40,18,36,.52) 0%,rgba(40,18,36,.16) 30%,
-    transparent 52%)}
+  background:radial-gradient(120% 90% at 0% 0%,
+    rgba(40,18,36,.55) 0%,rgba(40,18,36,.30) 32%,rgba(40,18,36,.08) 52%,transparent 68%)}
 .hero-content{position:absolute;inset:0;z-index:2;
   padding:clamp(76px,9vh,132px) var(--edge) 0}
 .hero-hl{position:relative;z-index:2;font-family:var(--hero);
@@ -284,7 +289,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    the baseline on its foot with no clipping either side. */
 .hero-mark span{display:block;font-family:var(--hero);font-weight:800;
   text-transform:uppercase;letter-spacing:-.045em;
-  font-size:var(--mark-fs);line-height:var(--mark);
+  font-size:calc(var(--mark) / .74);line-height:var(--mark);
   text-align:center;white-space:nowrap;color:var(--cream);
   /* the 3.5% overshoot in --mark-fs is the bleed; only the outer stems of the
      D and N cross the frame, at every width */
