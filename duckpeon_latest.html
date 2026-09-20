@@ -260,9 +260,9 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    measures 5.61:1 against cream. Only the brightest ~8% of that zone (the moon
    and the sky gaps) drops as low as 1.73:1, so the tint is a soft corner wash
    over the type only. A full-width band was dimming the ducks at centre. */
-.hero-media::after{content:'';position:absolute;inset:0;z-index:1;
-  background:radial-gradient(120% 90% at 0% 0%,
-    rgba(40,18,36,.55) 0%,rgba(40,18,36,.30) 32%,rgba(40,18,36,.08) 52%,transparent 68%)}
+/* No scrim: the comp has none. The headline sits on the tree canopy, which
+   measures 5.61:1 against cream -- the art was drawn with that corner dark for
+   exactly this reason. */
 .hero-content{position:absolute;inset:0;z-index:2;
   padding:clamp(76px,9vh,132px) var(--edge) 0}
 .hero-hl{position:relative;z-index:2;font-family:var(--hero);
