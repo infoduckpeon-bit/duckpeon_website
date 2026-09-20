@@ -1,8 +1,15 @@
 # Hero video encode
 
+> **Not currently shipped.** The hero now uses a static PNG
+> (`asset/hero/hero_static.png`), so none of the files below are referenced by
+> the page. They are kept because the encode work is measured and reproducible;
+> `--mark-img` and `.hero-media img` in `duckpeon_latest.html` are the only
+> places the hero art is named, so switching back is a two-line change plus
+> restoring the `<video>` element.
+
 The hero art (`asset/Hero.mp4`, 3840×2160 / 30fps / 24.8 Mbps / 93 MB) is a
-mastering file. It is **not committed** and **not served**. The three tiers in
-`asset/hero/` are encoded from it and are what ships.
+mastering file. It is **not committed**. The three tiers in `asset/hero/` are
+encoded from it, and were what shipped while the hero was a video.
 
 | File | Codec | Size | Bitrate | Serves |
 |---|---|---|---|---|

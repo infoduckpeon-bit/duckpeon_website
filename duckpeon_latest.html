@@ -6,7 +6,7 @@
 <title>Duckpeon — Creator-Led Agency</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@300;400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wdth,wght@0,62..125,100..900;1,62..125,100..900&family=Inter+Tight:wght@400..900&family=Instrument+Serif:ital@0;1&family=Martian+Mono:wght@300;400;600&display=swap" rel="stylesheet">
 <style>
 :root{
   --purple:#622372;--purple-deep:#2a1030;
@@ -28,6 +28,9 @@
   --bg:rgb(var(--bg-now));--fg:rgb(var(--fg-now));--mu:rgb(var(--mu-now));
   --ln:rgba(var(--ln-now),var(--ln-a));--ac:rgb(var(--ac-now));
   --display:'Archivo',system-ui,sans-serif;
+  /* hero only: the sections below stay on Archivo */
+  --hero:'Inter Tight','Archivo',system-ui,sans-serif;
+  --mark-img:url('asset/hero/hero_static.png');
   --serif:'Instrument Serif',Georgia,serif;
   --mono:'Martian Mono',ui-monospace,monospace;
   --ease:cubic-bezier(.16,1,.3,1);--ease2:cubic-bezier(.76,0,.24,1);
@@ -66,17 +69,8 @@ button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
   0%,100%{filter:drop-shadow(0 0 4px rgba(226,99,140,.30)) drop-shadow(0 0 12px rgba(226,99,140,.18))}
   50%{filter:drop-shadow(0 0 8px rgba(226,99,140,.70)) drop-shadow(0 0 22px rgba(226,99,140,.35))}}
 /* On dark aubergine surfaces the glow can be brighter */
-.overlay .brand-d,.hero .brand-d,.giant .brand-d,.statement .brand-d,.work .brand-d{
+.overlay .brand-d,.hero .brand-d,.statement .brand-d,.work .brand-d{
   filter:drop-shadow(0 0 6px rgba(246,161,189,.5)) drop-shadow(0 0 20px rgba(226,99,140,.3))}
-/* the mark carries its own purple plate, which turns into a solid block against
-   the hero art — a cream rim separates it the way the cream page did */
-/* brandGlow animates `filter`, and an animated property wins over a normal
-   declaration whatever its specificity — the glow has to stop for the rim */
-.giant.over-art .brand-d{
-  animation:none;
-  filter:drop-shadow(1.5px 0 0 rgba(244,237,226,.92)) drop-shadow(-1.5px 0 0 rgba(244,237,226,.92))
-    drop-shadow(0 1.5px 0 rgba(244,237,226,.92)) drop-shadow(0 -1.5px 0 rgba(244,237,226,.92))
-    drop-shadow(0 0 24px rgba(226,99,140,.34))}
 @media(prefers-reduced-motion:reduce){.brand-d{animation:none}}
 
 
@@ -152,6 +146,16 @@ header{position:fixed;top:0;left:0;right:0;z-index:800;
   transition:opacity 1s var(--ease) .55s,transform 1s var(--ease) .55s}
 .ready header{opacity:1;transform:none}
 .hdr-social{display:flex;gap:18px}
+.hdr-social a i{font-style:normal;margin-left:2px;font-size:.92em}
+/* over the hero art the links sit top-right beside the burger, as in the
+   reference. The whole bar is re-columned so the brand slot collapses rather
+   than stretching; every other section keeps the 3-column grid. */
+body.hero-art header{grid-template-columns:1fr auto auto;
+  column-gap:26px;align-items:start}
+body.hero-art .hdr-social{grid-column:2;color:var(--ochre);align-self:center}
+body.hero-art .hdr-social a{opacity:.95}
+body.hero-art .hdr-brand{grid-column:1;justify-self:start}
+body.hero-art .hdr-right{grid-column:3}
 .hdr-social a{font-family:var(--mono);font-size:9px;letter-spacing:.1em;
   text-transform:uppercase;opacity:.7;position:relative;transition:opacity .3s}
 .hdr-social a::after{content:'';position:absolute;left:0;right:0;bottom:-3px;height:1px;
@@ -222,64 +226,61 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .ser{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.015em}
 
 /* ═══ HERO ═══ */
-.hero{position:relative;height:100svh;overflow:hidden}
-.hero-media{position:absolute;inset:0;z-index:0;overflow:hidden}
-.hero-media video{width:100%;height:100%;object-fit:cover;
-  transform:scale(1.28);filter:blur(8px);
-  transition:transform 2.4s var(--ease) .1s,filter 1.4s var(--ease) .1s}
-.ready .hero-media video{transform:scale(1.02);filter:blur(0)}
-/* the hero art is dark purple, so the scrim now lifts legibility rather than
-   knocking back a bright plate: dark top for the headline, dark foot for the
-   wordmark, art left clean through the middle */
+/* The hero is one composition: art on top, wordmark cut out of its bottom
+   edge. `--mark` is the wordmark's cap height and doubles as the art's bottom
+   inset, so the two always meet exactly. */
+.hero{position:relative;height:100svh;overflow:hidden;
+  --mark:clamp(58px,13.5vw,196px);--frame:clamp(7px,.75vw,13px);
+  padding-left:0;padding-right:0;background:var(--cream)}
+/* a thin cream frame, as in the reference (~11px on a 1512 comp) */
+.hero-media{position:absolute;left:var(--frame);right:var(--frame);top:var(--frame);
+  bottom:var(--mark);z-index:0;overflow:hidden}
+.hero-media img{width:100%;height:100%;object-fit:cover;object-position:center 42%;
+  display:block;transform:scale(1.06);filter:blur(7px);
+  transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
+.ready .hero-media img{transform:scale(1);filter:blur(0)}
+/* The art runs bright across the sky (cream measures 1.01:1 on its lightest
+   patches), so the headline gets a scrim rather than relying on the art. */
 .hero-media::after{content:'';position:absolute;inset:0;
-  background:
-    linear-gradient(180deg,rgba(26,13,32,.58) 0%,rgba(26,13,32,.14) 26%,transparent 46%,
-      rgba(26,13,32,.22) 68%,rgba(26,13,32,.62) 100%)}
-.crosshairs{position:absolute;inset:0;z-index:1;pointer-events:none}
-.xh{position:absolute;width:11px;height:11px;opacity:.42;color:var(--cream)}
-.xh::before,.xh::after{content:'';position:absolute;background:currentColor}
-.xh::before{width:11px;height:1px;top:5px;left:0}
-.xh::after{width:1px;height:11px;top:0;left:5px}
-.hero-content{position:absolute;inset:0;z-index:2;padding:calc(70px + var(--gut)) var(--edge) 0}
-.hero-hl{position:relative;z-index:2;font-size:clamp(28px,3.5vw,52px);font-weight:500;
-  letter-spacing:-.03em;line-height:1.12;max-width:14ch;color:var(--cream);
-  text-shadow:0 1px 26px rgba(26,13,32,.5)}
-.hero-sub{display:flex;align-items:center;gap:10px;margin-top:20px;
-  font-family:var(--mono);font-size:10px;letter-spacing:.09em;text-transform:uppercase;
-  color:rgba(244,237,226,.72)}
-.hero-sub::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--chartreuse);
-  box-shadow:0 0 12px rgba(212,245,66,.7);
-  flex:none;animation:pulse 2.8s var(--ease) infinite}
-.hero-tag{position:absolute;top:calc(70px + var(--gut));right:var(--edge);z-index:2;
-  text-align:right;font-family:var(--serif);font-style:italic;
-  font-size:clamp(24px,3vw,46px);line-height:1.06;color:var(--cream);
-  text-shadow:0 1px 26px rgba(26,13,32,.45)}
-/* below ~640px the headline and the tag are both absolute on the same row and
-   collide (they measured -29px apart at 360). The tag moves under the headline
-   and left-aligns with it rather than shrinking both to fit. */
-@media(max-width:640px){
-  /* .hero-tag is a sibling of .hero-content, so it is placed by the section
-     grid, not by the content block — order keeps it under the headline */
-  .hero{display:grid;grid-template-rows:auto auto 1fr;
-    align-content:start;padding:calc(70px + var(--gut)) 0 0}
-  /* the media stays absolute and section-filling; only the type is re-flowed */
-  .hero-media,.crosshairs{position:absolute;inset:0}
-  .hero-content{position:static;grid-row:1;padding:0 var(--edge);order:1;z-index:2}
-  .hero-tag{position:static;grid-row:2;order:2;text-align:left;
-    margin:16px 0 0;padding:0 var(--edge);font-size:clamp(21px,7.2vw,32px)}
-  .hero-hl{max-width:none}}
+  background:linear-gradient(180deg,rgba(40,18,36,.52) 0%,rgba(40,18,36,.16) 30%,
+    transparent 52%)}
+.hero-content{position:absolute;inset:0;z-index:2;
+  padding:clamp(76px,9vh,132px) var(--edge) 0}
+.hero-hl{position:relative;z-index:2;font-family:var(--hero);
+  font-size:clamp(30px,5vw,74px);font-weight:700;text-transform:uppercase;
+  letter-spacing:-.025em;line-height:1.02;max-width:15ch;color:var(--cream);
+  text-shadow:0 2px 30px rgba(40,18,36,.45)}
 
-/* ═══ GIANT WORDMARK ═══ */
-.giant{position:fixed;z-index:810;pointer-events:none;left:0;right:0;bottom:0;
-  display:flex;justify-content:center;will-change:transform,opacity;transition:opacity .1s linear}
-.giant-text{font-size:clamp(68px,17.5vw,320px);font-weight:800;letter-spacing:-.06em;
-  line-height:.82;font-stretch:105%;color:var(--purple);white-space:nowrap;
-  transform-origin:center bottom;will-change:transform}
-.giant sup{font-size:.13em;vertical-align:super;color:var(--aubergine);opacity:.55}
-/* over the hero art the wordmark is cream — purple on that frame measures
-   1.14:1. `.over-art` is dropped once the giant clears the video. */
-.giant.over-art .giant-text{color:var(--cream)}
-.giant.over-art sup{color:var(--cream);opacity:.6}
+/* ══ WORDMARK — the art's bottom edge, clipped to the letterforms ══ */
+.hero-mark{position:absolute;left:0;right:0;bottom:0;z-index:2;
+  height:var(--mark);pointer-events:none;overflow:hidden}
+/* Measured from the loaded face: Inter Tight caps are .74em tall. Sizing at
+   --mark/.74 makes the caps exactly the band height; line-height:var(--mark)
+   centres that line box on the band, so the cap line sits on the band top and
+   the baseline on its foot with no clipping either side. */
+.hero-mark span{display:block;font-family:var(--hero);font-weight:800;
+  text-transform:uppercase;letter-spacing:-.045em;
+  font-size:calc(var(--mark) / .74);line-height:var(--mark);
+  text-align:center;white-space:nowrap;
+  /* the glyphs are filled with the same art, aligned to the section so the
+     foliage inside the counters continues the scene above it */
+  background-image:var(--mark-img);
+  /* the fill is the foot of the same art — the flowers and foliage that sit
+     just past the visible edge — so the glyphs read as the scene continuing
+     down into them rather than a second, unrelated crop */
+  background-size:100% auto;
+  background-position:center bottom;
+  background-repeat:no-repeat;
+  background-origin:border-box;
+  -webkit-background-clip:text;background-clip:text;
+  color:transparent}
+@supports not ((-webkit-background-clip:text) or (background-clip:text)){
+  .hero-mark span{color:var(--purple);background-image:none}}
+
+@media(max-width:640px){
+  .hero{--mark:clamp(42px,15vw,92px)}
+  .hero-hl{max-width:none;font-size:clamp(27px,8.2vw,44px)}
+  .hero-content{padding-top:clamp(64px,11vh,96px)}}
 
 /* ═══ STATEMENT ═══ */
 
@@ -849,7 +850,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   .rv,.wi,.clip,.clip img,.clip video{opacity:1!important;transform:none!important;
     clip-path:none!important;filter:none!important}
   .hero-media,.hero-media video,.frame-media,.frame-body{transform:none!important;filter:none!important}
-  .loader,.cursor,.giant{display:none}
+  .loader,.cursor{display:none}
   /* network + amplification resolve to their finished state */
   .net-svg .lnk{stroke-dashoffset:0!important}
   .net-svg .nd,.net-tag,.net-sub,.prop-out-main,
@@ -888,9 +889,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 </div>
 
 <!-- GIANT WORDMARK -->
-<div class="giant" id="giant" aria-hidden="true">
-  <div class="giant-text" id="giant-text"><span class="brand-d"></span>uckpeon<sup>®</sup></div>
-</div>
+
 
 <!-- CURSOR -->
 <div class="cursor" id="cursor" aria-hidden="true">View</div>
@@ -905,7 +904,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
 <!-- HEADER -->
 <header id="hdr">
-  <div class="hdr-social"><a href="#">WA</a><a href="#">X</a><a href="#">IG</a><a href="#">LI</a><a href="#">EMAIL</a></div>
+  <div class="hdr-social"><a href="mailto:info.duckpeon@gmail.com">Email<i>↗</i></a><a href="#">IG<i>↗</i></a><a href="#">LI<i>↗</i></a></div>
   <a href="#top" class="hdr-brand" id="hdr-brand">
     <span class="hdr-wordmark"><span class="brand-d"></span>uckpeon</span>
   </a>
@@ -935,18 +934,15 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 <section class="hero" id="top"
   data-bg="244,237,226" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".2" data-ac="212,245,66">
   <div class="hero-media" id="hero-media">
-    <!-- sources are injected by the tier picker below: the choice depends on
-         viewport, DPR and saveData, which a `media` attribute can't express -->
-    <video id="hero-video" poster="asset/hero/hero-poster.jpg"
-      muted loop playsinline autoplay preload="none"
-      disablepictureinpicture disableremoteplayback></video>
+    <img id="hero-img" src="asset/hero/hero_static.png" alt="" decoding="async" fetchpriority="high">
   </div>
-  <div class="crosshairs" id="xhairs" aria-hidden="true"></div>
   <div class="hero-content">
-    <h1 class="hero-hl split" data-delay="620">Bangladesh's first creator-led agency.</h1>
-    <div class="hero-sub rv d3">Culture-first marketing from Dhaka</div>
+    <h1 class="hero-hl split" data-delay="620">Bangladesh's first creator-led agency</h1>
   </div>
-  <div class="hero-tag split" data-delay="800"><span class="ser">Creator-Led</span><br><span class="ser">Agency—</span></div>
+  <!-- The wordmark is the art's bottom edge: the same PNG, clipped to the
+       letterforms, so the counters show foliage and everything outside them is
+       the cream page. aria-hidden because the h1 already names the agency. -->
+  <div class="hero-mark" aria-hidden="true"><span>Duckpeon</span></div>
 </section>
 
 <!-- STATEMENT -->
@@ -1382,8 +1378,6 @@ function stmtStep(){
 /* ═══ SCROLL SYSTEM ═══ */
 const root=document.documentElement;
 const heroMedia=document.getElementById('hero-media');
-const giant=document.getElementById('giant');
-const giantText=document.getElementById('giant-text');
 const hdrBrand=document.getElementById('hdr-brand');
 const parallax=[...document.querySelectorAll('.par')];
 const frames=[...document.querySelectorAll('.frame')];
@@ -1407,36 +1401,24 @@ let cBg=[42,16,48],cFg=[244,245,249],cMu=[178,166,186],cLn=[244,245,249],cAc=[24
 let lastPaint='',mqX=0,mqW=0;
 let beltAX=0,beltAW=0,beltBX=0,beltBW=0;
 const beltA=document.getElementById('belt-a'),beltB=document.getElementById('belt-b');
-let giantFontSize=0;
-
-function measureGiant(){
-  if(giantText)giantFontSize=parseFloat(getComputedStyle(giantText).fontSize)}
-addEventListener('resize',measureGiant);
 
 function tick(){
   Scroll.tick();Cursor.tick();
   const y=Scroll.y,vh=innerHeight,v=Scroll.v;
 
-  /* GIANT WORDMARK MORPH */
-  if(giant&&giantText&&!REDUCED){
+  /* HERO CHROME — the wordmark now lives in the hero itself, so this only
+     hands the brand over to the header and keeps the frame readable on art */
+  {
     const p=clamp01(y/(vh*.55));
-    const scale=giantFontSize?lerp(1,16/giantFontSize,p):1-p*.9;
-    const ty=lerp(0,-(vh-36),p);
-    giantText.style.transform=`scale(${scale})`;
-    giant.style.transform=`translateY(${ty}px)`;
-    giant.style.opacity=String(p>.92?0:1);
-    /* cream while the wordmark sits on the video, purple once it has left it */
-    giant.classList.toggle('over-art',p<.55);
     document.body.classList.toggle('hero-art',p<.55);
     hdrBrand.classList.toggle('vis',p>.88);
   }
 
-  /* hero media recedes */
+  /* hero art recedes */
   if(heroMedia&&!REDUCED){
     const p=clamp01(y/vh);
-    heroMedia.style.transform=`scale(${1-p*.16}) translateY(${p*48}px)`;
-    heroMedia.style.borderRadius=(p*20)+'px';
-    heroMedia.style.opacity=String(1-p*.3);
+    heroMedia.style.transform=`scale(${1-p*.1}) translateY(${p*36}px)`;
+    heroMedia.style.opacity=String(1-p*.35);
   }
 
   /* statement floats */
@@ -1822,46 +1804,13 @@ document.querySelectorAll('.qa-q').forEach(btn=>{
     el.textContent=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':')}
   t();setInterval(t,1000);document.getElementById('yr').textContent=new Date().getFullYear()})();
 
-/* ═══ HERO VIDEO ═══
-   Pick one file and attach it directly — no <source media> ladder, because that
-   is resolved once at parse time and would strand a desktop tab that opened
-   narrow on the 720p copy. AV1 is ~27% smaller than H.264 at matched VMAF on
-   this dithered pixel-art footage, so it is preferred wherever it decodes. */
+/* ═══ HERO CHROME ═══
+   The hero opens on the art, so the viewfinder chrome starts in its over-art
+   state; tick() takes it from there. tick() runs under REDUCED too, but the
+   scroll position it reads is the native one, so this only seeds the class. */
 (function(){
-  const v=document.getElementById('hero-video');
-  if(!v)return;
-  const conn=navigator.connection||{};
-  const small=Math.max(innerWidth,innerHeight)<900||(innerWidth<900&&innerHeight<900);
-  const thin=conn.saveData===true||/(^|-)2g$/.test(conn.effectiveType||'');
-  /* a 1x phone screen cannot resolve 1440p; neither can a data-saver session */
-  const wantHi=!thin&&!small&&(devicePixelRatio>1||innerWidth>=1280);
-  const av1=v.canPlayType('video/mp4; codecs="av01.0.12M.08"')==='probably';
-  const src=!wantHi?'asset/hero/hero-720.h264.mp4'
-    :(av1?'asset/hero/hero-1440.av1.mp4':'asset/hero/hero-1440.h264.mp4');
-  v.src=src;
-  v.preload='auto';
-  v.load();
-  /* The hero opens on the art, so the chrome starts in its over-art state and
-     the giant morph in tick() takes it from there. That morph is gated on
-     !REDUCED and the giant is display:none under it, so when motion is reduced
-     the class is driven off the hero's own position instead. */
+  if(!document.getElementById('hero-img'))return;
   document.body.classList.add('hero-art');
-  if(REDUCED){
-    const hero=document.getElementById('top');
-    const sync=()=>document.body.classList.toggle('hero-art',
-      hero.getBoundingClientRect().bottom>innerHeight*.45);
-    addEventListener('scroll',sync,{passive:true});
-    addEventListener('resize',sync,{passive:true});
-    sync();
-    /* a looping background video is the motion the setting asks to avoid, so it
-       holds on the first frame — the frame still carries the composition */
-    v.removeAttribute('autoplay');v.pause();
-    v.addEventListener('play',()=>v.pause());
-    return;
-  }
-  /* autoplay can still be refused (low power mode); the poster then stands in */
-  const play=()=>{const p=v.play();if(p&&p.catch)p.catch(()=>{})};
-  if(v.readyState>=2)play();else v.addEventListener('loadeddata',play,{once:true});
 })();
 
 /* ═══ LOAD ═══ */
@@ -1870,9 +1819,6 @@ document.querySelectorAll('.qa-q').forEach(btn=>{
   function go(){
     document.body.classList.add('ready');
     document.querySelectorAll('.hero .split').forEach(el=>el.classList.add('in'));
-    /* measure the giant AFTER fonts are in, so the morph maths are exact */
-    if(document.fonts&&document.fonts.ready){document.fonts.ready.then(measureGiant)}
-    measureGiant();
     requestAnimationFrame(tick)}
   if(REDUCED){loader.remove();go();return}
   const t0=performance.now(),dur=1050;
