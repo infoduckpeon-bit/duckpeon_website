@@ -30,7 +30,7 @@
   --display:'Archivo',system-ui,sans-serif;
   /* hero only: the sections below stay on Archivo */
   --hero:'Inter Tight','Archivo',system-ui,sans-serif;
-  --mark-img:url('asset/hero/hero_static.png');
+  --mark-img:url('asset/hero/hero_art.png');
   --serif:'Instrument Serif',Georgia,serif;
   --mono:'Martian Mono',ui-monospace,monospace;
   --ease:cubic-bezier(.16,1,.3,1);--ease2:cubic-bezier(.76,0,.24,1);
@@ -235,20 +235,25 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   /* DUCKPEON measures 5.12em wide at -.045em tracking and its caps are .74em,
      so sizing the word to 103.5% of the viewport gives the ~1.75%-a-side bleed
      the comp has, and fixes the band height rather than guessing it in vw. */
-  --mark-fs:calc(100vw * 1.035 / 5.12);
+  --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.035 / 5.12);
   /* Width-derived, so the word always runs edge to edge -- that bleed is the
      mark's signature and the comp never breaks it. */
   --mark:calc(var(--mark-fs) * .74);
   /* the cream below the wordmark's baseline, measured off the comp */
   --foot:3.3svh;
   /* the art is width-scaled: 1244/2211 of the viewport width */
-  --art-drawn-h:calc(100vw * 1244 / 2211);
+  --art-drawn-h:calc((100vw - 2 * var(--edge-m)) * 1198 / 2165);
+  --edge-m:clamp(7px,.73vw,13px);
   padding-left:0;padding-right:0;background:var(--cream)}
 /* The art box stops at the wordmark's cap line. Width-scaled and top-anchored,
    that puts the centre ducks' feet ~53px above the letters -- the comp measures
    54px -- and the 198px it crops from the bottom is exactly what the wordmark
    band then reveals through the glyphs. */
-.hero-media{position:absolute;left:0;right:0;top:0;
+/* The comp's ~11px cream margin came from the PNG's baked border. That border
+   is cropped out of the source now (it was also printing a hairline across the
+   wordmark seam), so the margin is a real inset -- and only on the three sides
+   that are not the seam, so art and letters still meet flush. */
+.hero-media{position:absolute;left:var(--edge-m);right:var(--edge-m);top:var(--edge-m);
   bottom:calc(var(--mark) + var(--foot));z-index:0;overflow:hidden}
 /* Centre-anchored. The ducks sit 45-70% down the raw art; on a wide, short
    window the box keeps only ~52% of the image, so top-anchoring cropped them
@@ -257,13 +262,9 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    matches to the pixel. */
 .hero-media img{width:100%;height:100%;object-fit:cover;
   object-position:center 50%;
-  display:block;transform:scale(1.025);filter:blur(7px);
+  display:block;transform:scale(1.04);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
-/* 1.025, not 1: the PNG carries a 23px cream border (1.04% of its width) and
-   at rest the crop can land on it, printing a hairline across the seam. The
-   scale pushes that baked frame outside the clip. The wordmark band applies
-   the same factor so the two layers stay aligned. */
-.ready .hero-media img{transform:scale(1.025);filter:blur(0)}
+.ready .hero-media img{transform:scale(1);filter:blur(0)}
 /* The comp carries no scrim -- the headline sits on dark foliage, which
    measures 5.61:1 against cream. Only the brightest ~8% of that zone (the moon
    and the sky gaps) drops as low as 1.73:1, so the tint is a soft corner wash
@@ -285,7 +286,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 /* Same image, same width scale, offset by exactly the distance from the frame's
    top to this band -- so the scene runs continuously across the seam instead of
    the two layers sampling different crops. */
-.hero-mark{position:absolute;left:0;right:0;bottom:var(--foot);
+.hero-mark{position:absolute;left:var(--edge-m);right:var(--edge-m);bottom:var(--foot);
   z-index:3;height:var(--mark);pointer-events:none;overflow:hidden;
   background-image:var(--mark-img);
   background-size:100% auto;
@@ -963,7 +964,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 <section class="hero" id="top"
   data-bg="244,237,226" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".2" data-ac="212,245,66">
   <div class="hero-media" id="hero-media">
-    <img id="hero-img" src="asset/hero/hero_static.png" alt="" decoding="async" fetchpriority="high">
+    <img id="hero-img" src="asset/hero/hero_art.png" alt="" decoding="async" fetchpriority="high">
   </div>
   <div class="hero-content">
     <h1 class="hero-hl split" data-delay="620">Bangladesh's first creator-led agency</h1>
