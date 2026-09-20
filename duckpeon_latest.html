@@ -246,13 +246,16 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 /* a thin cream frame, as in the reference (~11px on a 1512 comp) */
 .hero-media{position:absolute;left:var(--frame);right:var(--frame);top:var(--frame);
   bottom:calc(var(--foot) + var(--overhang));z-index:0;overflow:hidden}
-.hero-media img{width:100%;height:100%;object-fit:cover;object-position:center 42%;
+/* top-anchored rather than centre-cropped: it fixes the image's origin to the
+   frame's top edge, which is what lets the wordmark band continue the same
+   scene with a single offset instead of chasing a centred crop */
+.hero-media img{width:100%;height:100%;object-fit:cover;object-position:center top;
   display:block;transform:scale(1.06);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
 /* The art runs bright across the sky (cream measures 1.01:1 on its lightest
    patches), so the headline gets a scrim rather than relying on the art. */
-.hero-media::after{content:'';position:absolute;inset:0;
+.hero-media::after{content:'';position:absolute;inset:0;z-index:1;
   background:linear-gradient(180deg,rgba(40,18,36,.52) 0%,rgba(40,18,36,.16) 30%,
     transparent 52%)}
 .hero-content{position:absolute;inset:0;z-index:2;
@@ -266,12 +269,14 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    The band is the art continuing past the headline area; the type sits on top
    in cream, so the letters read as holes punched in the image and the scene
    shows between and around them. */
+/* Same image, same width scale, offset by exactly the distance from the frame's
+   top to this band -- so the scene runs continuously across the seam instead of
+   the two layers sampling different crops. */
 .hero-mark{position:absolute;left:var(--frame);right:var(--frame);bottom:var(--foot);
-  z-index:2;height:var(--mark);pointer-events:none;overflow:hidden;
-  /* the same art, bottom-anchored, so this band continues the scene above */
+  z-index:3;height:var(--mark);pointer-events:none;overflow:hidden;
   background-image:var(--mark-img);
   background-size:100% auto;
-  background-position:center bottom;
+  background-position:center calc(-1 * (100svh - var(--frame) - var(--foot) - var(--mark)));
   background-repeat:no-repeat}
 /* Measured from the loaded face: Inter Tight caps are .74em tall. Sizing at
    --mark/.74 makes the caps exactly the band height; line-height:var(--mark)
