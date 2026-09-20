@@ -237,10 +237,11 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      the comp has, and fixes the band height rather than guessing it in vw. */
   /* weight 500: DUCKPEON is 5.2794em at zero tracking, less 7 x .0297em of
      negative tracking = 5.0715em; caps measure .75em on the loaded face.
-     The D and N each carry an ~.048em side bearing, so the INK is that much
-     narrower than the advance at each end. 1.0394 widens the word until the
-     ink itself spans the frame, rather than the advance box. */
+     This is the pre-paint estimate only: fitMark() below measures the real
+     ink box once the font is live and overwrites --mark-fs and --mark-dx, so
+     the word lands on both edges exactly instead of by a tuned constant. */
   --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.0394 / 5.0715);
+  --mark-dx:-.0813em;
   /* Width-derived, so the word always runs edge to edge -- that bleed is the
      mark's signature and the comp never breaks it. */
   --mark:calc(var(--mark-fs) * .75);
@@ -322,7 +323,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      lands the stem on the edge. With --mark-fs widened so the ink spans the
      frame, .0813em centres that span: the D's ink starts at the left edge and
      the N's ends at the right. */
-  transform:translateX(-.0813em);
+  transform:translateX(var(--mark-dx));
   /* the 3.5% overshoot in --mark-fs is the bleed; only the outer stems of the
      D and N cross the frame */
   }
@@ -1852,6 +1853,55 @@ document.querySelectorAll('.qa-q').forEach(btn=>{
   function t(){const d=new Date(Date.now()+new Date().getTimezoneOffset()*60000+6*3600000);
     el.textContent=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':')}
   t();setInterval(t,1000);document.getElementById('yr').textContent=new Date().getFullYear()})();
+
+/* ═══ HERO WORDMARK FIT ═══
+   The word has to touch both edges, but a glyph's ink is inset from its
+   advance box by its side bearings, and those differ per weight and size.
+   Tuning a constant for that kept over- or under-shooting, so the size and
+   offset are measured from the live font instead: set a trial size, read the
+   real ink box, then scale and shift by the error. Two passes settle it. */
+(function(){
+  const band=document.querySelector('.hero-mark');
+  if(!band)return;
+  const span=band.querySelector('span');
+  const inkOf=()=>{
+    const cs=getComputedStyle(span);
+    const fs=parseFloat(cs.fontSize);
+    const c=document.createElement('canvas').getContext('2d');
+    c.font=`${cs.fontWeight} ${fs}px ${cs.fontFamily}`;
+    const tn=span.firstChild, n=tn.length;
+    const rg=document.createRange();
+    rg.setStart(tn,0);rg.setEnd(tn,1);
+    const firstRect=rg.getBoundingClientRect();
+    rg.setStart(tn,n-1);rg.setEnd(tn,n);
+    const lastRect=rg.getBoundingClientRect();
+    const t=tn.textContent.toUpperCase();
+    const first=c.measureText(t[0]), last=c.measureText(t[n-1]);
+    /* a Range reports the advance box of those glyphs, wherever they actually
+       painted; the side bearings turn that into the ink edges */
+    return {fs,
+      left:firstRect.left - first.actualBoundingBoxLeft,
+      right:lastRect.right - (last.width - last.actualBoundingBoxRight)};
+  };
+  const fit=()=>{
+    const hero=band.closest('.hero');
+    for(let i=0;i<2;i++){
+      const ink=inkOf();
+      const w=ink.right-ink.left;
+      if(!(w>0))return;
+      /* scale so the ink spans the viewport, then centre what is left */
+      const fs=ink.fs*(innerWidth/w);
+      hero.style.setProperty('--mark-fs',fs+'px');
+      const after=inkOf();
+      hero.style.setProperty('--mark-dx',
+        (-after.left-(after.right-after.left-innerWidth)/2)+'px');
+    }
+  };
+  const run=()=>{fit();};
+  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(run);
+  run();
+  addEventListener('resize',run,{passive:true});
+})();
 
 /* ═══ HERO CHROME ═══
    The hero opens on the art, so the viewfinder chrome starts in its over-art
