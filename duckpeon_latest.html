@@ -235,10 +235,12 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   /* DUCKPEON measures 5.12em wide at -.045em tracking and its caps are .74em,
      so sizing the word to 103.5% of the viewport gives the ~1.75%-a-side bleed
      the comp has, and fixes the band height rather than guessing it in vw. */
-  --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.035 / 5.12);
+  /* weight 400: DUCKPEON is 5.213em at zero tracking, less 7 x .0297em of
+     negative tracking = 5.005em; caps measure .75em on the loaded face */
+  --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.035 / 5.005);
   /* Width-derived, so the word always runs edge to edge -- that bleed is the
      mark's signature and the comp never breaks it. */
-  --mark:calc(var(--mark-fs) * .74);
+  --mark:calc(var(--mark-fs) * .75);
   /* the cream below the wordmark's baseline, measured off the comp */
   --foot:3.3svh;
   /* the art is width-scaled: 1244/2211 of the viewport width */
@@ -286,8 +288,12 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 /* Same image, same width scale, offset by exactly the distance from the frame's
    top to this band -- so the scene runs continuously across the seam instead of
    the two layers sampling different crops. */
-.hero-mark{position:absolute;left:var(--edge-m);right:var(--edge-m);bottom:var(--foot);
+.hero-mark{position:absolute;left:0;right:0;bottom:var(--foot);
   z-index:3;height:var(--mark);pointer-events:none;overflow:hidden;
+  /* the box spans the page so the D and N can reach its edges, while the
+     background is inset to stay aligned with the art above */
+  padding-inline:var(--edge-m);box-sizing:border-box;
+  background-origin:content-box;background-clip:content-box;
   background-image:var(--mark-img);
   background-size:100% auto;
   /* (band top - art top) + the centre-crop offset the art box applies, so the
@@ -300,10 +306,18 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    --mark/.74 makes the caps exactly the band height; line-height:var(--mark)
    centres that line box on the band, so the cap line sits on the band top and
    the baseline on its foot with no clipping either side. */
-.hero-mark span{display:block;font-family:var(--hero);font-weight:800;
-  text-transform:uppercase;letter-spacing:-.045em;
-  font-size:calc(var(--mark) / .74);line-height:var(--mark);
+/* Weight 400, not 800. Measured against the comp: its D stem is 23px on a
+   226px cap, a .102 ratio. Inter Tight gives .119 at 400 and .238 at 800 --
+   the bold was nearly 3x too heavy, which is what read as "fat". The word is
+   held to full width by tracking instead of weight. */
+.hero-mark span{display:block;font-family:var(--hero);font-weight:400;
+  text-transform:uppercase;letter-spacing:-.0297em;
+  font-size:calc(var(--mark) / .75);line-height:var(--mark);
   text-align:center;white-space:nowrap;color:var(--cream);
+  /* The D carries a .078em left side bearing, so its ink starts that far right
+     of the line box and a strip of art shows beside the stem. Pulling the line
+     back by the bearing lands the stem on the art's left edge, as in the comp. */
+  transform:translateX(-.078em);
   /* the 3.5% overshoot in --mark-fs is the bleed; only the outer stems of the
      D and N cross the frame */
   }
