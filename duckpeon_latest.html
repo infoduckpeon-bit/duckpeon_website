@@ -235,9 +235,11 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   /* DUCKPEON measures 5.12em wide at -.045em tracking and its caps are .74em,
      so sizing the word to 103.5% of the viewport gives the ~1.75%-a-side bleed
      the comp has, and fixes the band height rather than guessing it in vw. */
-  /* weight 400: DUCKPEON is 5.213em at zero tracking, less 7 x .0297em of
-     negative tracking = 5.005em; caps measure .75em on the loaded face */
-  --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.035 / 5.005);
+  /* weight 500: DUCKPEON is 5.2794em at zero tracking, less 7 x .0297em of
+     negative tracking = 5.0715em; caps measure .75em on the loaded face.
+     1.018 rather than 1.035 so only the outer stems cross the frame and the
+     N's right edge stays visible. */
+  --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.018 / 5.0715);
   /* Width-derived, so the word always runs edge to edge -- that bleed is the
      mark's signature and the comp never breaks it. */
   --mark:calc(var(--mark-fs) * .75);
@@ -307,10 +309,10 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    centres that line box on the band, so the cap line sits on the band top and
    the baseline on its foot with no clipping either side. */
 /* Weight 400, not 800. Measured against the comp: its D stem is 23px on a
-   226px cap, a .102 ratio. Inter Tight gives .119 at 400 and .238 at 800 --
-   the bold was nearly 3x too heavy, which is what read as "fat". The word is
-   held to full width by tracking instead of weight. */
-.hero-mark span{display:block;font-family:var(--hero);font-weight:400;
+   226px cap, a .102 ratio. Inter Tight gives .238 at 800, .15 at 500 and .119
+   at 400 -- the bold was nearly 3x too heavy. 500 keeps the letters light
+   without going wiry, and tracking holds the word to full width. */
+.hero-mark span{display:block;font-family:var(--hero);font-weight:500;
   text-transform:uppercase;letter-spacing:-.0297em;
   font-size:calc(var(--mark) / .75);line-height:var(--mark);
   text-align:center;white-space:nowrap;color:var(--cream);
