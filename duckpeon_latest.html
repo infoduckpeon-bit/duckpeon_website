@@ -240,9 +240,8 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
    The art's height is therefore WIDTH-driven (aspect), which is what keeps the
    crop steady across desktop aspect ratios. Viewport height only ever clamps
-   it: --art-h takes the larger of its natural height and what the fold leaves,
-   capped by --art-max. Those two bounds are the only place height enters the
-   composition, which is why the crop stays put across desktop aspect ratios. */
+   it: --art-h takes the source's own aspect and the fold only clamps it at the
+   extremes, which is why the crop matches the reference across aspect ratios.*/
 .hero{position:relative;height:100svh;overflow:hidden;
   background:var(--cream);padding-left:0;padding-right:0;
 
@@ -250,8 +249,10 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   --edge-m:clamp(7px,.73vw,13px);          /* frame inset            */
   --foot-f:7.9;                            /* cream below baseline, %H */
   --cap-f:.2229;                           /* wordmark cap / art height */
-  --art-max:91svh;                         /* art never eats the whole fold */
-  --hl-inset:clamp(20px,3.5vw,53px);       /* headline left/top       */
+  --hl-inset:clamp(20px,3.5vw,53px);       /* headline left           */
+  /* the comp sets the headline 67px down against a 53px left inset, so the
+     top is its own value rather than reusing the horizontal one */
+  --hl-top:clamp(24px,4.4vw,67px);         /* headline top            */
 
   /* ── derived: nothing below is tuned by hand ── */
   --art-w:calc(100vw - 2 * var(--edge-m));
@@ -262,15 +263,28 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      baseline cannot both be right. --foot-f is its target share, and it only
      grows when the art is clamped shorter than its natural height. */
   --foot-min:calc(var(--foot-f) * 1svh);
-  /* what the fold can give the art once the frame and that minimum are paid */
-  --art-fit:calc(100svh - var(--edge-m) - var(--foot-min));
-  /* Width-driven, then clamped by the fold. --art-fit is what is left after
-     the frame and the cream foot, and the art takes the LARGER of it and its
-     natural height: natural wins on wide-short screens (where it would spill,
-     so cover crops a little off top and bottom), --art-fit wins on portrait
-     (where natural is far too short, so cover crops a little off the sides).
-     Either way the composition fills the fold exactly and the foot is honest. */
-  --art-h:min(max(var(--art-nat),var(--art-fit)),var(--art-max));
+  /* The fold's two bounds on the frame: tallest when the cream is at its
+     target, shortest when the cream is at its ceiling. --foot-f is a target,
+     not a constant, because a frame at the source's aspect does not in general
+     land on it exactly. */
+  --foot-max:calc(var(--foot-f) * 2 * 1svh);
+  --art-tall:calc(100svh - var(--edge-m) - var(--foot-min));
+  --art-short:calc(100svh - var(--edge-m) - var(--foot-max));
+  /* ASPECT-DRIVEN. The whole frame -- the art plus the wordmark band, since
+     the band is the art's own foot -- wants the source's 2165:1198, so the
+     crop matches the reference's crop. --art-nat is that height, and the frame
+     takes it whenever the fold allows, which is zero crop.
+
+     It is clamped, not capped by viewport height. The old --art-max capped it
+     by height alone, so on a wide, short window the frame could not grow tall
+     enough to hold its aspect and object-fit:cover ate the difference -- 20%
+     of the artwork at 1880x909, the squashed render. Clamping between the two
+     fold bounds instead means height only ever intervenes at the extremes:
+     --art-tall stops the frame overflowing the fold (it would need 1039px in a
+     909px window at 1880 wide, so there the art does crop -- no arrangement
+     avoids that), and --art-short stops a tall, narrow window leaving 600px of
+     dead cream, by letting the frame grow and crop off the sides instead. */
+  --art-h:max(var(--art-short),min(var(--art-nat),var(--art-tall)));
   --foot:calc(100svh - var(--edge-m) - var(--art-h));
   /* the wordmark is a fixed share of the art, so the two scale together and
      the letters always land on the same part of the scene */
@@ -285,6 +299,17 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   --cap-w:calc(var(--art-w) / 5.28 * .75);
   --mark:min(calc(var(--art-h) * var(--cap-f)),var(--cap-w));
   --art-vis:calc(var(--art-h) - var(--mark));
+  /* The height the image is drawn at so the band has rows to paint.
+
+     The art box crops the image and the band shows what it cropped, which only
+     works while the image is drawn TALLER than the box. Wide frames get that
+     free: the box is wider than 2165:1198, so cover scales to the width and
+     the overflow is vertical. Narrow frames do not -- cover scales to the
+     height there, the draw ends exactly at the box's bottom, and the band had
+     nothing left to paint, so the letters went cream-on-cream and vanished.
+     Taking the frame height as the floor guarantees the extra --mark rows in
+     both regimes; .hero-media matches it via --art-cover below. */
+  --art-frame:var(--art-h);
   /* Inter Tight caps measure .75em on the loaded face */
   --mark-fs:calc(var(--mark) / .75)}
 
@@ -301,7 +326,13 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    seam. Top-anchoring makes that origin the frame's top, which the band can
    then offset from exactly. The duck rows stay in view because the crop is
    taken off the bottom, and the band is what shows those rows. */
-.hero-media img{width:100%;height:100%;object-fit:cover;object-position:50% 0;
+/* Sized to the same drawn box as the band, then top-anchored, so the two are
+   one continuous image: the element is taller than its container by exactly
+   --mark, the container clips that off, and the band paints it back. Using
+   object-fit:cover on a 100%-height element instead let cover pick its own
+   scale, which the band could not always reproduce. */
+.hero-media img{width:100%;height:max(var(--art-nat),var(--art-h));
+  object-fit:cover;object-position:50% 0;
   display:block;transform:scale(1.04);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
@@ -310,7 +341,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    exactly this reason. */
 
 .hero-content{position:absolute;inset:0;z-index:2;
-  padding:var(--hl-inset) var(--edge) 0 var(--hl-inset)}
+  padding:var(--hl-top) var(--edge) 0 var(--hl-inset)}
 /* 62px caps on the 1512 comp = 4.1vw, and its 88px line pitch is 1.42 of that.
    The breaks are explicit in the markup rather than a max-width, so they
    cannot drift with the viewport at all: the longest line, FIRST CREATOR-LED,
@@ -335,12 +366,17 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   top:calc(var(--edge-m) + var(--art-vis));height:var(--mark);z-index:3;
   pointer-events:none;overflow:hidden;
   background-image:var(--mark-img);
-  /* The band is the SAME image continued: same width, and a drawn height of
-     --art-nat, which is what object-fit:cover produces on the box above (the
-     box is wider than the source's 2165:1198, so cover scales to the width).
-     Offsetting by --art-vis, the visible height of that box, lands the band on
-     the very next rows -- so the scene runs on unbroken across the seam. */
-  background-size:100% var(--art-nat);
+  /* The band is the SAME image continued, so it must draw it at the height
+     object-fit:cover actually produces on the box above -- and cover scales by
+     whichever axis is short. --art-nat (the width fit) is only that height
+     while the box is WIDER than the source; on a portrait frame cover scales
+     by height instead, and using --art-nat there asked for rows past the end
+     of the image, so the band painted nothing and the letters vanished into
+     cream. max() picks the axis cover picks, matching it in both regimes. */
+  background-size:auto max(var(--art-nat),var(--art-frame));
+  /* center horizontally so the overflow splits evenly, exactly as cover does
+     on the box above -- anchoring left would slide the scene sideways across
+     the seam on any frame narrower than the source */
   background-position:center calc(-1 * var(--art-vis));
   background-repeat:no-repeat}
 /* Weight 500, not 800: the comp's D stem is 23px on a 226px cap, a .102 ratio;
@@ -355,14 +391,14 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
 /* ── TABLET: the art keeps the frame but the headline stands off it less ── */
 @media(max-width:1024px){
-  .hero{--foot-f:6.6;--art-max:89svh}
+  .hero{--foot-f:6.6}
   .hero-hl{font-size:clamp(28px,5vw,44px)}}
 
 /* ── MOBILE: a deliberate composition, not a shrunk desktop. The art keeps
    half the fold and covers from the centre, which holds the duck columns;
    the headline drops to two lines and the wordmark still spans the frame. ── */
 @media(max-width:640px){
-  .hero{--foot-f:6.2;--art-max:90svh;--hl-inset:clamp(18px,5vw,26px)}
+  .hero{--foot-f:6.2;--hl-inset:clamp(18px,5vw,26px);--hl-top:clamp(20px,6vw,34px)}
   /* phones: drop the comp's breaks and let the frame wrap the line, which
      gives a denser block than three long lines at this width */
   .hero-hl{max-width:none;font-size:clamp(27px,8.2vw,44px);line-height:1.18}
