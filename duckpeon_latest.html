@@ -286,19 +286,25 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      dead cream, by letting the frame grow and crop off the sides instead. */
   --art-h:max(var(--art-short),min(var(--art-nat),var(--art-tall)));
   --foot:calc(100svh - var(--edge-m) - var(--art-h));
-  /* The cap is sized from the WIDTH alone, so the word spans the frame at the
-     comp's own tracking instead of being stretched to reach the edges.
+  /* The cap is the SMALLER of what the frame's width and the fold's height
+     allow, and the tracking is fixed at the comp's .1em rather than solved.
 
-     DUCKPEON is 5.28em of advance at this weight, plus 8 tracking gaps; at the
-     comp's .1em that is 6.08em, so --cap-w is the cap at which the word fills
-     the frame exactly. Deriving it from the art's HEIGHT instead (the old
-     --cap-f share) is what produced the spaced-out wordmark: on a wide, short
-     laptop the cap came out 176px for an 1862px frame, leaving the solver to
-     close a 622px shortfall with .33em of tracking, 3.3x the comp's. At the
-     comp's own size the two inputs agree exactly -- 184px either way -- which
-     is why one width rule now serves every viewport with no breakpoint. */
+     The comp sets the cap at .1237 of the frame width and .2024 of the fold;
+     at its own size those agree exactly (184px either way), so it fixes both
+     ratios at once and either can be read as the rule. They only diverge off
+     that aspect, and then each fails in its own direction: width alone made
+     the cap 230px on a 1888x873 laptop -- 25.8% of the fold against the comp's
+     20.2% -- and the letters swallowed the centre ducks, while height alone
+     left the word 430px short of the frame, which the old solver closed with
+     .33em of tracking, 3.3x the comp's.
+
+     Taking the smaller keeps the letters the comp's weight and the ducks in
+     view; the cost is that on a wide, short window the word no longer reaches
+     both edges. DUCKPEON is 5.28em of advance plus 8 tracking gaps, so at .1em
+     it spans 6.08em and --cap-w is the cap that exactly fills the frame. */
   --cap-w:calc(var(--art-w) / 6.08 * var(--cap-ratio));
-  --mark:var(--cap-w);
+  --cap-h:calc(100svh * .2024);
+  --mark:min(var(--cap-w),var(--cap-h));
   --art-vis:calc(var(--art-h) - var(--mark));
   /* The height the image is drawn at so the band has rows to paint.
 
@@ -386,7 +392,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    line-height equals the band, so the cap line sits on the band top and the
    baseline on its foot with no clipping either side. */
 .hero-mark span{display:block;font-family:var(--hero);font-weight:500;
-  text-transform:uppercase;letter-spacing:var(--mark-ls,-.0297em);
+  text-transform:uppercase;letter-spacing:.1em;
   font-size:var(--mark-fs);line-height:var(--mark);
   text-align:center;white-space:nowrap;color:var(--cream)}
 
@@ -1932,78 +1938,10 @@ document.querySelectorAll('.qa-q').forEach(btn=>{
     el.textContent=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':')}
   t();setInterval(t,1000);document.getElementById('yr').textContent=new Date().getFullYear()})();
 
-/* ═══ HERO WORDMARK TRACKING ═══
-   Size and position are CSS now (--mark-fs off the cap height, the band
-   centred in the frame). The one thing CSS cannot express is the glyph side
-   bearings: DUCKPEON's ink is inset from its advance box by an amount that
-   changes with the loaded face, and no clamp() can read that. So this solves
-   for TRACKING only -- one linear pass, no iteration, no size or offset
-   overrides -- which is exactly the lever that makes the word span the frame
-   without going heavier. Everything else stays declarative.
-
-   letter-spacing is applied after every glyph including the last, so n gaps
-   for n glyphs; the trailing one is why the ink span is measured rather than
-   the element width. */
-(function(){
-  const band=document.querySelector('.hero-mark');
-  if(!band)return;
-  const span=band.querySelector('span');
-  const tn=span.firstChild;
-  if(!tn)return;
-  const n=tn.length;
-  /* where the glyphs actually painted: a Range reports the run's advance box
-     wherever it landed, which a block span's own rect does not (that is the
-     line box, and it does not grow with an overflowing run) */
-  const inkSpan=()=>{
-    const cs=getComputedStyle(span);
-    const c=document.createElement('canvas').getContext('2d');
-    c.font=`${cs.fontWeight} ${parseFloat(cs.fontSize)}px ${cs.fontFamily}`;
-    const rg=document.createRange();
-    rg.setStart(tn,0);rg.setEnd(tn,1);
-    const a=rg.getBoundingClientRect();
-    rg.setStart(tn,n-1);rg.setEnd(tn,n);
-    const b=rg.getBoundingClientRect();
-    const t=tn.textContent.toUpperCase();
-    const f=c.measureText(t[0]),l=c.measureText(t[n-1]);
-    return (b.right-(l.width-l.actualBoundingBoxRight))-(a.left+f.actualBoundingBoxLeft);
-  };
-  const fit=()=>{
-    const hero=band.closest('.hero');
-    /* the frame, which is the band's own content box -- the letters stop
-       exactly where the image does, or they paint cream on cream */
-    const target=band.clientWidth;
-    if(!(target>0))return;
-    /* Solve from the CURRENT tracking rather than resetting to zero first.
-       Zeroing it needs a style flush before the ink can be re-read, and a
-       custom property on an ancestor does not reliably flush from a layout
-       read on the descendant -- the measurement came back with the previous
-       pass's tracking still applied, so the solver converged on the wrong
-       value. Reading the applied tracking and correcting it is exact in one
-       pass and needs no flush at all: tracking adds n gaps to the ink span,
-       so the span at zero is the current span less n times the current. */
-    const cur=parseFloat(getComputedStyle(span).letterSpacing)||0;
-    const flat=inkSpan()-cur*n;
-    if(!(flat>0))return;
-    /* n gaps, so the per-gap correction is the shortfall over n */
-    hero.style.setProperty('--mark-ls',((target-flat)/n)+'px');
-  };
-  /* Run once now so there is never an untracked frame, then again when the
-     webfont is live -- the fallback face has different advances, so a fit
-     measured against it is wrong by design. document.fonts.ready can resolve
-     before the face is actually usable, so confirm it explicitly. */
-  fit();
-  if(document.fonts){
-    const refit=()=>{fit();requestAnimationFrame(fit);};
-    document.fonts.ready.then(refit);
-    if(document.fonts.load)document.fonts.load('500 100px "Inter Tight"').then(refit,()=>{});
-  }
-  addEventListener('resize',fit,{passive:true});
-  /* The band's own box is the ground truth, and it moves for reasons no event
-     covers: a late webfont changing the cap metrics, a scrollbar appearing, a
-     reduced-motion layout. Observing the element itself catches all of them,
-     and re-entry is cheap because a settled fit measures the same numbers. */
-  if(window.ResizeObserver)new ResizeObserver(fit).observe(band);
-})();
+/* The hero wordmark needs no JavaScript: its cap is derived in CSS and its
+   tracking is the comp's .1em, fixed. The measuring fitter that used to live
+   here existed only to stretch the word to both edges, which is no longer
+   what the composition asks for. */
 
 /* ═══ HERO CHROME ═══
    The hero opens on the art, so the viewfinder chrome starts in its over-art
