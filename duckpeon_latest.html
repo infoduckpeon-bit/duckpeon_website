@@ -226,112 +226,147 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .ser{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.015em}
 
 /* ═══ HERO ═══ */
-/* The hero is one composition: art on top, wordmark cut out of its bottom
-   edge. `--mark` is the wordmark's cap height and doubles as the art's bottom
-   inset, so the two always meet exactly. */
+/* ONE COMPOSITION, five inputs; everything else is derived from them.
+   Measured off the comp (1512x909), which is the visual authority:
+
+     inset   11px   = .73vw         art frame, all four sides
+     art     1487 x 826             = viewport width less the insets, at the
+                                      source's own 2165:1198 aspect -- the comp
+                                      does NOT crop the art, it draws all of it
+     cap     653..836 = 184px       the wordmark, which is the art's own
+                                      bottom 22%, not an overhang into cream
+     foot    72px   = 7.9%          cream below the baseline
+     text    left 53px, top 67px    headline, 62px caps, 88px line pitch
+
+   The art's height is therefore WIDTH-driven (aspect), which is what keeps the
+   crop steady across desktop aspect ratios. Viewport height only ever clamps
+   it: --art-h takes the larger of its natural height and what the fold leaves,
+   capped by --art-max. Those two bounds are the only place height enters the
+   composition, which is why the crop stays put across desktop aspect ratios. */
 .hero{position:relative;height:100svh;overflow:hidden;
-  /* No frame token: the PNG carries its own 23px cream border (1.04% of its
-     width) on all four sides, so adding one here doubled it. */
-  /* DUCKPEON measures 5.12em wide at -.045em tracking and its caps are .74em,
-     so sizing the word to 103.5% of the viewport gives the ~1.75%-a-side bleed
-     the comp has, and fixes the band height rather than guessing it in vw. */
-  /* weight 500: DUCKPEON is 5.2794em at zero tracking, less 7 x .0297em of
-     negative tracking = 5.0715em; caps measure .75em on the loaded face.
-     This is the pre-paint estimate only: fitMark() below measures the real
-     ink box once the font is live and overwrites --mark-fs and --mark-dx, so
-     the word lands on both edges exactly instead of by a tuned constant. */
-  --mark-fs:calc((100vw - 2 * var(--edge-m)) * 1.0394 / 5.0715);
-  --mark-dx:-.0813em;
-  /* Width-derived, so the word always runs edge to edge -- that bleed is the
-     mark's signature and the comp never breaks it. */
-  --mark:calc(var(--mark-fs) * .75);
-  /* the cream below the wordmark's baseline, measured off the comp */
-  --foot:3.3svh;
-  /* the art is width-scaled: 1244/2211 of the viewport width */
-  --art-drawn-h:calc((100vw - 2 * var(--edge-m)) * 1198 / 2165);
-  --edge-m:clamp(7px,.73vw,13px);
-  padding-left:0;padding-right:0;background:var(--cream)}
-/* The art box stops at the wordmark's cap line. Width-scaled and top-anchored,
-   that puts the centre ducks' feet ~53px above the letters -- the comp measures
-   54px -- and the 198px it crops from the bottom is exactly what the wordmark
-   band then reveals through the glyphs. */
-/* The comp's ~11px cream margin came from the PNG's baked border. That border
-   is cropped out of the source now (it was also printing a hairline across the
-   wordmark seam), so the margin is a real inset -- and only on the three sides
-   that are not the seam, so art and letters still meet flush. */
-.hero-media{position:absolute;left:var(--edge-m);right:var(--edge-m);top:var(--edge-m);
-  bottom:calc(var(--mark) + var(--foot));z-index:0;overflow:hidden}
-/* Centre-anchored. The ducks sit 45-70% down the raw art; on a wide, short
-   window the box keeps only ~52% of the image, so top-anchoring cropped them
-   away entirely and they survived only inside the letters. Centring keeps them
-   in frame, and the band below mirrors the same anchor so the seam still
-   matches to the pixel. */
-.hero-media img{width:100%;height:100%;object-fit:cover;
-  object-position:center 50%;
+  background:var(--cream);padding-left:0;padding-right:0;
+
+  /* ── the five composition inputs ── */
+  --edge-m:clamp(7px,.73vw,13px);          /* frame inset            */
+  --foot-f:7.9;                            /* cream below baseline, %H */
+  --cap-f:.2229;                           /* wordmark cap / art height */
+  --art-max:91svh;                         /* art never eats the whole fold */
+  --hl-inset:clamp(20px,3.5vw,53px);       /* headline left/top       */
+
+  /* ── derived: nothing below is tuned by hand ── */
+  --art-w:calc(100vw - 2 * var(--edge-m));
+  /* the source's own aspect, 2165:1198 */
+  --art-nat:calc(var(--art-w) * 1198 / 2165);
+  /* The cream foot is the REMAINDER, not an independent value: the frame, the
+     art and the foot have to add up to the fold exactly or the seam and the
+     baseline cannot both be right. --foot-f is its target share, and it only
+     grows when the art is clamped shorter than its natural height. */
+  --foot-min:calc(var(--foot-f) * 1svh);
+  /* what the fold can give the art once the frame and that minimum are paid */
+  --art-fit:calc(100svh - var(--edge-m) - var(--foot-min));
+  /* Width-driven, then clamped by the fold. --art-fit is what is left after
+     the frame and the cream foot, and the art takes the LARGER of it and its
+     natural height: natural wins on wide-short screens (where it would spill,
+     so cover crops a little off top and bottom), --art-fit wins on portrait
+     (where natural is far too short, so cover crops a little off the sides).
+     Either way the composition fills the fold exactly and the foot is honest. */
+  --art-h:min(max(var(--art-nat),var(--art-fit)),var(--art-max));
+  --foot:calc(100svh - var(--edge-m) - var(--art-h));
+  /* the wordmark is a fixed share of the art, so the two scale together and
+     the letters always land on the same part of the scene */
+  /* The wordmark is a share of the art on desktop, where the art is wide
+     enough that DUCKPEON spans it at a sane tracking. On a narrow screen that
+     share would size the word far wider than the frame -- it is ~5.28em of
+     advance at this weight -- and the only way to span would be tracking so
+     tight the letters collide. So the cap is also bounded by what the WIDTH
+     can carry: --cap-w is the cap height at which the word fills the frame on
+     its own, and the smaller of the two wins. Desktop takes the art share,
+     mobile takes the width fit, and neither needs a breakpoint to switch. */
+  --cap-w:calc(var(--art-w) / 5.28 * .75);
+  --mark:min(calc(var(--art-h) * var(--cap-f)),var(--cap-w));
+  --art-vis:calc(var(--art-h) - var(--mark));
+  /* Inter Tight caps measure .75em on the loaded face */
+  --mark-fs:calc(var(--mark) / .75)}
+
+/* The art box: width-sized, height clamped, cover + centre so the crop is
+   taken evenly off the top and bottom. The centre ducks occupy rows 54.8-71%
+   and columns 38.9-60% of the source; at every tested viewport the visible
+   window contains both spans, which is what stops them vanishing on short or
+   wide windows. */
+.hero-media{position:absolute;left:var(--edge-m);right:var(--edge-m);
+  top:var(--edge-m);height:var(--art-vis);z-index:0;overflow:hidden}
+/* Anchored to the TOP, not centred. object-fit:cover would otherwise centre a
+   crop the band cannot reproduce -- the band continues the same image downward,
+   so both layers have to measure from the same origin or the scene steps at the
+   seam. Top-anchoring makes that origin the frame's top, which the band can
+   then offset from exactly. The duck rows stay in view because the crop is
+   taken off the bottom, and the band is what shows those rows. */
+.hero-media img{width:100%;height:100%;object-fit:cover;object-position:50% 0;
   display:block;transform:scale(1.04);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
-/* The comp carries no scrim -- the headline sits on dark foliage, which
-   measures 5.61:1 against cream. Only the brightest ~8% of that zone (the moon
-   and the sky gaps) drops as low as 1.73:1, so the tint is a soft corner wash
-   over the type only. A full-width band was dimming the ducks at centre. */
 /* No scrim: the comp has none. The headline sits on the tree canopy, which
    measures 5.61:1 against cream -- the art was drawn with that corner dark for
    exactly this reason. */
+
 .hero-content{position:absolute;inset:0;z-index:2;
-  padding:clamp(76px,9vh,132px) var(--edge) 0}
+  padding:var(--hl-inset) var(--edge) 0 var(--hl-inset)}
+/* 62px caps on the 1512 comp = 4.1vw, and its 88px line pitch is 1.42 of that.
+   The breaks are explicit in the markup rather than a max-width, so they
+   cannot drift with the viewport at all: the longest line, FIRST CREATOR-LED,
+   is 601px on a 62px cap, and the font size is clamped, so the block stays
+   well inside the frame everywhere. */
 .hero-hl{position:relative;z-index:2;font-family:var(--hero);
-  font-size:clamp(30px,5vw,74px);font-weight:700;text-transform:uppercase;
-  letter-spacing:-.025em;line-height:1.02;max-width:15ch;color:var(--cream);
+  font-size:clamp(30px,4.1vw,62px);font-weight:700;text-transform:uppercase;
+  letter-spacing:-.025em;line-height:1.42;max-width:none;color:var(--cream);
   text-shadow:0 2px 30px rgba(40,18,36,.45)}
 
 /* ══ WORDMARK — cream letterforms knocked out of the art's foot ══
-   The band is the art continuing past the headline area; the type sits on top
-   in cream, so the letters read as holes punched in the image and the scene
-   shows between and around them. */
-/* Same image, same width scale, offset by exactly the distance from the frame's
-   top to this band -- so the scene runs continuously across the seam instead of
-   the two layers sampling different crops. */
-.hero-mark{position:absolute;left:0;right:0;bottom:var(--foot);
-  z-index:3;height:var(--mark);pointer-events:none;overflow:hidden;
-  /* the box spans the page so the D and N can reach its edges, while the
-     background is inset to stay aligned with the art above */
-  padding-inline:var(--edge-m);box-sizing:border-box;
-  background-origin:padding-box;background-clip:padding-box;
+   The band paints the SAME image, at the same width and the same crop, so the
+   scene runs on unbroken across the seam and the letters read as holes punched
+   in it. The two layers share one coordinate space: the band's background box
+   is the art box continued downward (same left, same width, same drawn height
+   via --art-h), so nothing can drift them apart. */
+.hero-mark{position:absolute;left:var(--edge-m);right:var(--edge-m);
+  /* TOP-anchored, off the same origin as the art, so the seam cannot drift:
+     the band begins exactly where the visible art ends. Anchoring it to the
+     viewport bottom instead made the two agree only when the composition
+     happened to fill the fold, and overlap everywhere else. */
+  top:calc(var(--edge-m) + var(--art-vis));height:var(--mark);z-index:3;
+  pointer-events:none;overflow:hidden;
   background-image:var(--mark-img);
-  background-size:calc(100% - 2 * var(--edge-m)) auto;
-  /* (band top - art top) + the centre-crop offset the art box applies, so the
-     two layers stay one continuous image */
-  /* Anchored to the image's bottom rather than offset from the art: the
-     computed offset could ask for rows past the image's end, leaving the foot
-     of the band with nothing to paint -- which is what made the N's right stem
-     disappear into cream. */
-  background-position:var(--edge-m) bottom;
+  /* The band is the SAME image continued: same width, and a drawn height of
+     --art-nat, which is what object-fit:cover produces on the box above (the
+     box is wider than the source's 2165:1198, so cover scales to the width).
+     Offsetting by --art-vis, the visible height of that box, lands the band on
+     the very next rows -- so the scene runs on unbroken across the seam. */
+  background-size:100% var(--art-nat);
+  background-position:center calc(-1 * var(--art-vis));
   background-repeat:no-repeat}
-/* Measured from the loaded face: Inter Tight caps are .74em tall. Sizing at
-   --mark/.74 makes the caps exactly the band height; line-height:var(--mark)
-   centres that line box on the band, so the cap line sits on the band top and
-   the baseline on its foot with no clipping either side. */
-/* Weight 400, not 800. Measured against the comp: its D stem is 23px on a
-   226px cap, a .102 ratio. Inter Tight gives .238 at 800, .15 at 500 and .119
-   at 400 -- the bold was nearly 3x too heavy. 500 keeps the letters light
-   without going wiry, and tracking holds the word to full width. */
+/* Weight 500, not 800: the comp's D stem is 23px on a 226px cap, a .102 ratio;
+   Inter Tight gives .238 at 800 and .15 at 500. Tracking, not weight, is what
+   holds the word to full width. font-size is derived from the cap height, and
+   line-height equals the band, so the cap line sits on the band top and the
+   baseline on its foot with no clipping either side. */
 .hero-mark span{display:block;font-family:var(--hero);font-weight:500;
-  text-transform:uppercase;letter-spacing:-.0297em;
-  font-size:calc(var(--mark) / .75);line-height:var(--mark);
-  text-align:center;white-space:nowrap;color:var(--cream);
-  /* The D carries a .078em left side bearing, so its ink starts right of the
-     line box and a strip of art shows beside the stem. Pulling the line back
-     lands the stem on the edge. With --mark-fs widened so the ink spans the
-     frame, .0813em centres that span: the D's ink starts at the left edge and
-     the N's ends at the right. */
-  transform:translateX(var(--mark-dx));
-  /* the 3.5% overshoot in --mark-fs is the bleed; only the outer stems of the
-     D and N cross the frame */
-  }
+  text-transform:uppercase;letter-spacing:var(--mark-ls,-.0297em);
+  font-size:var(--mark-fs);line-height:var(--mark);
+  text-align:center;white-space:nowrap;color:var(--cream)}
 
+/* ── TABLET: the art keeps the frame but the headline stands off it less ── */
+@media(max-width:1024px){
+  .hero{--foot-f:6.6;--art-max:89svh}
+  .hero-hl{font-size:clamp(28px,5vw,44px)}}
+
+/* ── MOBILE: a deliberate composition, not a shrunk desktop. The art keeps
+   half the fold and covers from the centre, which holds the duck columns;
+   the headline drops to two lines and the wordmark still spans the frame. ── */
 @media(max-width:640px){
-  .hero-hl{max-width:none;font-size:clamp(27px,8.2vw,44px)}
+  .hero{--foot-f:6.2;--art-max:90svh;--hl-inset:clamp(18px,5vw,26px)}
+  /* phones: drop the comp's breaks and let the frame wrap the line, which
+     gives a denser block than three long lines at this width */
+  .hero-hl{max-width:none;font-size:clamp(27px,8.2vw,44px);line-height:1.18}
+  .hero-hl br{display:none}
   .hero-content{padding-top:clamp(64px,11vh,96px)}}
 
 /* ═══ STATEMENT ═══ */
@@ -989,7 +1024,11 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
     <img id="hero-img" src="asset/hero/hero_art.png" alt="" decoding="async" fetchpriority="high">
   </div>
   <div class="hero-content">
-    <h1 class="hero-hl split" data-delay="620">Bangladesh's first creator-led agency</h1>
+    <!-- The comp breaks the line after BANGLADESH'S and after CREATOR-LED.
+         Greedy wrapping cannot produce that from a measure alone (any width
+         that fits "FIRST CREATOR-LED" also takes "BANGLADESH'S FIRST" first),
+         so the two breaks are explicit and the <br>s are dropped on phones. -->
+    <h1 class="hero-hl split" data-delay="620">Bangladesh's<br>first creator-led<br>agency</h1>
   </div>
   <!-- The wordmark is the art's bottom edge: the same PNG, clipped to the
        letterforms, so the counters show foliage and everything outside them is
@@ -1856,58 +1895,77 @@ document.querySelectorAll('.qa-q').forEach(btn=>{
     el.textContent=[d.getHours(),d.getMinutes(),d.getSeconds()].map(n=>String(n).padStart(2,'0')).join(':')}
   t();setInterval(t,1000);document.getElementById('yr').textContent=new Date().getFullYear()})();
 
-/* ═══ HERO WORDMARK FIT ═══
-   The word has to touch both edges, but a glyph's ink is inset from its
-   advance box by its side bearings, and those differ per weight and size.
-   Tuning a constant for that kept over- or under-shooting, so the size and
-   offset are measured from the live font instead: set a trial size, read the
-   real ink box, then scale and shift by the error. Two passes settle it. */
+/* ═══ HERO WORDMARK TRACKING ═══
+   Size and position are CSS now (--mark-fs off the cap height, the band
+   centred in the frame). The one thing CSS cannot express is the glyph side
+   bearings: DUCKPEON's ink is inset from its advance box by an amount that
+   changes with the loaded face, and no clamp() can read that. So this solves
+   for TRACKING only -- one linear pass, no iteration, no size or offset
+   overrides -- which is exactly the lever that makes the word span the frame
+   without going heavier. Everything else stays declarative.
+
+   letter-spacing is applied after every glyph including the last, so n gaps
+   for n glyphs; the trailing one is why the ink span is measured rather than
+   the element width. */
 (function(){
   const band=document.querySelector('.hero-mark');
   if(!band)return;
   const span=band.querySelector('span');
-  const inkOf=()=>{
+  const tn=span.firstChild;
+  if(!tn)return;
+  const n=tn.length;
+  /* where the glyphs actually painted: a Range reports the run's advance box
+     wherever it landed, which a block span's own rect does not (that is the
+     line box, and it does not grow with an overflowing run) */
+  const inkSpan=()=>{
     const cs=getComputedStyle(span);
-    const fs=parseFloat(cs.fontSize);
     const c=document.createElement('canvas').getContext('2d');
-    c.font=`${cs.fontWeight} ${fs}px ${cs.fontFamily}`;
-    const tn=span.firstChild, n=tn.length;
+    c.font=`${cs.fontWeight} ${parseFloat(cs.fontSize)}px ${cs.fontFamily}`;
     const rg=document.createRange();
     rg.setStart(tn,0);rg.setEnd(tn,1);
-    const firstRect=rg.getBoundingClientRect();
+    const a=rg.getBoundingClientRect();
     rg.setStart(tn,n-1);rg.setEnd(tn,n);
-    const lastRect=rg.getBoundingClientRect();
+    const b=rg.getBoundingClientRect();
     const t=tn.textContent.toUpperCase();
-    const first=c.measureText(t[0]), last=c.measureText(t[n-1]);
-    /* a Range reports the advance box of those glyphs, wherever they actually
-       painted; the side bearings turn that into the ink edges */
-    return {fs,
-      left:firstRect.left - first.actualBoundingBoxLeft,
-      right:lastRect.right - (last.width - last.actualBoundingBoxRight)};
+    const f=c.measureText(t[0]),l=c.measureText(t[n-1]);
+    return (b.right-(l.width-l.actualBoundingBoxRight))-(a.left+f.actualBoundingBoxLeft);
   };
   const fit=()=>{
     const hero=band.closest('.hero');
-    const art=document.querySelector('.hero-media');
-    if(!art)return;
-    for(let i=0;i<2;i++){
-      const box=art.getBoundingClientRect();
-      const ink=inkOf();
-      const w=ink.right-ink.left;
-      if(!(w>0)||!(box.width>0))return;
-      /* Fit to the ART box, not the viewport: a glyph outside the art has no
-         image to reveal and paints cream on cream, which reads as a cut-off
-         letter even though its geometry is correct. */
-      const fs=ink.fs*(box.width/w);
-      hero.style.setProperty('--mark-fs',fs+'px');
-      const after=inkOf();
-      hero.style.setProperty('--mark-dx',
-        (box.left-after.left-(after.right-after.left-box.width)/2)+'px');
-    }
+    /* the frame, which is the band's own content box -- the letters stop
+       exactly where the image does, or they paint cream on cream */
+    const target=band.clientWidth;
+    if(!(target>0))return;
+    /* Solve from the CURRENT tracking rather than resetting to zero first.
+       Zeroing it needs a style flush before the ink can be re-read, and a
+       custom property on an ancestor does not reliably flush from a layout
+       read on the descendant -- the measurement came back with the previous
+       pass's tracking still applied, so the solver converged on the wrong
+       value. Reading the applied tracking and correcting it is exact in one
+       pass and needs no flush at all: tracking adds n gaps to the ink span,
+       so the span at zero is the current span less n times the current. */
+    const cur=parseFloat(getComputedStyle(span).letterSpacing)||0;
+    const flat=inkSpan()-cur*n;
+    if(!(flat>0))return;
+    /* n gaps, so the per-gap correction is the shortfall over n */
+    hero.style.setProperty('--mark-ls',((target-flat)/n)+'px');
   };
-  const run=()=>{fit();};
-  if(document.fonts&&document.fonts.ready)document.fonts.ready.then(run);
-  run();
-  addEventListener('resize',run,{passive:true});
+  /* Run once now so there is never an untracked frame, then again when the
+     webfont is live -- the fallback face has different advances, so a fit
+     measured against it is wrong by design. document.fonts.ready can resolve
+     before the face is actually usable, so confirm it explicitly. */
+  fit();
+  if(document.fonts){
+    const refit=()=>{fit();requestAnimationFrame(fit);};
+    document.fonts.ready.then(refit);
+    if(document.fonts.load)document.fonts.load('500 100px "Inter Tight"').then(refit,()=>{});
+  }
+  addEventListener('resize',fit,{passive:true});
+  /* The band's own box is the ground truth, and it moves for reasons no event
+     covers: a late webfont changing the cap metrics, a scrollbar appearing, a
+     reduced-motion layout. Observing the element itself catches all of them,
+     and re-entry is cheap because a settled fit measures the same numbers. */
+  if(window.ResizeObserver)new ResizeObserver(fit).observe(band);
 })();
 
 /* ═══ HERO CHROME ═══
