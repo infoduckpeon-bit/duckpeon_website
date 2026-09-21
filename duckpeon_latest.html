@@ -247,8 +247,8 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
   /* ── the five composition inputs ── */
   --edge-m:clamp(7px,.73vw,13px);          /* frame inset            */
+  --cap-ratio:.75;                         /* Inter Tight cap height, in em */
   --foot-f:7.9;                            /* cream below baseline, %H */
-  --cap-f:.2229;                           /* wordmark cap / art height */
   --hl-inset:clamp(20px,3.5vw,53px);       /* headline left           */
   /* the comp sets the headline 67px down against a 53px left inset, so the
      top is its own value rather than reusing the horizontal one */
@@ -286,18 +286,19 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      dead cream, by letting the frame grow and crop off the sides instead. */
   --art-h:max(var(--art-short),min(var(--art-nat),var(--art-tall)));
   --foot:calc(100svh - var(--edge-m) - var(--art-h));
-  /* the wordmark is a fixed share of the art, so the two scale together and
-     the letters always land on the same part of the scene */
-  /* The wordmark is a share of the art on desktop, where the art is wide
-     enough that DUCKPEON spans it at a sane tracking. On a narrow screen that
-     share would size the word far wider than the frame -- it is ~5.28em of
-     advance at this weight -- and the only way to span would be tracking so
-     tight the letters collide. So the cap is also bounded by what the WIDTH
-     can carry: --cap-w is the cap height at which the word fills the frame on
-     its own, and the smaller of the two wins. Desktop takes the art share,
-     mobile takes the width fit, and neither needs a breakpoint to switch. */
-  --cap-w:calc(var(--art-w) / 5.28 * .75);
-  --mark:min(calc(var(--art-h) * var(--cap-f)),var(--cap-w));
+  /* The cap is sized from the WIDTH alone, so the word spans the frame at the
+     comp's own tracking instead of being stretched to reach the edges.
+
+     DUCKPEON is 5.28em of advance at this weight, plus 8 tracking gaps; at the
+     comp's .1em that is 6.08em, so --cap-w is the cap at which the word fills
+     the frame exactly. Deriving it from the art's HEIGHT instead (the old
+     --cap-f share) is what produced the spaced-out wordmark: on a wide, short
+     laptop the cap came out 176px for an 1862px frame, leaving the solver to
+     close a 622px shortfall with .33em of tracking, 3.3x the comp's. At the
+     comp's own size the two inputs agree exactly -- 184px either way -- which
+     is why one width rule now serves every viewport with no breakpoint. */
+  --cap-w:calc(var(--art-w) / 6.08 * var(--cap-ratio));
+  --mark:var(--cap-w);
   --art-vis:calc(var(--art-h) - var(--mark));
   /* The height the image is drawn at so the band has rows to paint.
 
