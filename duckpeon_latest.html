@@ -226,10 +226,11 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
 /* ═══ HERO ═══ */
 /* Two stacked blocks and one ratio between them. The artwork carries its own
-   cream border (20px baked into the 4422x2488 source), so nothing here draws a
-   frame -- adding one doubled it and printed a hairline at the seam.
+   art is full-bleed: hero_art_full.png is hero_static.png with its baked 20px
+   cream border cropped off (4381x2448), so the scene runs to all four edges
+   and nothing here draws a frame either.
 
-     art    full width, the source's own 4422:2488, cropped vertically when
+     art    full width, the source's own 4381:2448, cropped vertically when
             the fold cannot hold it
      word   DUCKPEON cut out of the art's foot, its cap a share of the fold
 
@@ -253,7 +254,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   --word-max:.92;
   --hl-inset:clamp(20px,3.5vw,53px);
   --hl-top:clamp(24px,4.4vw,67px);
-  --hero-img:url('asset/hero/hero_static.png');
+  --hero-img:url('asset/hero/hero_art_full.png');
 
   /* ── derived ── */
 
@@ -1032,7 +1033,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 <section class="hero" id="top"
   data-bg="244,237,226" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".2" data-ac="212,245,66">
   <div class="hero-media" id="hero-media">
-    <img id="hero-img" src="asset/hero/hero_static.png" alt="" decoding="async" fetchpriority="high">
+    <img id="hero-img" src="asset/hero/hero_art_full.png" alt="" decoding="async" fetchpriority="high">
   </div>
   <div class="hero-content">
     <!-- The comp breaks the line after BANGLADESH'S and after CREATOR-LED.
