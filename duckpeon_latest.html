@@ -286,26 +286,33 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      dead cream, by letting the frame grow and crop off the sides instead. */
   --art-h:max(var(--art-short),min(var(--art-nat),var(--art-tall)));
   --foot:calc(100svh - var(--edge-m) - var(--art-h));
-  /* The cap is the SMALLER of what the frame's width and the fold's height
-     allow, and the tracking is fixed at the comp's .1em rather than solved.
+  /* The cap is a share of the FOLD, full stop. The comp sets it at 184px on a
+     909px fold, .2024, and the word is then whatever width that cap makes it.
 
-     The comp sets the cap at .1237 of the frame width and .2024 of the fold;
-     at its own size those agree exactly (184px either way), so it fixes both
-     ratios at once and either can be read as the rule. They only diverge off
-     that aspect, and then each fails in its own direction: width alone made
-     the cap 230px on a 1888x873 laptop -- 25.8% of the fold against the comp's
-     20.2% -- and the letters swallowed the centre ducks, while height alone
-     left the word 430px short of the frame, which the old solver closed with
-     .33em of tracking, 3.3x the comp's.
+     The word is deliberately NOT fitted to the frame. Fitting it meant one of
+     the two ratios had to give on any aspect but the comp's own: sizing off
+     the frame width oversized the cap on a short window until the letters
+     swallowed the centre ducks, and sizing off the fold left the word short,
+     which the old solver closed by stretching the tracking to .33em. Neither
+     is wanted -- the letters keep the comp's weight and tracking, and the
+     wordmark simply sits centred with cream either side of it.
 
-     Taking the smaller keeps the letters the comp's weight and the ducks in
-     view; the cost is that on a wide, short window the word no longer reaches
-     both edges. DUCKPEON is 5.28em of advance plus 8 tracking gaps, so at .1em
-     it spans 6.08em and --cap-w is the cap that exactly fills the frame. */
-  --cap-w:calc(var(--art-w) / 6.08 * var(--cap-ratio));
+     --cap-fit is a ceiling, not a fit: at .1em the word runs 8.107x its cap,
+     so that is the largest cap the frame can hold without the word spilling
+     out of it. It only ever binds on a narrow screen -- at the comp's size
+     both rules give 184px, so the reference is untouched. */
   --cap-h:calc(100svh * .2024);
-  --mark:min(var(--cap-w),var(--cap-h));
-  --art-vis:calc(var(--art-h) - var(--mark));
+  /* cream either side of the word, so the D and N stop short of the frame
+     instead of bleeding off it the way the comp lets them */
+  --mark-side:clamp(14px,2.6vw,48px);
+  --cap-fit:calc((var(--art-w) - 2 * var(--mark-side)) / 8.107);
+  --mark:min(var(--cap-h),var(--cap-fit));
+  /* The artwork runs on past the baseline by --mark-clear, so the letters sit
+     inside the frame rather than running off its bottom edge the way the comp
+     lets them. Left and right are handled by the cap rule above, which no
+     longer widens the word to the frame, so all three edges keep their cream.*/
+  --mark-clear:var(--edge-m);
+  --art-vis:calc(var(--art-h) - var(--mark) - var(--mark-clear));
   /* The height the image is drawn at so the band has rows to paint.
 
      The art box crops the image and the band shows what it cropped, which only
