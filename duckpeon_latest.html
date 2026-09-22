@@ -312,6 +312,14 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      lets them. Left and right are handled by the cap rule above, which no
      longer widens the word to the frame, so all three edges keep their cream.*/
   --mark-clear:var(--edge-m);
+  /* How much of the vertical crop is taken off the TOP. The frame is drawn at
+     --art-nat and clipped to --art-h, and where that clip falls decides where
+     the centre ducks sit. The comp puts them at .548-.710 of the drawn image
+     and crops nothing; taking 63.5% of the crop off the top holds that same
+     position once a short window does force a crop. Centring the crop instead
+     (the old 50%) slid them down to .563-.774 at 1888x873 and the wordmark
+     landed on top of them. */
+  --crop-top:calc((var(--art-nat) - var(--art-h)) * .635);
   --art-vis:calc(var(--art-h) - var(--mark) - var(--mark-clear));
   /* The height the image is drawn at so the band has rows to paint.
 
@@ -347,6 +355,8 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    scale, which the band could not always reproduce. */
 .hero-media img{width:100%;height:max(var(--art-nat),var(--art-h));
   object-fit:cover;object-position:50% 0;
+  /* pulled up by the share of the crop that belongs above the frame */
+  margin-top:calc(-1 * max(0px,var(--crop-top)));
   display:block;transform:scale(1.04);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
@@ -391,7 +401,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   /* center horizontally so the overflow splits evenly, exactly as cover does
      on the box above -- anchoring left would slide the scene sideways across
      the seam on any frame narrower than the source */
-  background-position:center calc(-1 * var(--art-vis));
+  background-position:center calc(-1 * (var(--art-vis) + max(0px,var(--crop-top))));
   background-repeat:no-repeat}
 /* Weight 500, not 800: the comp's D stem is 23px on a 226px cap, a .102 ratio;
    Inter Tight gives .238 at 800 and .15 at 500. Tracking, not weight, is what
