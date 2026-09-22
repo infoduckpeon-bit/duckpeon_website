@@ -231,7 +231,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
      art    full width, the source's own 4422:2488, cropped vertically when
             the fold cannot hold it
-     word   DUCKPEON directly below, --band-r of the art's height
+     word   DUCKPEON cut out of the art's foot, sized from --word-f
 
    The wordmark is plain type on cream now, not knocked out of the image, so
    there is no second image layer to keep in register and no measuring to do.*/
@@ -239,7 +239,11 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   background:var(--cream);padding-left:0;padding-right:0;
 
   /* ── the composition, in ratios ── */
-  --band-r:.30;                            /* wordmark height / art height   */
+  /* How wide DUCKPEON runs, as a share of the viewport. This is the input the
+     composition is built from: the band is sized to hold that word plus a
+     cream foot, and the art takes the rest. */
+  --word-f:.88;
+  --foot-f:.22;                            /* cream below the baseline, of band */
   --hl-inset:clamp(20px,3.5vw,53px);
   --hl-top:clamp(24px,4.4vw,67px);
   /* the width the word is sized to: just inside the viewport */
@@ -247,19 +251,22 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   --hero-img:url('asset/hero/hero_static.png');
 
   /* ── derived ── */
-  --band:calc(var(--art-h) * var(--band-r));
+
   /* What the fold leaves the art once the band is paid for. The art is
      cropped to this, never letterboxed: at 1888x873 the whole image would need
      1062px of height against an 873px fold, so something has to give, and the
      crop was chosen over side margins. */
-  --art-fit:calc(100svh / (1 + var(--band-r)));
+  /* the word at --word-f of the viewport, its cap, and the band that holds it */
+  --mark-fs:calc(100vw * var(--word-f) / 5.27);
+  --cap:calc(var(--mark-fs) * .75);
+  --band:calc(var(--cap) / (1 - var(--foot-f)));
   /* The art always takes --art-fit, the slot the fold leaves once the band is
      paid for. It is never its natural height: on a wide window that height
      overflows the fold and on a portrait one it falls far short (219px against
      a 649px slot at 390x844, leaving 559px of dead cream). Filling the slot
      and letting cover crop -- vertically when the window is wide, off the
      sides when it is tall -- is what makes one rule hold at every aspect. */
-  --art-h:var(--art-fit)}
+  --art-h:calc(100svh - var(--band))}
 
 /* Full-bleed, cropped vertically. The anchor is 45%: the centre ducks sit at
    .546-.703 of the source and stay in frame anywhere from 40% to 64%, so the
@@ -277,12 +284,14 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    That guarantees the band always has image beneath it: sizing to the art box
    alone let object-fit:cover stop short of the band on some aspects, and the
    letters then had nothing to reveal. */
-/* Top-anchored, not 45%: the band's background continues this same image from
-   its top edge, so any other anchor makes the two sample different crops and
-   the scene steps at the seam. The composition box is already the shape the
-   crop needs, so the ducks stay framed without an anchor doing the work. */
+/* Anchored at 60%. The art box shows only the top of the drawn image, and
+   top-anchoring cropped the centre ducks off its bottom entirely on a wide,
+   short window -- the box showed 0..0.544 of the image while the ducks run to
+   0.703. Solving for "the duck band falls inside the visible window" gives 50%
+   at most sizes and 68% at 1891x872; 60% satisfies every tested viewport. The
+   band's background uses the same anchor, so both layers sample one crop. */
 .hero-media img{width:100%;height:calc(var(--art-h) + var(--band));
-  object-fit:cover;object-position:50% 0;
+  object-fit:cover;object-position:50% 60%;
   display:block;transform:scale(1.04);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
@@ -312,6 +321,8 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .hero-mark{position:absolute;left:0;right:0;top:0;
   height:calc(var(--art-h) + var(--band));z-index:3;pointer-events:none;
   display:flex;align-items:flex-end;justify-content:center;
+  /* the cream foot below the baseline, so the word does not sit on the fold */
+  padding-bottom:calc(var(--band) * var(--foot-f));
   /* nothing paints above the baseline: the art element already owns that */
   clip-path:inset(var(--art-h) 0 0 0);
   background-image:var(--hero-img);
@@ -323,7 +334,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      in the other, and the scene stepped at the seam wherever it was wrong.
      `cover` picks the same axis the element picked, by construction. */
   background-size:cover;
-  background-position:center top;
+  background-position:center 60%;
   background-repeat:no-repeat}
 /* DUCKPEON is 5.48em of advance at weight 800; less 7 gaps of the -.03em
    tracking it is 5.27em, so 100vw/5.27 would span the viewport exactly. The
@@ -333,17 +344,17 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    viewport, which is the trade for keeping the artwork tall. */
 .hero-mark span{display:block;font-family:var(--hero);font-weight:800;
   text-transform:uppercase;letter-spacing:-.03em;
-  font-size:min(calc(var(--word-w) / 5.27),calc(var(--band) / .78));
+  font-size:var(--mark-fs);
   line-height:1;white-space:nowrap;
   /* cream letterforms: the band's image shows everywhere the glyphs are not */
   color:var(--cream)}
 
 @media(max-width:1024px){
-  .hero{--band-r:.26}
+  .hero{--word-f:.92}
   .hero-hl{font-size:clamp(28px,5vw,44px)}}
 
 @media(max-width:640px){
-  .hero{--band-r:.30;--hl-inset:clamp(18px,5vw,26px);--hl-top:clamp(20px,6vw,34px)}
+  .hero{--word-f:.92;--hl-inset:clamp(18px,5vw,26px);--hl-top:clamp(20px,6vw,34px)}
   /* phones: let the frame wrap the line instead of the comp's breaks. The
      <br>s become spaces rather than display:none, which ran the words
      together -- "BANGLADESH'SFIRST" -- because the markup has no whitespace
