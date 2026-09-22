@@ -231,23 +231,28 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
      art    full width, the source's own 4422:2488, cropped vertically when
             the fold cannot hold it
-     word   DUCKPEON cut out of the art's foot, sized from --word-f
+     word   DUCKPEON cut out of the art's foot, its cap a share of the fold
 
-   The wordmark is plain type on cream now, not knocked out of the image, so
-   there is no second image layer to keep in register and no measuring to do.*/
+   The letters are knocked out of the artwork, so the band and the art element
+   are one draw -- see the wordmark rules below for how that stays in register
+   without any measuring. */
 .hero{position:relative;height:100svh;overflow:hidden;
   background:var(--cream);padding-left:0;padding-right:0;
 
   /* ── the composition, in ratios ── */
-  /* How wide DUCKPEON runs, as a share of the viewport. This is the input the
-     composition is built from: the band is sized to hold that word plus a
-     cream foot, and the art takes the rest. */
-  --word-f:.88;
-  --foot-f:.22;                            /* cream below the baseline, of band */
+  /* The comp's own two shares of the FOLD: the wordmark's cap is .202 of it
+     and the cream below the baseline .080, which puts the cap line at 71.8%.
+     Height is what fixes them -- deriving the cap from viewport WIDTH instead
+     made it 27.1% of the fold on a 1897-wide laptop against the comp's 20.2%,
+     so the word grew tall and its cap line climbed into the centre ducks. */
+  --cap-f:.202;                            /* wordmark cap, of the fold       */
+  --foot-f:.080;                           /* cream below baseline, of the fold */
+  /* Width only ever caps it: on a narrow screen the height-derived cap would
+     run the word past the viewport (307% of it at 390px), so --word-max is the
+     widest the word may be and the smaller cap wins. */
+  --word-max:.92;
   --hl-inset:clamp(20px,3.5vw,53px);
   --hl-top:clamp(24px,4.4vw,67px);
-  /* the width the word is sized to: just inside the viewport */
-  --word-w:calc(100vw - 2 * clamp(10px,1.6vw,30px));
   --hero-img:url('asset/hero/hero_static.png');
 
   /* ── derived ── */
@@ -256,10 +261,13 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      cropped to this, never letterboxed: at 1888x873 the whole image would need
      1062px of height against an 873px fold, so something has to give, and the
      crop was chosen over side margins. */
-  /* the word at --word-f of the viewport, its cap, and the band that holds it */
-  --mark-fs:calc(100vw * var(--word-f) / 5.27);
-  --cap:calc(var(--mark-fs) * .75);
-  --band:calc(var(--cap) / (1 - var(--foot-f)));
+  /* the cap the fold asks for, the cap the width allows, and the smaller one */
+  --cap-h:calc(100svh * var(--cap-f));
+  --cap-w:calc(100vw * var(--word-max) / 5.27 * .75);
+  --cap:min(var(--cap-h),var(--cap-w));
+  --mark-fs:calc(var(--cap) / .75);
+  --foot:calc(100svh * var(--foot-f));
+  --band:calc(var(--cap) + var(--foot));
   /* The art always takes --art-fit, the slot the fold leaves once the band is
      paid for. It is never its natural height: on a wide window that height
      overflows the fold and on a portrait one it falls far short (219px against
@@ -322,7 +330,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   height:calc(var(--art-h) + var(--band));z-index:3;pointer-events:none;
   display:flex;align-items:flex-end;justify-content:center;
   /* the cream foot below the baseline, so the word does not sit on the fold */
-  padding-bottom:calc(var(--band) * var(--foot-f));
+  padding-bottom:var(--foot);
   /* nothing paints above the baseline: the art element already owns that */
   clip-path:inset(var(--art-h) 0 0 0);
   background-image:var(--hero-img);
@@ -345,16 +353,21 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .hero-mark span{display:block;font-family:var(--hero);font-weight:800;
   text-transform:uppercase;letter-spacing:-.03em;
   font-size:var(--mark-fs);
-  line-height:1;white-space:nowrap;
+  /* line-height is the CAP, not 1em. At 1em the box carries the ascender and
+     descender space too -- 1.333x the cap -- and that extra sat above the
+     letters, lifting the cap line 7 points higher up the fold than the comp's
+     71.8%. Setting it to the cap makes the box the cap, so --cap places the
+     letters themselves. */
+  line-height:var(--cap);white-space:nowrap;
   /* cream letterforms: the band's image shows everywhere the glyphs are not */
   color:var(--cream)}
 
 @media(max-width:1024px){
-  .hero{--word-f:.92}
+  .hero{--word-max:.94}
   .hero-hl{font-size:clamp(28px,5vw,44px)}}
 
 @media(max-width:640px){
-  .hero{--word-f:.92;--hl-inset:clamp(18px,5vw,26px);--hl-top:clamp(20px,6vw,34px)}
+  .hero{--word-max:.94;--hl-inset:clamp(18px,5vw,26px);--hl-top:clamp(20px,6vw,34px)}
   /* phones: let the frame wrap the line instead of the comp's breaks. The
      <br>s become spaces rather than display:none, which ran the words
      together -- "BANGLADESH'SFIRST" -- because the markup has no whitespace
