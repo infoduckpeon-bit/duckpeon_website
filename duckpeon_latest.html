@@ -244,6 +244,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   --hl-top:clamp(24px,4.4vw,67px);
   /* the width the word is sized to: just inside the viewport */
   --word-w:calc(100vw - 2 * clamp(10px,1.6vw,30px));
+  --hero-img:url('asset/hero/hero_static.png');
 
   /* ── derived ── */
   --band:calc(var(--art-h) * var(--band-r));
@@ -266,9 +267,22 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    above the mountain, which a harder anchor cut off. (63.5% was tuned for the
    old knockout, where the ducks had to clear the wordmark's cap line; with the
    word below the art that constraint is gone.) */
+/* The image spans the art AND the wordmark band, because the letters are cut
+   out of its foot -- one element, so there is nothing to keep in register. The
+   art box clips it to --art-h; the band below reveals the rest through the
+   glyphs. */
 .hero-media{position:absolute;left:0;right:0;top:0;height:var(--art-h);
   z-index:0;overflow:hidden}
-.hero-media img{width:100%;height:100%;object-fit:cover;object-position:50% 45%;
+/* Sized to the WHOLE composition, art plus band, and clipped by the art box.
+   That guarantees the band always has image beneath it: sizing to the art box
+   alone let object-fit:cover stop short of the band on some aspects, and the
+   letters then had nothing to reveal. */
+/* Top-anchored, not 45%: the band's background continues this same image from
+   its top edge, so any other anchor makes the two sample different crops and
+   the scene steps at the seam. The composition box is already the shape the
+   crop needs, so the ducks stay framed without an anchor doing the work. */
+.hero-media img{width:100%;height:calc(var(--art-h) + var(--band));
+  object-fit:cover;object-position:50% 0;
   display:block;transform:scale(1.04);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
@@ -284,12 +298,33 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   letter-spacing:-.025em;line-height:1.42;max-width:none;color:var(--cream);
   text-shadow:0 2px 30px rgba(40,18,36,.45)}
 
-/* ══ WORDMARK — type on cream, directly under the art ══
-   It sits in the band the art leaves and spans the viewport. Weight 800 with
-   tight tracking gives the heavy, wide letterform the reference has. */
-.hero-mark{position:absolute;left:0;right:0;top:var(--art-h);
-  height:var(--band);z-index:3;pointer-events:none;overflow:hidden;
-  display:flex;align-items:center;justify-content:center}
+/* ══ WORDMARK — the art's foot, read through the letterforms ══
+   The band paints the SAME image, positioned as if it were the continuation
+   of the art box above, and the letters are cut out of it. Everything outside
+   a glyph is the cream page, so the word reads as holes punched in the scene
+   -- which is what every reference shows, artwork visible inside the D, U, C
+   and K. Positioning it as one offset of one image is why this needs no
+   measuring: the band is the art box's own next rows. */
+/* The band's BOX is the whole composition -- it starts at the hero's top and
+   runs to the baseline -- so `cover` resolves against the same box the image
+   element uses. Only its bottom --band is visible; the art above it is painted
+   by the element, and the two are the same draw. */
+.hero-mark{position:absolute;left:0;right:0;top:0;
+  height:calc(var(--art-h) + var(--band));z-index:3;pointer-events:none;
+  display:flex;align-items:flex-end;justify-content:center;
+  /* nothing paints above the baseline: the art element already owns that */
+  clip-path:inset(var(--art-h) 0 0 0);
+  background-image:var(--hero-img);
+  /* Literally `cover`, over a box the size of the whole composition. The
+     element above is object-fit:cover on that same box, and cover scales by
+     whichever axis is short -- the height on a tall window (1615px drawn into
+     a 1512px box at 1512x909), the width on a wide one (1062px tall at
+     1888x873). Naming either axis explicitly is right in one regime and wrong
+     in the other, and the scene stepped at the seam wherever it was wrong.
+     `cover` picks the same axis the element picked, by construction. */
+  background-size:cover;
+  background-position:center top;
+  background-repeat:no-repeat}
 /* DUCKPEON is 5.48em of advance at weight 800; less 7 gaps of the -.03em
    tracking it is 5.27em, so 100vw/5.27 would span the viewport exactly. The
    word is held a little inside that (--word-w) so it does not run off the
@@ -299,7 +334,9 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .hero-mark span{display:block;font-family:var(--hero);font-weight:800;
   text-transform:uppercase;letter-spacing:-.03em;
   font-size:min(calc(var(--word-w) / 5.27),calc(var(--band) / .78));
-  line-height:1;white-space:nowrap;color:var(--ink)}
+  line-height:1;white-space:nowrap;
+  /* cream letterforms: the band's image shows everywhere the glyphs are not */
+  color:var(--cream)}
 
 @media(max-width:1024px){
   .hero{--band-r:.26}
