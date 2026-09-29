@@ -59,6 +59,10 @@ const sizes = [
         };
       });
       assert.equal(geometry.hero.height, height, `${width}×${height}: hero must fill the viewport`);
+      const frame = geometry.art.x;
+      const frameWidths = [geometry.art.y, width - geometry.art.right, height - geometry.art.bottom];
+      assert(frameWidths.every(value => Math.abs(value - frame) < .1),
+        `${width}×${height}: cream border must have equal width on all four sides`);
       assert.equal(geometry.heroScrollWidth, width, `${width}×${height}: hero horizontal overflow`);
       assert(geometry.fontLoaded && geometry.imageLoaded, 'Local font and original artwork must load');
       assert.equal(geometry.imagePosition, '50% 85%', 'The artwork crop must remain stable after resizing');
@@ -70,7 +74,10 @@ const sizes = [
       assert(geometry.socials.right <= width && geometry.socials.y > 0, 'Social links must remain inside the frame');
       assert.equal(geometry.markRatio, '1512 / 188', 'Wordmark must scale without stretching');
       const filename = `${width}x${height}${index === sizes.length - 1 ? '-resized-back' : ''}.png`;
-      const shot = await page.screenshot({ path: path.join(output, filename), encoding: 'base64', captureBeyondViewport: false });
+      // Puppeteer's base64 mode returns before writing options.path. Save the
+      // binary capture first so visual reviews never read an older screenshot.
+      const pixels = await page.screenshot({ path: path.join(output, filename), captureBeyondViewport: false });
+      const shot = Buffer.from(pixels).toString('base64');
       const seams = await page.evaluate(async ({ shot, geometry }) => {
         const image = new Image();
         image.src = `data:image/png;base64,${shot}`;
@@ -101,7 +108,31 @@ const sizes = [
       results.push({ width, height, ...geometry });
     }
 
+    // A fresh ultrawide load must use exactly the same crop as live resizing.
+    await page.setViewport({ width: 3440, height: 1440 });
+    await page.reload({ waitUntil: 'domcontentloaded' });
+    await page.waitForFunction(() => document.body.classList.contains('ready') && !document.getElementById('loader'));
+    await page.evaluate(() => document.fonts.ready);
+    const freshPixels = await page.screenshot({ path: path.join(output, '3440x1440-fresh.png'), captureBeyondViewport: false });
+    const cropMatches = await page.evaluate(async sources => {
+      const crops = [];
+      for (const source of sources) {
+        const image = new Image();
+        image.src = `data:image/png;base64,${source}`;
+        await image.decode();
+        const canvas = document.createElement('canvas');
+        canvas.width = 700;
+        canvas.height = 450;
+        const context = canvas.getContext('2d');
+        context.drawImage(image, 1400, 450, 700, 450, 0, 0, 700, 450);
+        crops.push(context.getImageData(0, 0, 700, 450).data);
+      }
+      return crops[0].every((value, index) => value === crops[1][index]);
+    }, [fs.readFileSync(path.join(output, '3440x1440.png')).toString('base64'), Buffer.from(freshPixels).toString('base64')]);
+    assert(cropMatches, 'Artwork crop differs between fresh load and repeated resizing');
+
     // Both existing entry pages use the same desktop composition.
+    await page.setViewport({ width: 1512, height: 909 });
     await page.goto(`${origin}/duckpeon.html`, { waitUntil: 'domcontentloaded' });
     await page.waitForFunction(() => document.body.classList.contains('ready') && !document.getElementById('loader'));
     await page.evaluate(() => document.fonts.ready);

@@ -14,7 +14,6 @@
   .hero {
     --hero-cream: #f4eee3;
     --hero-frame: clamp(8px, .727513vw, 20px);
-    --hero-foot: 7.920792dvh;
     height: 100dvh;
     min-height: 100dvh;
     padding: 0;
@@ -25,7 +24,7 @@
   /* One image owns the whole scene, including the spaces inside the letters.
      Only the artwork crops when the viewport's aspect ratio changes. */
   .hero-media {
-    inset: var(--hero-frame) var(--hero-frame) var(--hero-foot);
+    inset: var(--hero-frame);
     height: auto;
     border: 3px solid #47463e;
     border-bottom: 0;
@@ -87,9 +86,10 @@
 
   /* The SVG is a typographic viewport, not a second copy of the artwork.
      Its fixed ratio preserves the Inter Tight letterforms at every width.
-     Clipped stems/cap overshoot join the side rails and the solid cream foot. */
+     Clipped stems/cap overshoot join the same thin cream frame on all sides.
+     The larger cream area in the reference belongs to the following section. */
   .hero-mark {
-    inset: auto 0 calc(var(--hero-foot) - 1px);
+    inset: auto 0 calc(var(--hero-frame) - 1px);
     display: block;
     height: auto;
     padding: 0;
