@@ -1,0 +1,158 @@
+@font-face {
+  font-family: 'Inter Tight Local';
+  src: url('../fonts/inter-tight-latin.woff2') format('woff2');
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+}
+
+.hero-wordmark { display: none; }
+
+/* Desktop composition: 1512 × 909 reference. The existing small-screen
+   layout is retained until the separate mobile/tablet design pass. */
+@media (min-width: 1024px) {
+  .hero {
+    --hero-cream: #f4eee3;
+    --hero-frame: clamp(8px, .727513vw, 20px);
+    --hero-foot: 7.920792dvh;
+    height: 100dvh;
+    min-height: 100dvh;
+    padding: 0;
+    isolation: isolate;
+    background: var(--hero-cream);
+  }
+
+  /* One image owns the whole scene, including the spaces inside the letters.
+     Only the artwork crops when the viewport's aspect ratio changes. */
+  .hero-media {
+    inset: var(--hero-frame) var(--hero-frame) var(--hero-foot);
+    height: auto;
+    border: 3px solid #47463e;
+    border-bottom: 0;
+    transform: none !important;
+    opacity: 1 !important;
+  }
+
+  .hero-media img,
+  .ready .hero-media img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* Favor the lower part of the source on wide displays so the central
+       ducks stay above the lettering as more of the sky is cropped. */
+    object-position: 50% 85%;
+    transform: none;
+    filter: none;
+    transition: none;
+  }
+
+  .hero-media picture { display: block; width: 100%; height: 100%; }
+
+  .hero-media::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg,
+      rgb(0 0 0 / .75),
+      rgb(0 0 0 / .35) 7%,
+      rgb(0 0 0 / .1) 20%,
+      transparent 50%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    padding: 5.830583dvh 3.174603vw 0;
+    pointer-events: none;
+  }
+
+  .hero-hl {
+    font-family: 'Inter Tight Local', var(--hero);
+    font-size: min(5.687831vw, 9.460946dvh);
+    font-weight: 600;
+    line-height: 1.023256;
+    letter-spacing: -.035em;
+    color: var(--hero-cream);
+    text-shadow: none;
+    white-space: nowrap;
+  }
+
+  .hero-hl .wi {
+    transform: none;
+    filter: none;
+    opacity: 1;
+    transition: none;
+  }
+
+  /* The SVG is a typographic viewport, not a second copy of the artwork.
+     Its fixed ratio preserves the Inter Tight letterforms at every width.
+     Clipped stems/cap overshoot join the side rails and the solid cream foot. */
+  .hero-mark {
+    inset: auto 0 calc(var(--hero-foot) - 1px);
+    display: block;
+    height: auto;
+    padding: 0;
+    background: none;
+    clip-path: none;
+    color: var(--hero-cream);
+  }
+
+  .hero-mark > span { display: none; }
+
+  .hero-wordmark {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1512 / 188;
+    overflow: hidden;
+    fill: currentColor;
+  }
+
+  .hero-wordmark text {
+    font-family: 'Inter Tight Local', var(--hero);
+    font-size: 300px;
+    font-weight: 580;
+    letter-spacing: -7.25px;
+  }
+
+  /* The reference has just these three links over the art. The normal
+     navigation and viewfinder return when the existing scroll system leaves it. */
+  body.hero-art .viewfinder { opacity: 0; }
+
+  body.hero-art header {
+    position: absolute;
+    top: 5.940594dvh;
+    right: 3.703704vw;
+    left: auto;
+    display: block;
+    padding: 0;
+  }
+
+  body.hero-art .hdr-brand,
+  body.hero-art .hdr-right { display: none; }
+
+  body.hero-art .hdr-social {
+    gap: 20px;
+    color: #ffea00;
+  }
+
+  body.hero-art .hdr-social::before { display: none; }
+
+  body.hero-art .hdr-social a {
+    font-family: Consolas, 'Liberation Mono', monospace;
+    font-size: clamp(16px, 1.455026vw, 28px);
+    line-height: 1.2;
+    letter-spacing: 0;
+    opacity: 1;
+  }
+
+  body.hero-art .hdr-social a i {
+    font-size: 1em;
+    margin-left: 3px;
+  }
+
+  body.hero-art .hdr-social a::after { background: currentColor; }
+  body.hero-art .hdr-social a:focus-visible { outline-color: currentColor; }
+  body.hero-art .hdr-social a:active { transform: translateY(1px); }
+}

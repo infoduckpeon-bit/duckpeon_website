@@ -9,7 +9,21 @@
       "WebFetch(domain:activetheory.net)",
       "WebFetch(domain:wearecollins.com)",
       "WebFetch(domain:www.youtube.com)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(python3 *)",
+      "Bash(node *)",
+      "PowerShell(git *)",
+      "PowerShell(try { \\(Get-Command ffmpeg -ErrorAction Stop\\).Source } catch { \"no ffmpeg\" })",
+      "PowerShell($paths = @\\(\"$env:LOCALAPPDATA\\\\Microsoft\\\\WinGet\\\\Links\\\\ffmpeg.exe\", \"C:\\\\ffmpeg\\\\bin\\\\ffmpeg.exe\", \"$env:ProgramFiles\\\\ffmpeg\\\\bin\\\\ffmpeg.exe\"\\); foreach \\($p in $paths\\) { if \\(Test-Path $p\\) { $p } }; try { \\(Get-Command winget -ErrorAction Stop\\).Source } catch { \"no winget\" })",
+      "PowerShell(winget install *)",
+      "PowerShell($ff = Get-ChildItem \"$env:LOCALAPPDATA\\\\Microsoft\\\\WinGet\\\\Packages\" -Recurse -Filter ffmpeg.exe -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty FullName; if \\($ff\\) { $ff; & $ff -version | Select-Object -First 1 } else { \"not found in packages\" })",
+      "PowerShell(New-Item *)",
+      "PowerShell(npm install *)",
+      "Bash(cd *)",
+      "Bash(rm -rf _vx _v.cjs)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(python *)"
     ]
   }
 }

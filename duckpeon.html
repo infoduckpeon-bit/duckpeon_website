@@ -226,56 +226,40 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 
 /* ═══ HERO ═══ */
 /* Two stacked blocks and one ratio between them. The artwork carries its own
-   art is full-bleed: hero_art_full.png is hero_static.png with its baked 20px
-   cream border cropped off (4381x2448), so the scene runs to all four edges
-   and nothing here draws a frame either.
+   cream border (20px baked into the 4422x2488 source), so nothing here draws a
+   frame -- adding one doubled it and printed a hairline at the seam.
 
-     art    full width, the source's own 4381:2448, cropped vertically when
+     art    full width, the source's own 4422:2488, cropped vertically when
             the fold cannot hold it
-     word   DUCKPEON cut out of the art's foot, its cap a share of the fold
+     word   DUCKPEON directly below, --band-r of the art's height
 
-   The letters are knocked out of the artwork, so the band and the art element
-   are one draw -- see the wordmark rules below for how that stays in register
-   without any measuring. */
+   The wordmark is plain type on cream now, not knocked out of the image, so
+   there is no second image layer to keep in register and no measuring to do.*/
 .hero{position:relative;height:100svh;overflow:hidden;
   background:var(--cream);padding-left:0;padding-right:0;
 
   /* ── the composition, in ratios ── */
-  /* The comp's own two shares of the FOLD: the wordmark's cap is .202 of it
-     and the cream below the baseline .080, which puts the cap line at 71.8%.
-     Height is what fixes them -- deriving the cap from viewport WIDTH instead
-     made it 27.1% of the fold on a 1897-wide laptop against the comp's 20.2%,
-     so the word grew tall and its cap line climbed into the centre ducks. */
-  --cap-f:.202;                            /* wordmark cap, of the fold       */
-  --foot-f:.080;                           /* cream below baseline, of the fold */
-  /* Width only ever caps it: on a narrow screen the height-derived cap would
-     run the word past the viewport (307% of it at 390px), so --word-max is the
-     widest the word may be and the smaller cap wins. */
-  --word-max:.92;
+  --band-r:.30;                            /* wordmark height / art height   */
   --hl-inset:clamp(20px,3.5vw,53px);
   --hl-top:clamp(24px,4.4vw,67px);
-  --hero-img:url('asset/hero/hero_art_full.png');
+  /* the width the word is sized to: just inside the viewport */
+  --word-w:calc(100vw - 2 * clamp(10px,1.6vw,30px));
+  --hero-img:url('asset/hero/hero_static.png');
 
   /* ── derived ── */
-
+  --band:calc(var(--art-h) * var(--band-r));
   /* What the fold leaves the art once the band is paid for. The art is
      cropped to this, never letterboxed: at 1888x873 the whole image would need
      1062px of height against an 873px fold, so something has to give, and the
      crop was chosen over side margins. */
-  /* the cap the fold asks for, the cap the width allows, and the smaller one */
-  --cap-h:calc(100svh * var(--cap-f));
-  --cap-w:calc(100vw * var(--word-max) / 5.27 * .75);
-  --cap:min(var(--cap-h),var(--cap-w));
-  --mark-fs:calc(var(--cap) / .75);
-  --foot:calc(100svh * var(--foot-f));
-  --band:calc(var(--cap) + var(--foot));
+  --art-fit:calc(100svh / (1 + var(--band-r)));
   /* The art always takes --art-fit, the slot the fold leaves once the band is
      paid for. It is never its natural height: on a wide window that height
      overflows the fold and on a portrait one it falls far short (219px against
      a 649px slot at 390x844, leaving 559px of dead cream). Filling the slot
      and letting cover crop -- vertically when the window is wide, off the
      sides when it is tall -- is what makes one rule hold at every aspect. */
-  --art-h:calc(100svh - var(--band))}
+  --art-h:var(--art-fit)}
 
 /* Full-bleed, cropped vertically. The anchor is 45%: the centre ducks sit at
    .546-.703 of the source and stay in frame anywhere from 40% to 64%, so the
@@ -293,14 +277,12 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    That guarantees the band always has image beneath it: sizing to the art box
    alone let object-fit:cover stop short of the band on some aspects, and the
    letters then had nothing to reveal. */
-/* Anchored at 60%. The art box shows only the top of the drawn image, and
-   top-anchoring cropped the centre ducks off its bottom entirely on a wide,
-   short window -- the box showed 0..0.544 of the image while the ducks run to
-   0.703. Solving for "the duck band falls inside the visible window" gives 50%
-   at most sizes and 68% at 1891x872; 60% satisfies every tested viewport. The
-   band's background uses the same anchor, so both layers sample one crop. */
+/* Top-anchored, not 45%: the band's background continues this same image from
+   its top edge, so any other anchor makes the two sample different crops and
+   the scene steps at the seam. The composition box is already the shape the
+   crop needs, so the ducks stay framed without an anchor doing the work. */
 .hero-media img{width:100%;height:calc(var(--art-h) + var(--band));
-  object-fit:cover;object-position:50% 60%;
+  object-fit:cover;object-position:50% 0;
   display:block;transform:scale(1.04);filter:blur(7px);
   transition:transform 2.2s var(--ease) .1s,filter 1.2s var(--ease) .1s}
 .ready .hero-media img{transform:scale(1);filter:blur(0)}
@@ -330,8 +312,6 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .hero-mark{position:absolute;left:0;right:0;top:0;
   height:calc(var(--art-h) + var(--band));z-index:3;pointer-events:none;
   display:flex;align-items:flex-end;justify-content:center;
-  /* the cream foot below the baseline, so the word does not sit on the fold */
-  padding-bottom:var(--foot);
   /* nothing paints above the baseline: the art element already owns that */
   clip-path:inset(var(--art-h) 0 0 0);
   background-image:var(--hero-img);
@@ -343,7 +323,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
      in the other, and the scene stepped at the seam wherever it was wrong.
      `cover` picks the same axis the element picked, by construction. */
   background-size:cover;
-  background-position:center 60%;
+  background-position:center top;
   background-repeat:no-repeat}
 /* DUCKPEON is 5.48em of advance at weight 800; less 7 gaps of the -.03em
    tracking it is 5.27em, so 100vw/5.27 would span the viewport exactly. The
@@ -353,22 +333,17 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
    viewport, which is the trade for keeping the artwork tall. */
 .hero-mark span{display:block;font-family:var(--hero);font-weight:800;
   text-transform:uppercase;letter-spacing:-.03em;
-  font-size:var(--mark-fs);
-  /* line-height is the CAP, not 1em. At 1em the box carries the ascender and
-     descender space too -- 1.333x the cap -- and that extra sat above the
-     letters, lifting the cap line 7 points higher up the fold than the comp's
-     71.8%. Setting it to the cap makes the box the cap, so --cap places the
-     letters themselves. */
-  line-height:var(--cap);white-space:nowrap;
+  font-size:min(calc(var(--word-w) / 5.27),calc(var(--band) / .78));
+  line-height:1;white-space:nowrap;
   /* cream letterforms: the band's image shows everywhere the glyphs are not */
   color:var(--cream)}
 
 @media(max-width:1024px){
-  .hero{--word-max:.94}
+  .hero{--band-r:.26}
   .hero-hl{font-size:clamp(28px,5vw,44px)}}
 
 @media(max-width:640px){
-  .hero{--word-max:.94;--hl-inset:clamp(18px,5vw,26px);--hl-top:clamp(20px,6vw,34px)}
+  .hero{--band-r:.30;--hl-inset:clamp(18px,5vw,26px);--hl-top:clamp(20px,6vw,34px)}
   /* phones: let the frame wrap the line instead of the comp's breaks. The
      <br>s become spaces rather than display:none, which ran the words
      together -- "BANGLADESH'SFIRST" -- because the markup has no whitespace
@@ -1035,7 +1010,10 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 <section class="hero" id="top"
   data-bg="244,237,226" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".2" data-ac="212,245,66">
   <div class="hero-media" id="hero-media">
-    <img id="hero-img" src="asset/hero/hero_art_full.png" alt="" decoding="async" fetchpriority="high">
+    <picture>
+      <source media="(min-width: 1024px)" srcset="asset/hero/hero_art_full.png">
+      <img id="hero-img" src="asset/hero/hero_static.png" alt="" decoding="async" fetchpriority="high">
+    </picture>
   </div>
   <div class="hero-content">
     <!-- The comp breaks the line after BANGLADESH'S and after CREATOR-LED.
