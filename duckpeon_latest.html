@@ -932,6 +932,8 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 <link rel="preload" href="asset/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="asset/hero/desktop-hero.css">
 <link rel="stylesheet" href="asset/why_choose_us/why-choose.css">
+<link rel="stylesheet" href="asset/services/service-helix.css">
+<script src="asset/services/service-helix.js" defer></script>
 </head>
 <body>
 
@@ -1086,17 +1088,110 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 </section>
 
 <!-- SERVICES -->
-<section class="services" id="services" data-bg="255,255,255" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".18" data-ac="212,160,74">
-  <div class="eyebrow rv"><span>Capabilities</span></div>
-  <h2 class="services-h split">what we do</h2>
-  <div class="srow rv"><div class="srow-num">(01)</div><div class="srow-name">Creative Studio</div><div class="srow-desc">Campaign ideation, scriptwriting, and short-form content production. OVC/TVC in a lightweight, cinematic Duckpeon style. Editing, colour grading, and motion graphics.</div><div class="srow-tags"><span>Campaign Concepts</span><span>Scriptwriting</span><span>Motion Design</span></div></div>
-  <div class="srow rv"><div class="srow-num">(02)</div><div class="srow-name">Production House</div><div class="srow-desc">Reels, commercials, and branded stories. Event aftermovies and live event visuals. Product photography shot to spec. Everything ships fast and platform-native.</div><div class="srow-tags"><span>Commercials</span><span>Event Coverage</span><span>Product Photography</span></div></div>
-  <div class="srow rv"><div class="srow-num">(03)</div><div class="srow-name">Creator Network</div><div class="srow-desc">200+ micro, mid, and macro creators. Creator matchmaking and trend-driven activations. Brand storytelling shaped around relatable voices and internet culture.</div><div class="srow-tags"><span>Creator Casting</span><span>Partnerships</span><span>Trend Activation</span></div></div>
-  <div class="srow rv"><div class="srow-num">(04)</div><div class="srow-name">Social Media Management</div><div class="srow-desc">Strategy and content calendars. Full content production and copywriting. Posting, community management, and data-backed reporting across all platforms.</div><div class="srow-tags"><span>Strategy</span><span>Content Calendar</span><span>Performance Reporting</span></div></div>
-  <div class="srow rv"><div class="srow-num">(05)</div><div class="srow-name">Event & Campaign Execution</div><div class="srow-desc">Live activations and launches from concept to execution. ARKA Fashion Week, Rishka Festival, LUX Superstar. BTS coverage and same-day social amplification.</div><div class="srow-tags"><span>Event Production</span><span>Launch Campaigns</span><span>Coverage</span></div></div>
-  <div class="srow srow-last rv"><div class="srow-num">(06)</div><div class="srow-name">Meme Network</div><div class="srow-desc">Access to 200+ meme pages and communities. Trend-driven content distribution at scale. Culture-first amplification that speaks internet language natively.</div><div class="srow-tags"><span>Meme Distribution</span><span>Trend Spotting</span><span>Viral Amplification</span></div></div>
-  <!-- CTA strip -->
-  <div class="cta-strip rv" style="margin-top:clamp(40px,6vw,70px)">
+<section class="services services--helix" id="services" aria-labelledby="services-heading" data-bg="244,237,226" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".18" data-ac="98,35,114">
+  <div class="helix-heading">
+    <div>
+      <div class="eyebrow"><span>Capabilities / 01—06</span></div>
+      <h2 class="services-h" id="services-heading">what we do<span>.</span></h2>
+    </div>
+    <p class="helix-heading__note">From the first idea<br>to the whole internet.</p>
+  </div>
+  <div class="helix-layout">
+    <div class="helix-sidebar">
+      <div class="helix-detail" id="helix-detail" aria-live="polite" aria-atomic="true">
+        <p class="helix-detail__index">01 / 06</p>
+        <h3>Creative Studio</h3>
+        <p class="helix-detail__description">Campaign ideation, scriptwriting, and short-form content production. OVC/TVC in a lightweight, cinematic Duckpeon style. Editing, colour grading, and motion graphics.</p>
+        <ul class="helix-detail__tags"></ul>
+      </div>
+      <nav class="helix-nav" aria-label="Choose a service"></nav>
+    </div>
+    <div class="helix-showcase">
+      <div class="helix-space" id="helix-space" tabindex="0" aria-label="Explore our six services" aria-describedby="helix-hint">
+        <svg class="helix-filament" viewBox="0 0 240 800" aria-hidden="true">
+          <path d="M120 -40 C290 50 -50 140 120 230 S290 410 120 500 S-50 680 120 770 S290 950 120 1040"/>
+          <path d="M120 -40 C-50 50 290 140 120 230 S-50 410 120 500 S290 680 120 770 S-50 950 120 1040"/>
+        </svg>
+        <div class="helix-world">
+        <article class="helix-card helix-card--creative" data-service="0">
+          <button class="helix-card__pick" type="button" aria-label="Explore Creative Studio" disabled>
+            <span class="helix-card__top"><span>DUCKPEON / SERVICES</span><span>01</span></span>
+            <span class="helix-card__art"><img src="asset/hero/purple_version.png" alt="" loading="lazy" decoding="async" draggable="false"></span>
+            <span class="helix-card__bottom"><span class="helix-card__name">Creative Studio</span><span class="helix-card__arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <div class="helix-card__info">
+            <p>Campaign ideation, scriptwriting, and short-form content production. OVC/TVC in a lightweight, cinematic Duckpeon style. Editing, colour grading, and motion graphics.</p>
+            <ul><li>Campaign Concepts</li><li>Scriptwriting</li><li>Motion Design</li></ul>
+          </div>
+        </article>
+        <article class="helix-card helix-card--production" data-service="1">
+          <button class="helix-card__pick" type="button" aria-label="Explore Production House" disabled>
+            <span class="helix-card__top"><span>DUCKPEON / SERVICES</span><span>02</span></span>
+            <span class="helix-card__art"><img src="asset/why_choose_us/image%20993.png" alt="" loading="lazy" decoding="async" draggable="false"></span>
+            <span class="helix-card__bottom"><span class="helix-card__name">Production House</span><span class="helix-card__arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <div class="helix-card__info">
+            <p>Reels, commercials, and branded stories. Event aftermovies and live event visuals. Product photography shot to spec. Everything ships fast and platform-native.</p>
+            <ul><li>Commercials</li><li>Event Coverage</li><li>Product Photography</li></ul>
+          </div>
+        </article>
+        <article class="helix-card helix-card--creators" data-service="2">
+          <button class="helix-card__pick" type="button" aria-label="Explore Creator Network" disabled>
+            <span class="helix-card__top"><span>DUCKPEON / SERVICES</span><span>03</span></span>
+            <span class="helix-card__art"><img src="asset/why_choose_us/Slide%204_3%20-%202.png" alt="" loading="lazy" decoding="async" draggable="false"></span>
+            <span class="helix-card__bottom"><span class="helix-card__name">Creator Network</span><span class="helix-card__arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <div class="helix-card__info">
+            <p>200+ micro, mid, and macro creators. Creator matchmaking and trend-driven activations. Brand storytelling shaped around relatable voices and internet culture.</p>
+            <ul><li>Creator Casting</li><li>Partnerships</li><li>Trend Activation</li></ul>
+          </div>
+        </article>
+        <article class="helix-card helix-card--social" data-service="3">
+          <button class="helix-card__pick" type="button" aria-label="Explore Social Media Management" disabled>
+            <span class="helix-card__top"><span>DUCKPEON / SERVICES</span><span>04</span></span>
+            <span class="helix-card__art"><img src="asset/why_choose_us/Slide%204_3%20-%203.png" alt="" loading="lazy" decoding="async" draggable="false"></span>
+            <span class="helix-card__bottom"><span class="helix-card__name">Social Media Management</span><span class="helix-card__arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <div class="helix-card__info">
+            <p>Strategy and content calendars. Full content production and copywriting. Posting, community management, and data-backed reporting across all platforms.</p>
+            <ul><li>Strategy</li><li>Content Calendar</li><li>Performance Reporting</li></ul>
+          </div>
+        </article>
+        <article class="helix-card helix-card--events" data-service="4">
+          <button class="helix-card__pick" type="button" aria-label="Explore Event &amp; Campaign Execution" disabled>
+            <span class="helix-card__top"><span>DUCKPEON / SERVICES</span><span>05</span></span>
+            <span class="helix-card__art"><span class="helix-poster" aria-hidden="true"><span>LIVE / LOUD / TOGETHER</span><strong>MAKE<br>SOME<br>NOISE.</strong><span>FROM THE FIRST IDEA TO THE FINAL ENCORE</span></span></span>
+            <span class="helix-card__bottom"><span class="helix-card__name">Event & Campaign Execution</span><span class="helix-card__arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <div class="helix-card__info">
+            <p>Live activations and launches from concept to execution. ARKA Fashion Week, Rishka Festival, LUX Superstar. BTS coverage and same-day social amplification.</p>
+            <ul><li>Event Production</li><li>Launch Campaigns</li><li>Coverage</li></ul>
+          </div>
+        </article>
+        <article class="helix-card helix-card--memes" data-service="5">
+          <button class="helix-card__pick" type="button" aria-label="Explore Meme Network" disabled>
+            <span class="helix-card__top"><span>DUCKPEON / SERVICES</span><span>06</span></span>
+            <span class="helix-card__art"><img src="asset/why_choose_us/Slide%204_3%20-%204.png" alt="" loading="lazy" decoding="async" draggable="false"></span>
+            <span class="helix-card__bottom"><span class="helix-card__name">Meme Network</span><span class="helix-card__arrow" aria-hidden="true">↗</span></span>
+          </button>
+          <div class="helix-card__info">
+            <p>Access to 200+ meme pages and communities. Trend-driven content distribution at scale. Culture-first amplification that speaks internet language natively.</p>
+            <ul><li>Meme Distribution</li><li>Trend Spotting</li><li>Viral Amplification</li></ul>
+          </div>
+        </article>
+        </div>
+      </div>
+      <div class="helix-controls">
+        <p id="helix-hint">Drag to explore <span aria-hidden="true">↔</span> <span class="helix-hint-keys">or use arrow keys</span></p>
+        <div class="helix-controls__buttons">
+          <button type="button" data-helix-step="-1" aria-label="Previous service" aria-controls="helix-space helix-detail">←</button>
+          <span class="helix-position" aria-hidden="true">01 / 06</span>
+          <button type="button" data-helix-step="1" aria-label="Next service" aria-controls="helix-space helix-detail">→</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="cta-strip">
     <span class="ser">Ready to create?</span>
     <span class="links"><a href="#work">view our work</a><a href="#contact">get in touch</a></span>
   </div>
