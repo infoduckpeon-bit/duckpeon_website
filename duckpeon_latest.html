@@ -254,7 +254,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   --word-max:.92;
   --hl-inset:clamp(20px,3.5vw,53px);
   --hl-top:clamp(24px,4.4vw,67px);
-  --hero-img:url('asset/hero/hero_art_full.png');
+  --hero-img:url('asset/hero/purple_version.png');
 
   /* ── derived ── */
 
@@ -798,53 +798,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 .bento-h{font-size:clamp(30px,5.2vw,74px);font-weight:600;letter-spacing:-.046em;
   line-height:1.02;margin-top:26px;max-width:15ch;color:var(--purple)}
 .bento-sub{color:var(--mu);font-size:16px;margin-top:14px;max-width:44ch}
-.bento-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px}
-.tile{background:var(--white);border-radius:6px;overflow:hidden;position:relative;
-  display:flex;flex-direction:column;justify-content:space-between;
-  min-height:200px;padding:clamp(20px,2.4vw,32px);
-  transition:transform .6s var(--ease),box-shadow .6s var(--ease)}
-.tile:hover{transform:translateY(-5px);box-shadow:0 24px 50px -28px rgba(31,36,48,.3)}
-.tile-photo{padding:0;min-height:300px}
-.tile-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
-  transition:transform 1.2s var(--ease)}
-.tile-photo:hover img{transform:scale(1.05)}
-.tile-photo .tile-cap{position:relative;z-index:2;padding:clamp(20px,2.4vw,32px);
-  margin-top:auto}
-.tile-photo::after{content:'';position:absolute;inset:0;
-  background:linear-gradient(180deg,transparent 40%,rgba(31,36,48,.55) 100%);z-index:1}
-.tile-photo .tile-cap b,.tile-photo .tile-cap p{color:var(--white)}
-.tile-accent{background:var(--aubergine);color:var(--cream);align-items:center;
-  justify-content:center;text-align:center;gap:12px}
-.tile-accent b{color:var(--cream)!important;font-size:clamp(19px,2vw,26px)!important}
-.tile-accent p{color:rgba(244,237,226,.7)!important}
-.tile-accent .mock{width:78%;aspect-ratio:16/10;background:var(--cream);
-  border-radius:6px 6px 0 0;margin-top:14px;position:relative;overflow:hidden}
-.tile-accent .mock::before{content:'';position:absolute;top:0;left:0;right:0;height:22%;
-  background:var(--chartreuse)}
-.tile-accent .mock::after{content:'';position:absolute;top:34%;left:8%;width:52%;height:8%;
-  background:var(--faint);opacity:.5;border-radius:2px;
-  box-shadow:0 18px 0 var(--faint),0 36px 0 var(--faint)}
-.tile b{display:block;font-size:clamp(17px,1.8vw,23px);font-weight:600;
-  letter-spacing:-.025em;color:var(--text);line-height:1.15}
-.tile p{color:var(--muted);font-size:13px;line-height:1.5;margin-top:7px;max-width:34ch}
-.tile .big{font-size:clamp(30px,3.4vw,48px);font-weight:600;letter-spacing:-.04em;
-  color:var(--pink);line-height:1;font-variant-numeric:tabular-nums}
-.tile .tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);
-  font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
-.tile .tag::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--pink)}
-.tile.center{align-items:center;justify-content:center;text-align:center}
-.tile.stat-t{align-items:center;justify-content:center;text-align:center;gap:6px}
-/* spans */
-.sp-2{grid-column:span 2}
-.sp-3{grid-column:span 3}
-.rw-2{grid-row:span 2}
-@media(max-width:960px){
-  .bento-grid{grid-template-columns:repeat(2,1fr)}
-  .sp-2,.sp-3{grid-column:span 1}
-  .b-wide{grid-column:span 2}}
-@media(max-width:560px){
-  .bento-grid{grid-template-columns:1fr}
-  .b-wide{grid-column:span 1}}
+/* Image cards are styled in asset/why_choose_us/why-choose.css. */
 
 /* ═══ FAQ ═══ */
 .faq{padding-top:clamp(100px,13vw,180px);padding-bottom:clamp(100px,13vw,180px)}
@@ -977,6 +931,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 </style>
 <link rel="preload" href="asset/fonts/inter-tight-latin.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="asset/hero/desktop-hero.css">
+<link rel="stylesheet" href="asset/why_choose_us/why-choose.css">
 </head>
 <body>
 
@@ -1035,7 +990,7 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 <section class="hero" id="top"
   data-bg="244,237,226" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".2" data-ac="212,245,66">
   <div class="hero-media" id="hero-media">
-    <img id="hero-img" src="asset/hero/hero_art_full.png" alt="" decoding="async" fetchpriority="high">
+    <img id="hero-img" src="asset/hero/purple_version.png" alt="" decoding="async" fetchpriority="high">
   </div>
   <div class="hero-content">
     <!-- The comp breaks the line after BANGLADESH'S and after CREATOR-LED.
@@ -1049,7 +1004,8 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
   <div class="hero-mark" aria-label="Duckpeon" role="img">
     <span aria-hidden="true">Duckpeon</span>
     <svg class="hero-wordmark" viewBox="0 0 1512 188" aria-hidden="true" focusable="false">
-      <text x="-19" y="221">DUCKPEON</text>
+      <!-- Lift only E so its lower stroke peeks above the cream frame. -->
+      <text x="-19" y="221">DUCKP<tspan baseline-shift="15">E</tspan>ON</text>
     </svg>
   </div>
 </section>
@@ -1227,60 +1183,76 @@ h1,h2,h3{color:var(--fg);overflow-wrap:break-word}
 <div class="marquee band" aria-hidden="true"><div class="marquee-track" id="mq"></div></div>
 
 <!-- BENTO -->
-<section class="bento" data-bg="244,237,226" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".2" data-ac="226,99,140">
+<section class="bento" id="why-choose-us" aria-labelledby="why-choose-heading" data-bg="244,237,226" data-fg="31,21,24" data-mu="107,90,82" data-ln="107,90,82" data-lna=".2" data-ac="226,99,140">
   <div class="bento-head">
     <div class="eyebrow rv"><span>Why choose us</span></div>
-    <h2 class="bento-h split">Partnership, not just projects.</h2>
+    <h2 class="bento-h split" id="why-choose-heading">Partnership, not just projects.</h2>
     <p class="bento-sub rv d1">Skip the hiring maze — get an entire creative powerhouse at your fingertips.</p>
   </div>
-  <div class="bento-grid">
-    <!-- row 1 -->
-    <div class="tile tile-photo sp-2 rv b-wide" data-cursor="View">
-      <img src="https://picsum.photos/seed/dpx-b1/900/700" alt="">
-      <div class="tile-cap"><span class="tag" style="color:#fff">Full stack</span><b style="margin-top:8px">Creator Campaigns</b><p>End-to-end packages for unlimited creative opportunities.</p></div>
+  <div class="why-grid">
+    <article class="why-card" data-card="production">
+      <img src="asset/why_choose_us/image%20993.png" width="1277" height="767" alt="" loading="lazy" decoding="async">
+      <div class="why-card__copy">
+        <h3>Ideas In. Productions Out. In 24 Hours.</h3>
+        <p>From concept development to production. We do it all.</p>
+      </div>
+    </article>
+    <article class="why-card" data-card="quality">
+      <img src="asset/why_choose_us/Slide%204_3%20-%205.png" width="1024" height="768" alt="" loading="lazy" decoding="async">
+      <div class="why-card__copy">
+        <h3>Volume Doesn't Mean Compromise</h3>
+        <p>We scale production without dropping standards.</p>
+      </div>
+    </article>
+    <article class="why-card" data-card="creators">
+      <img src="asset/why_choose_us/Slide%204_3%20-%202.png" width="1277" height="768" alt="" loading="lazy" decoding="async">
+      <div class="why-card__copy">
+        <h3>200+ Creators Ready to Activate</h3>
+        <p>Influencers, UGC creators, and meme distribution all in one place.</p>
+      </div>
+    </article>
+    <!-- Preserve the original middle row between the two artwork rows. -->
+    <div class="why-middle">
+      <div class="tile sp-2 rv">
+        <span class="tag">Live tracking</span>
+        <div><b>Real-time progress</b><p>Review &amp; delivery updates on every deliverable before launch.</p></div>
+      </div>
+      <div class="tile stat-t rv d1">
+        <span class="tag">Network</span>
+        <span class="big" data-count="33" data-suffix="+">0+</span>
+        <p style="text-align:center">Creators in our network</p>
+      </div>
+      <div class="tile stat-t rv d2">
+        <span class="tag">Growth</span>
+        <span class="big" data-count="128" data-suffix="%">0%</span>
+        <p style="text-align:center">Reach vs previous year</p>
+      </div>
+      <div class="tile sp-2 rv d3">
+        <span class="tag">Stack</span>
+        <div><b>Tools &amp; Integration</b><p>The latest and most advanced technologies and platforms.</p></div>
+      </div>
     </div>
-    <div class="tile center sp-2 rv d1">
-      <div><span class="tag">Your vision — our creativity</span>
-      <b style="margin-top:14px">Great ideas born on your terms</b>
-      <p style="margin-inline:auto">Brief us once. We handle concept to delivery.</p></div>
-    </div>
-    <div class="tile tile-photo sp-2 rv d2 b-wide" data-cursor="View">
-      <img src="https://picsum.photos/seed/dpx-b3/900/700" alt="">
-      <div class="tile-cap"><b>Transparent Pricing</b><p>Clear and predictable costs with consistent rates.</p></div>
-    </div>
-    <!-- row 2 -->
-    <div class="tile sp-2 rv">
-      <span class="tag">Live tracking</span>
-      <div><b>Real-time progress</b><p>Review &amp; delivery updates on every deliverable before launch.</p></div>
-    </div>
-    <div class="tile stat-t rv d1">
-      <span class="tag">Network</span>
-      <span class="big" data-count="33" data-suffix="+">0+</span>
-      <p style="text-align:center">Creators in our network</p>
-    </div>
-    <div class="tile stat-t rv d2">
-      <span class="tag">Growth</span>
-      <span class="big" data-count="128" data-suffix="%">0%</span>
-      <p style="text-align:center">Reach vs previous year</p>
-    </div>
-    <div class="tile sp-2 rv d3">
-      <span class="tag">Stack</span>
-      <div><b>Tools &amp; Integration</b><p>The latest and most advanced technologies and platforms.</p></div>
-    </div>
-    <!-- row 3 -->
-    <div class="tile stat-t sp-2 rv">
-      <span class="tag">Feedback</span>
-      <span class="big" data-count="98" data-suffix="%">0%</span>
-      <p style="text-align:center">Satisfaction rate from project feedback</p>
-    </div>
-    <div class="tile sp-2 rv d1">
-      <span class="tag">Elastic</span>
-      <div><b>Flexible &amp; Scalable</b><p>Easily adjust your service level as your business grows.</p></div>
-    </div>
-    <div class="tile tile-accent sp-2 rv d2 b-wide">
-      <div><b>Creator Dashboard</b><p>Monitor progress and manage requests effortlessly.</p></div>
-      <div class="mock" aria-hidden="true"></div>
-    </div>
+    <article class="why-card why-card--awaiting-art" data-card="industries">
+      <!-- Sixth artwork: add an img here and remove why-card--awaiting-art when supplied. -->
+      <div class="why-card__copy">
+        <h3>We Move Across Industries Seamlessly</h3>
+        <p>Brand films, event coverage, entertainment marketing.<br>We work across all channels.</p>
+      </div>
+    </article>
+    <article class="why-card" data-card="culture">
+      <img src="asset/why_choose_us/Slide%204_3%20-%203.png" width="1283" height="768" alt="" loading="lazy" decoding="async">
+      <div class="why-card__copy">
+        <h3>Chronically Online in the Best Way</h3>
+        <p>Trends, culture, conversations, we're plugged into all of it.</p>
+      </div>
+    </article>
+    <article class="why-card" data-card="audiences">
+      <img src="asset/why_choose_us/Slide%204_3%20-%204.png" width="1024" height="768" alt="" loading="lazy" decoding="async">
+      <div class="why-card__copy">
+        <h3>Content for Every Audience</h3>
+        <p>From subculture to mainstream. We tap into every demographic.</p>
+      </div>
+    </article>
   </div>
 </section>
 
